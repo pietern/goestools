@@ -1,0 +1,9 @@
+[submodule "vendor/libaec"]
+	path = vendor/libaec
+	url = https://gitlab.dkrz.de/k202009/libaec.git
+[submodule "vendor/libcorrect"]
+	path = vendor/libcorrect
+	url = https://github.com/pietern/libcorrect.git
+[submodule "vendor/sanitizers-cmake"]
+	path = vendor/sanitizers-cmake
+	url = https://github.com/arsenm/sanitizers-cmake.git

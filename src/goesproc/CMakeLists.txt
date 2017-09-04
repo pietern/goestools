@@ -1,0 +1,4 @@
+file(GLOB GOESPROC_SRCS *.cc)
+add_executable(goesproc ${GOESPROC_SRCS})
+add_sanitizers(goesproc)
+target_link_libraries(goesproc lrit opencv_core opencv_highgui opencv_imgproc)
