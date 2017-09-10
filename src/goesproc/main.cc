@@ -49,7 +49,7 @@ public:
         continue;
       }
 
-      auto im = image.getScaledImage(minArea, true);
+      auto im = image.getScaledImage(minArea, opts_.shrink);
       im = annotate(image, im);
       std::cout
         << "Writing "

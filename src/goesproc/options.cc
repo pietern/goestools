@@ -13,9 +13,13 @@
 Options parseOptions(int argc, char** argv) {
   Options opts;
 
+  // Defaults
+  opts.shrink = false;
+
   while (1) {
     static struct option longOpts[] = {
       {"channel", required_argument, 0, 'c'},
+      {"shrink", no_argument, 0, 0x1001},
     };
     int i;
     int c = getopt_long(argc, argv, "c:", longOpts, &i);
@@ -28,6 +32,9 @@ Options parseOptions(int argc, char** argv) {
       break;
     case 'c':
       opts.channel = optarg;
+      break;
+    case 0x1001: // --shrink
+      opts.shrink = true;
       break;
     default:
       std::cerr << "Invalid option" << std::endl;
