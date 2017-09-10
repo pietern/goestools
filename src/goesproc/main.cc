@@ -50,7 +50,21 @@ public:
       }
 
       auto im = image.getScaledImage(minArea, opts_.shrink);
-      im = annotate(image, im);
+
+      int width = im.cols;
+      int height = im.rows;
+      int annotationRows = height / 40;
+      if (opts_.scale.width > 0 && opts_.scale.height > 0) {
+        width = opts_.scale.width;
+        height = opts_.scale.height;
+        annotationRows = height / 40;
+
+        // Subtract the number of rows used for annotation so that
+        // it can be added without growing the image beyond <width>x<height>.
+        im = scale(im, width, height - annotationRows);
+      }
+
+      im = annotate(image, im, annotationRows);
       std::cout
         << "Writing "
         << fileName
@@ -82,8 +96,59 @@ public:
     return area;
   }
 
-  cv::Mat annotate(const Image& image, cv::Mat in) {
-    auto topRows = (in.rows / 40);
+  cv::Mat scale(cv::Mat src, int x, int y) {
+    float srcRatio = (float)src.cols / (float)src.rows;
+    float dstRatio = (float)x / (float)y;
+    if (srcRatio < dstRatio) {
+      // Destination is wider than source.
+      // Need to crop top/bottom.
+      cv::Mat tmp(x / srcRatio, x, src.type());
+      cv::resize(src, tmp, tmp.size());
+      // Compute y offset for crop setting
+      auto ydiff = tmp.rows - y;
+      auto yoffset = 0;
+      switch (opts_.scale.cropHeight) {
+      case CropHeight::TOP:
+        yoffset = ydiff;
+        break;
+      case CropHeight::CENTER:
+        yoffset = ydiff / 2;
+        break;
+      case CropHeight::BOTTOM:
+        yoffset = 0;
+        break;
+      }
+      return tmp(cv::Rect(0, yoffset, x, y));
+    } else if (srcRatio > dstRatio) {
+      // Destination is taller than source.
+      // Need to crop left/right.
+      cv::Mat tmp(y, y * srcRatio, src.type());
+      cv::resize(src, tmp, tmp.size());
+      // Compute x offset for crop setting
+      auto xdiff = tmp.cols - x;
+      auto xoffset = 0;
+      switch (opts_.scale.cropWidth) {
+      case CropWidth::LEFT:
+        xoffset = xdiff;
+        break;
+      case CropWidth::CENTER:
+        xoffset = xdiff / 2;
+        break;
+      case CropWidth::RIGHT:
+        xoffset = 0;
+        break;
+      }
+      return tmp(cv::Rect(xoffset, 0, x, y));
+    } else {
+      // Destination has same aspect ratio as source.
+      // Only need to resize.
+      cv::Mat tmp(y, x, src.type());
+      cv::resize(src, tmp, tmp.size());
+      return tmp;
+    }
+  }
+
+  cv::Mat annotate(const Image& image, cv::Mat in, int topRows) {
     cv::Mat tmp(in.rows + topRows, in.cols, in.type());
 
     // Copy contents

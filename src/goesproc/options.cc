@@ -6,9 +6,24 @@
 #include <unistd.h>
 
 #include <iostream>
+#include <sstream>
 
 #include "lib/lrit.h"
 #include "dir.h"
+
+namespace {
+
+std::vector<std::string> split(std::string in, char delim) {
+  std::vector<std::string> items;
+  std::istringstream ss(in);
+  std::string item;
+  while (std::getline(ss, item, delim)) {
+    items.push_back(item);
+  }
+  return items;
+}
+
+} // namespace
 
 Options parseOptions(int argc, char** argv) {
   Options opts;
@@ -20,6 +35,7 @@ Options parseOptions(int argc, char** argv) {
     static struct option longOpts[] = {
       {"channel", required_argument, 0, 'c'},
       {"shrink", no_argument, 0, 0x1001},
+      {"scale", required_argument, 0, 0x1002},
     };
     int i;
     int c = getopt_long(argc, argv, "c:", longOpts, &i);
@@ -35,6 +51,19 @@ Options parseOptions(int argc, char** argv) {
       break;
     case 0x1001: // --shrink
       opts.shrink = true;
+      break;
+    case 0x1002: // --scale
+      {
+        auto parts = split(optarg, 'x');
+        if (parts.size() != 2) {
+          std::cerr << "Invalid argument to --scale" << std::endl;
+          exit(1);
+        }
+        opts.scale.width = std::stoi(parts[0]);
+        opts.scale.height = std::stoi(parts[1]);
+        opts.scale.cropWidth = CropWidth::CENTER;
+        opts.scale.cropHeight = CropHeight::CENTER;
+      }
       break;
     default:
       std::cerr << "Invalid option" << std::endl;
