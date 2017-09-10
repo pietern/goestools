@@ -39,6 +39,13 @@ Image::Image(uint16_t imageIdentifier, std::vector<File> files)
     tmp.maxColumn = -in.columnOffset + is.columns;
     tmp.minLine = -in.lineOffset;
     tmp.maxLine = -in.lineOffset + is.lines;
+
+    // Special case for GOES 13 -- United States: offset is off by 1.
+    if (nlh_.productID == 13 && (nlh_.productSubID % 10) == 4) {
+      tmp.minLine++;
+      tmp.maxLine++;
+    }
+
     if (i == 0) {
       area_ = tmp;
     } else {
