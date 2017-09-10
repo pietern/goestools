@@ -22,6 +22,7 @@ struct Options {
   std::vector<File> files;
   int fileType;
   bool shrink;
+  std::string format;
 
   struct {
     int width;

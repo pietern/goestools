@@ -65,6 +65,7 @@ public:
       }
 
       im = annotate(image, im, annotationRows);
+      fileName += "." + opts_.format;
       std::cout
         << "Writing "
         << fileName
@@ -74,7 +75,7 @@ public:
         << im.rows
         << ")"
         << std::endl;
-      cv::imwrite(fileName + ".pgm", im);
+      cv::imwrite(fileName, im);
     }
     return 0;
   }

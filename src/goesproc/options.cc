@@ -30,12 +30,14 @@ Options parseOptions(int argc, char** argv) {
 
   // Defaults
   opts.shrink = false;
+  opts.format = "pgm";
 
   while (1) {
     static struct option longOpts[] = {
       {"channel", required_argument, 0, 'c'},
       {"shrink", no_argument, 0, 0x1001},
       {"scale", required_argument, 0, 0x1002},
+      {"format", required_argument, 0, 0x1003},
     };
     int i;
     int c = getopt_long(argc, argv, "c:", longOpts, &i);
@@ -64,6 +66,9 @@ Options parseOptions(int argc, char** argv) {
         opts.scale.cropWidth = CropWidth::CENTER;
         opts.scale.cropHeight = CropHeight::CENTER;
       }
+      break;
+    case 0x1003: // --format
+      opts.format = optarg;
       break;
     default:
       std::cerr << "Invalid option" << std::endl;
