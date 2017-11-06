@@ -114,6 +114,14 @@ struct NOAALRITHeader {
   uint8_t noaaSpecificCompression;
 };
 
+struct HeaderStructureRecordHeader {
+  static const int CODE;
+
+  uint8_t headerType;
+  uint16_t headerLength;
+  std::string headerStructure;
+};
+
 struct RiceCompressionHeader {
   static const int CODE;
 

@@ -15,6 +15,7 @@ const int AncillaryTextHeader::CODE = 6;
 const int KeyHeader::CODE = 7;
 const int SegmentIdentificationHeader::CODE = 128;
 const int NOAALRITHeader::CODE = 129;
+const int HeaderStructureRecordHeader::CODE = 130;
 const int RiceCompressionHeader::CODE = 131;
 
 // The days field in CCSDS time starts counting on January 1, 1958.
@@ -203,6 +204,14 @@ NOAALRITHeader getHeader(const Buffer& b, int pos) {
   r.read(&h.productSubID);
   r.read(&h.parameter);
   r.read(&h.noaaSpecificCompression);
+  return h;
+}
+
+template<>
+HeaderStructureRecordHeader getHeader(const Buffer& b, int pos) {
+  auto r = HeaderReader<HeaderStructureRecordHeader>(b, pos);
+  auto h = r.getHeader();
+  r.read(h.headerStructure, h.headerLength - 3);
   return h;
 }
 
