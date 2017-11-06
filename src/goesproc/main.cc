@@ -212,7 +212,20 @@ protected:
 int processImageData(Options& opts) {
   auto& files = opts.files;
   auto productID = files.front().getHeader<LRIT::NOAALRITHeader>().productID;
-  if (productID != 13 && productID != 15) {
+  switch (productID) {
+  case 13:
+    // GOES-13
+    break;
+  case 15:
+    // GOES-15
+    break;
+  case 3:
+    // GMS
+    break;
+  case 4:
+    // METEOSAT
+    break;
+  default:
     std::cerr
       << "Image handler for NOAA LRIT Product ID "
       << productID
