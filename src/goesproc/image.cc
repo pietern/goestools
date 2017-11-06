@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cmath>
 
-Image::Image(uint16_t imageIdentifier, std::vector<File> files)
+Image::Image(uint16_t imageIdentifier, std::vector<LRIT::File> files)
   : imageIdentifier_(imageIdentifier),
     files_(files) {
   // Sort files by their segment number

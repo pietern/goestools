@@ -5,7 +5,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "file.h"
+#include "lib/file.h"
 
 class Image {
 public:
@@ -42,9 +42,9 @@ public:
     }
   };
 
-  Image(uint16_t imageIdentifier, std::vector<File> files);
+  Image(uint16_t imageIdentifier, std::vector<LRIT::File> files);
 
-  const std::vector<File>& getFiles() const {
+  const std::vector<LRIT::File>& getFiles() const {
     return files_;
   }
 
@@ -81,7 +81,7 @@ public:
 
 protected:
   uint16_t imageIdentifier_;
-  std::vector<File> files_;
+  std::vector<LRIT::File> files_;
 
   uint8_t maxSegment_;
   uint16_t columns_;

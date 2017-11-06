@@ -4,6 +4,8 @@
 
 #include <time.h>
 
+namespace LRIT {
+
 File::File(const std::string& file)
   : file_(file) {
   std::ifstream ifs(file_.c_str());
@@ -45,3 +47,5 @@ std::ifstream File::getData() const {
   assert(ifs);
   return std::move(ifs);
 }
+
+} // namespace LRIT

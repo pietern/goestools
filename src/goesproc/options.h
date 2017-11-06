@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "file.h"
+#include "lib/file.h"
 
 enum class CropHeight {
   TOP,
@@ -19,7 +19,7 @@ enum class CropWidth {
 
 struct Options {
   std::string channel;
-  std::vector<File> files;
+  std::vector<LRIT::File> files;
   int fileType;
   bool shrink;
   std::string format;

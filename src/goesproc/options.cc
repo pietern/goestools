@@ -101,7 +101,7 @@ Options parseOptions(int argc, char** argv) {
 
   // Load header of all specified files
   for (const auto& p : paths) {
-    opts.files.push_back(File(p));
+    opts.files.push_back(LRIT::File(p));
   }
 
   auto firstHeader = opts.files.front().getHeader<LRIT::PrimaryHeader>();

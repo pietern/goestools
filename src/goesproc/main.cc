@@ -243,7 +243,7 @@ int processImageData(Options& opts) {
     }
   }
 
-  std::map<int, std::vector<File>> filesByImageID;
+  std::map<int, std::vector<LRIT::File>> filesByImageID;
   for (const auto& f : files) {
     auto si = f.getHeader<LRIT::SegmentIdentificationHeader>();
     filesByImageID[si.imageIdentifier].push_back(std::move(f));

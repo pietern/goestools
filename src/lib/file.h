@@ -5,7 +5,9 @@
 #include <string>
 #include <vector>
 
-#include "lib/lrit.h"
+#include "lrit.h"
+
+namespace LRIT {
 
 class File {
 public:
@@ -27,6 +29,8 @@ public:
 protected:
   std::string file_;
   std::vector<uint8_t> header_;
-  LRIT::HeaderMap m_;
-  LRIT::PrimaryHeader ph_;
+  HeaderMap m_;
+  PrimaryHeader ph_;
 };
+
+} // namespace LRIT
