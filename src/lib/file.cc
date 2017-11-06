@@ -39,7 +39,6 @@ std::string File::getTime() const {
   return std::string(tsbuf.data(), len);
 }
 
-
 std::ifstream File::getData() const {
   std::ifstream ifs(file_.c_str());
   assert(ifs);
