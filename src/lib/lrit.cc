@@ -26,9 +26,9 @@ struct timespec TimeStampHeader::getUnix() {
   uint16_t days = __builtin_bswap16(*reinterpret_cast<const uint16_t*>(&ccsds[1]));
   uint32_t millis = __builtin_bswap32(*reinterpret_cast<const uint32_t*>(&ccsds[3]));
   if (days > 0 || millis > 0) {
-      assert(days >= ccsdsToUnixDaysOffset);
-      ts.tv_sec = ((days - ccsdsToUnixDaysOffset) * 24 * 60 * 60) + (millis / 1000);
-      ts.tv_nsec = (millis % 1000) * 1000 * 1000;
+    assert(days >= ccsdsToUnixDaysOffset);
+    ts.tv_sec = ((days - ccsdsToUnixDaysOffset) * 24 * 60 * 60) + (millis / 1000);
+    ts.tv_nsec = (millis % 1000) * 1000 * 1000;
   }
   return ts;
 }
@@ -122,7 +122,7 @@ PrimaryHeader getHeader(const Buffer& b, int pos) {
   r.read(&h.fileType);
   r.read(&h.totalHeaderLength);
   r.read(&h.dataLength);
-    return h;
+  return h;
 }
 
 template <>
