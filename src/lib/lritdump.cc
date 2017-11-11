@@ -9,8 +9,33 @@ int dump(const std::string& name) {
     if (it.first == LRIT::PrimaryHeader::CODE) {
       auto h = file.getHeader<LRIT::PrimaryHeader>();
       std::cout << "Primary (" << decltype(h)::CODE << "):" << std::endl;
+
+      std::string type;
+      switch (h.fileType) {
+      case 0:
+        type = "Image Data";
+        break;
+      case 1:
+        type = "Service Message";
+        break;
+      case 2:
+        type = "Alphanumeric Text";
+        break;
+      case 3:
+        type = "Meteorological Data";
+        break;
+      case 4:
+        type = "GTS Messages";
+        break;
+      default:
+        type = "unknown";
+        break;
+      }
+
       std::cout << "  File type: "
-                << int(h.fileType) << std::endl;
+                << int(h.fileType)
+                << " (" << type << ")"
+                << std::endl;
 
       // LRIT value is in bytes
       auto headerBits = h.totalHeaderLength * 8;
