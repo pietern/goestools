@@ -11,10 +11,30 @@ int dump(const std::string& name) {
       std::cout << "Primary (" << decltype(h)::CODE << "):" << std::endl;
       std::cout << "  File type: "
                 << int(h.fileType) << std::endl;
-      std::cout << "  Total header length: "
-                << h.totalHeaderLength << std::endl;
-      std::cout << "  Data length: "
-                << h.dataLength << std::endl;
+
+      // LRIT value is in bytes
+      auto headerBits = h.totalHeaderLength * 8;
+      auto headerBytes = h.totalHeaderLength;
+      std::cout << "  Header header length (bits/bytes): "
+                << headerBits
+                << "/"
+                << headerBytes
+                << std::endl;
+
+      // LRIT value is in bits
+      auto dataBits = h.dataLength;
+      auto dataBytes = h.dataLength / 8;
+      std::cout << "  Data length (bits/bytes): "
+                << dataBits
+                << "/"
+                << dataBytes
+                << std::endl;
+
+      std::cout << "  Total length (bits/bytes): "
+                << (headerBits + dataBits)
+                << "/"
+                << (headerBytes + dataBytes)
+                << std::endl;
     } else if (it.first == LRIT::ImageStructureHeader::CODE) {
       auto h = file.getHeader<LRIT::ImageStructureHeader>();
       std::cout << "Image structure (" << decltype(h)::CODE << "):" << std::endl;
