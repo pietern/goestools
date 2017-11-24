@@ -267,6 +267,13 @@ int processImageData(Options& opts) {
       continue;
     }
 
+    // GOES-13 periodically publishes tiny images on the "special" sub product.
+    // They don't seem to be particularly useful and their covered area doesn't
+    // intersect with other images on the same sub product. Filter them out.
+    if (productID == 13 && image.getArea().height() < 50) {
+      continue;
+    }
+
     images.push_back(std::move(image));
   }
 
