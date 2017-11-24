@@ -25,7 +25,13 @@ public:
   }
 
   int run() {
-    auto minArea = computeMinArea();
+    Image::Area minArea;
+    auto ok = computeMinArea(minArea);
+    if (!ok) {
+      std::cout << "Intersection of covered area is empty!" << std::endl;
+      return 1;
+    }
+
     for (auto& image : images_) {
       auto fileName = image.getSatellite() + "_";
 
@@ -80,21 +86,24 @@ public:
     return 0;
   }
 
-  Image::Area computeMinArea() {
+  bool computeMinArea(Image::Area& area) {
     bool initialized = false;
-    Image::Area area;
     for (const auto& image : images_) {
       if (!image.complete()) {
         continue;
       }
       if (initialized) {
-        area = area.getIntersection(image.getArea());
+        auto tmp = area.getIntersection(image.getArea());
+        if (tmp.width() <= 0 || tmp.height() <= 0) {
+          return false;
+        }
+        area = tmp;
       } else {
         initialized = true;
         area = image.getArea();
       }
     }
-    return area;
+    return initialized;
   }
 
   cv::Mat scale(cv::Mat src, int x, int y) {
