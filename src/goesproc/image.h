@@ -11,6 +11,10 @@ class Image {
 public:
   Image(LRIT::File file);
 
+  const LRIT::File& getFile() const {
+    return file_;
+  }
+
   std::string getSatellite() const;
   std::string getProductShort() const;
   std::string getProductLong() const;

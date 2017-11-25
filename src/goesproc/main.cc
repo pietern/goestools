@@ -9,24 +9,24 @@
 #include <opencv2/opencv.hpp>
 
 #include "image.h"
-#include "image_goes.h"
 #include "options.h"
+#include "segmented_image.h"
 
 class ProcessImageData {
 public:
-  ProcessImageData(Options&& opts, std::vector<ImageGOES>&& images) :
+  ProcessImageData(Options&& opts, std::vector<SegmentedImage>&& images) :
       opts_(std::move(opts)),
       images_(std::move(images)) {
     std::set<int> subProducts;
     for (auto& image : images_) {
-      subProducts.insert(
-        image.getFiles().front().getHeader<LRIT::NOAALRITHeader>().productSubID);
+      const auto& firstFile = image.getImages().front().getFile();
+      subProducts.insert(firstFile.getHeader<LRIT::NOAALRITHeader>().productSubID);
     }
     multiSubProducts_ = (subProducts.size() > 1);
   }
 
   int run() {
-    ImageGOES::Area minArea;
+    Area minArea;
     auto ok = computeMinArea(minArea);
     if (!ok) {
       std::cout << "Intersection of covered area is empty!" << std::endl;
@@ -87,7 +87,7 @@ public:
     return 0;
   }
 
-  bool computeMinArea(ImageGOES::Area& area) {
+  bool computeMinArea(Area& area) {
     bool initialized = false;
     for (const auto& image : images_) {
       if (!image.complete()) {
@@ -159,7 +159,7 @@ public:
     }
   }
 
-  cv::Mat annotate(const ImageGOES& image, cv::Mat in, int topRows) {
+  cv::Mat annotate(const SegmentedImage& image, cv::Mat in, int topRows) {
     cv::Mat tmp(in.rows + topRows, in.cols, in.type());
 
     // Copy contents
@@ -215,20 +215,21 @@ public:
 
 protected:
   Options opts_;
-  std::vector<ImageGOES> images_;
+  std::vector<SegmentedImage> images_;
   bool multiSubProducts_;
 };
 
-int processGOESImageData(Options& opts) {
-  std::map<int, std::vector<LRIT::File>> filesByImageID;
+int processSegmentedImageData(Options& opts) {
+  std::map<int, std::vector<Image>> imagesByID;
   for (const auto& f : opts.files) {
     auto si = f.getHeader<LRIT::SegmentIdentificationHeader>();
-    filesByImageID[si.imageIdentifier].push_back(std::move(f));
+    auto image = Image(std::move(f));
+    imagesByID[si.imageIdentifier].push_back(std::move(image));
   }
 
-  std::vector<ImageGOES> images;
-  for (auto& e : filesByImageID) {
-    ImageGOES image(e.first, e.second);
+  std::vector<SegmentedImage> images;
+  for (auto& e : imagesByID) {
+    SegmentedImage image(e.first, e.second);
 
     // Filter by channel if channel option is set
     if (!opts.channel.empty() && opts.channel != image.getChannelShort()) {
@@ -278,10 +279,10 @@ int processImageData(Options& opts) {
   switch (productID) {
   case 13:
     // GOES-13
-    return processPlainImageData(opts);
+    return processSegmentedImageData(opts);
   case 15:
     // GOES-15
-    return processPlainImageData(opts);
+    return processSegmentedImageData(opts);
   case 3:
     // GMS
     return processPlainImageData(opts);
