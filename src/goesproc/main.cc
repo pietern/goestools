@@ -8,12 +8,13 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "image.h"
+#include "image_gms.h"
+#include "image_goes.h"
 #include "options.h"
 
 class ProcessImageData {
 public:
-  ProcessImageData(Options&& opts, std::vector<Image>&& images) :
+  ProcessImageData(Options&& opts, std::vector<ImageGOES>&& images) :
       opts_(std::move(opts)),
       images_(std::move(images)) {
     std::set<int> subProducts;
@@ -25,7 +26,7 @@ public:
   }
 
   int run() {
-    Image::Area minArea;
+    ImageGOES::Area minArea;
     auto ok = computeMinArea(minArea);
     if (!ok) {
       std::cout << "Intersection of covered area is empty!" << std::endl;
@@ -86,7 +87,7 @@ public:
     return 0;
   }
 
-  bool computeMinArea(Image::Area& area) {
+  bool computeMinArea(ImageGOES::Area& area) {
     bool initialized = false;
     for (const auto& image : images_) {
       if (!image.complete()) {
@@ -158,7 +159,7 @@ public:
     }
   }
 
-  cv::Mat annotate(const Image& image, cv::Mat in, int topRows) {
+  cv::Mat annotate(const ImageGOES& image, cv::Mat in, int topRows) {
     cv::Mat tmp(in.rows + topRows, in.cols, in.type());
 
     // Copy contents
@@ -214,34 +215,57 @@ public:
 
 protected:
   Options opts_;
-  std::vector<Image> images_;
+  std::vector<ImageGOES> images_;
   bool multiSubProducts_;
 };
+
+int processGOESImageData(Options& opts) {
+  std::map<int, std::vector<LRIT::File>> filesByImageID;
+  for (const auto& f : opts.files) {
+    auto si = f.getHeader<LRIT::SegmentIdentificationHeader>();
+    filesByImageID[si.imageIdentifier].push_back(std::move(f));
+  }
+
+  std::vector<ImageGOES> images;
+  for (auto& e : filesByImageID) {
+    ImageGOES image(e.first, e.second);
+
+    // Filter by channel if channel option is set
+    if (!opts.channel.empty() && opts.channel != image.getChannelShort()) {
+      continue;
+    }
+
+    // GOES-13 periodically publishes tiny images on the "special" sub product.
+    // They don't seem to be particularly useful and their covered area doesn't
+    // intersect with other images on the same sub product. Filter them out.
+    if (image.getArea().height() < 50) {
+      continue;
+    }
+
+    images.push_back(std::move(image));
+  }
+
+  return ProcessImageData(std::move(opts), std::move(images)).run();
+}
+
+int processGMSImageData(Options& opts) {
+  for (const auto& f : opts.files) {
+    ImageGMS image(f);
+    auto fileName = image.getBasename();
+    fileName += "." + opts.format;
+    std::cout
+      << "Writing "
+      << fileName
+      << std::endl;
+    cv::imwrite(fileName, image.getRawImage());
+  }
+
+  return 0;
+}
 
 int processImageData(Options& opts) {
   auto& files = opts.files;
   auto productID = files.front().getHeader<LRIT::NOAALRITHeader>().productID;
-  switch (productID) {
-  case 13:
-    // GOES-13
-    break;
-  case 15:
-    // GOES-15
-    break;
-  case 3:
-    // GMS
-    break;
-  case 4:
-    // METEOSAT
-    break;
-  default:
-    std::cerr
-      << "Image handler for NOAA LRIT Product ID "
-      << productID
-      << " not implemented..."
-      << std::endl;
-    return 1;
-  }
 
   // Check we're dealing with files from a single satellite
   for (const auto& f : files) {
@@ -252,32 +276,27 @@ int processImageData(Options& opts) {
     }
   }
 
-  std::map<int, std::vector<LRIT::File>> filesByImageID;
-  for (const auto& f : files) {
-    auto si = f.getHeader<LRIT::SegmentIdentificationHeader>();
-    filesByImageID[si.imageIdentifier].push_back(std::move(f));
+  switch (productID) {
+  case 13:
+    // GOES-13
+    return processGOESImageData(opts);
+  case 15:
+    // GOES-15
+    return processGOESImageData(opts);
+  case 3:
+    // GMS
+    return processGMSImageData(opts);
+  // case 4:
+  //   // METEOSAT
+  //   break;
+  default:
+    std::cerr
+      << "Image handler for NOAA LRIT Product ID "
+      << productID
+      << " not implemented..."
+      << std::endl;
+    return 1;
   }
-
-  std::vector<Image> images;
-  for (auto& e : filesByImageID) {
-    Image image(e.first, e.second);
-
-    // Filter by channel if channel option is set
-    if (!opts.channel.empty() && opts.channel != image.getChannelShort()) {
-      continue;
-    }
-
-    // GOES-13 periodically publishes tiny images on the "special" sub product.
-    // They don't seem to be particularly useful and their covered area doesn't
-    // intersect with other images on the same sub product. Filter them out.
-    if (productID == 13 && image.getArea().height() < 50) {
-      continue;
-    }
-
-    images.push_back(std::move(image));
-  }
-
-  return ProcessImageData(std::move(opts), std::move(images)).run();
 }
 
 int processMessages(Options& opts) {

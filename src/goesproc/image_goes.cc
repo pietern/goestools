@@ -1,9 +1,9 @@
-#include "image.h"
+#include "image_goes.h"
 
 #include <algorithm>
 #include <cmath>
 
-Image::Image(uint16_t imageIdentifier, std::vector<LRIT::File> files)
+ImageGOES::ImageGOES(uint16_t imageIdentifier, std::vector<LRIT::File> files)
   : imageIdentifier_(imageIdentifier),
     files_(files) {
   // Sort files by their segment number
@@ -74,7 +74,7 @@ Image::Image(uint16_t imageIdentifier, std::vector<LRIT::File> files)
   }
 }
 
-std::string Image::getSatellite() const {
+std::string ImageGOES::getSatellite() const {
   std::string satellite;
   if (nlh_.productID == 13) {
     satellite = "GOES13";
@@ -86,7 +86,7 @@ std::string Image::getSatellite() const {
   return satellite;
 }
 
-std::string Image::getProductShort() const {
+std::string ImageGOES::getProductShort() const {
   std::string product;
   if (nlh_.productSubID % 10 == 1) {
     product = "FD";
@@ -105,7 +105,7 @@ std::string Image::getProductShort() const {
   return product;
 }
 
-std::string Image::getProductLong() const {
+std::string ImageGOES::getProductLong() const {
   std::string product;
   if (nlh_.productSubID % 10 == 1) {
     product = "Full Disk";
@@ -125,7 +125,7 @@ std::string Image::getProductLong() const {
   return product;
 }
 
-std::string Image::getChannelShort() const {
+std::string ImageGOES::getChannelShort() const {
   std::string channel;
   if (nlh_.productSubID <= 10) {
     channel = "IR";
@@ -137,7 +137,7 @@ std::string Image::getChannelShort() const {
   return channel;
 }
 
-std::string Image::getChannelLong() const {
+std::string ImageGOES::getChannelLong() const {
   std::string channel;
   if (nlh_.productSubID <= 10) {
     channel = "Infrared";
@@ -149,7 +149,7 @@ std::string Image::getChannelLong() const {
   return channel;
 }
 
-std::string Image::getTimeShort() const {
+std::string ImageGOES::getTimeShort() const {
   std::array<char, 128> tsbuf;
   auto ts = files_[0].getHeader<LRIT::TimeStampHeader>().getUnix();
   auto len = strftime(
@@ -160,7 +160,7 @@ std::string Image::getTimeShort() const {
   return std::string(tsbuf.data(), len);
 }
 
-std::string Image::getTimeLong() const {
+std::string ImageGOES::getTimeLong() const {
   std::array<char, 128> tsbuf;
   auto ts = files_[0].getHeader<LRIT::TimeStampHeader>().getUnix();
   auto len = strftime(
@@ -171,7 +171,7 @@ std::string Image::getTimeLong() const {
   return std::string(tsbuf.data(), len);
 }
 
-std::string Image::getBasename() const {
+std::string ImageGOES::getBasename() const {
   return
     getSatellite() + "_" +
     getProductShort() + "_" +
@@ -179,7 +179,7 @@ std::string Image::getBasename() const {
     getTimeShort();
 }
 
-cv::Mat Image::getRawImage() const {
+cv::Mat ImageGOES::getRawImage() const {
   cv::Mat raw(lines_, columns_, CV_8UC1);
   size_t offset = 0;
   for (const auto& f : files_) {
@@ -204,7 +204,7 @@ cv::Mat Image::getRawImage() const {
   return raw;
 }
 
-cv::Mat Image::getRawImage(const Area& roi) const {
+cv::Mat ImageGOES::getRawImage(const Area& roi) const {
   cv::Mat raw = getRawImage();
   int x = roi.minColumn - area_.minColumn;
   int y = roi.minLine - area_.minLine;
@@ -214,8 +214,8 @@ cv::Mat Image::getRawImage(const Area& roi) const {
   return raw(crop);
 }
 
-// Scale columns/lines per scaling factor in ImageNavigationHeader
-cv::Size Image::scaleSize(cv::Size s, bool shrink) const {
+// Scale columns/lines per scaling factor in ImageGOESNavigationHeader
+cv::Size ImageGOES::scaleSize(cv::Size s, bool shrink) const {
   float f = ((float)inh_.columnScaling / (float)inh_.lineScaling);
   if (f < 1.0) {
     if (shrink) {
@@ -233,14 +233,14 @@ cv::Size Image::scaleSize(cv::Size s, bool shrink) const {
   return s;
 }
 
-cv::Mat Image::getScaledImage(bool shrink) const {
+cv::Mat ImageGOES::getScaledImage(bool shrink) const {
   cv::Mat raw = getRawImage();
   cv::Mat out(scaleSize(cv::Size(raw.cols, raw.rows), shrink), CV_8UC1);
   cv::resize(raw, out, out.size());
   return std::move(out);
 }
 
-cv::Mat Image::getScaledImage(const Area& roi, bool shrink) const {
+cv::Mat ImageGOES::getScaledImage(const Area& roi, bool shrink) const {
   cv::Mat raw = getRawImage(roi);
   cv::Mat out(scaleSize(cv::Size(raw.cols, raw.rows), shrink), CV_8UC1);
   cv::resize(raw, out, out.size());

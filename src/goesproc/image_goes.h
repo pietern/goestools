@@ -7,7 +7,7 @@
 
 #include "lib/file.h"
 
-class Image {
+class ImageGOES {
 public:
   struct Area {
     int minColumn;
@@ -42,7 +42,7 @@ public:
     }
   };
 
-  Image(uint16_t imageIdentifier, std::vector<LRIT::File> files);
+  ImageGOES(uint16_t imageIdentifier, std::vector<LRIT::File> files);
 
   const std::vector<LRIT::File>& getFiles() const {
     return files_;
