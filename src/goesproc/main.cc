@@ -8,7 +8,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "image_gms.h"
+#include "image.h"
 #include "image_goes.h"
 #include "options.h"
 
@@ -248,9 +248,9 @@ int processGOESImageData(Options& opts) {
   return ProcessImageData(std::move(opts), std::move(images)).run();
 }
 
-int processGMSImageData(Options& opts) {
+int processPlainImageData(Options& opts) {
   for (const auto& f : opts.files) {
-    ImageGMS image(f);
+    Image image(f);
     auto fileName = image.getBasename();
     fileName += "." + opts.format;
     std::cout
@@ -259,7 +259,6 @@ int processGMSImageData(Options& opts) {
       << std::endl;
     cv::imwrite(fileName, image.getRawImage());
   }
-
   return 0;
 }
 
@@ -279,16 +278,19 @@ int processImageData(Options& opts) {
   switch (productID) {
   case 13:
     // GOES-13
-    return processGOESImageData(opts);
+    return processPlainImageData(opts);
   case 15:
     // GOES-15
-    return processGOESImageData(opts);
+    return processPlainImageData(opts);
   case 3:
     // GMS
-    return processGMSImageData(opts);
-  // case 4:
-  //   // METEOSAT
-  //   break;
+    return processPlainImageData(opts);
+  case 4:
+    // METEOSAT
+    return processPlainImageData(opts);
+  case 6:
+    // NWS
+    return processPlainImageData(opts);
   default:
     std::cerr
       << "Image handler for NOAA LRIT Product ID "

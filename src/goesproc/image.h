@@ -7,9 +7,9 @@
 
 #include "lib/file.h"
 
-class ImageGMS {
+class Image {
 public:
-  ImageGMS(LRIT::File file);
+  Image(LRIT::File file);
 
   std::string getSatellite() const;
   std::string getProductShort() const;
