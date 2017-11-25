@@ -1,3 +1,5 @@
+#include <getopt.h>
+
 #include <iostream>
 
 #include "file.h"
@@ -152,6 +154,11 @@ int dump(const std::string& name) {
                 << int(h.pixelsPerBlock) << std::endl;
       std::cout << "  Scan lines per packet: "
                 << int(h.scanLinesPerPacket) << std::endl;
+    } else if (it.first == LRIT::DCSFileNameHeader::CODE) {
+      auto h = file.getHeader<LRIT::DCSFileNameHeader>();
+      std::cout << "DCS file name (" << decltype(h)::CODE << "):" << std::endl;
+      std::cout << "  File name: " << h.fileName << std::endl;
+
     } else {
       std::cerr << "Header " << it.first << " not handled..." << std::endl;
       return 1;

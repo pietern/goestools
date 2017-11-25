@@ -22,6 +22,11 @@ public:
   }
 
   template <typename H>
+  bool hasHeader() const {
+    return LRIT::hasHeader<H>(m_);
+  }
+
+  template <typename H>
   H getHeader() const {
     return LRIT::getHeader<H>(header_, m_);
   }

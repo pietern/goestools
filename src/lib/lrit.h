@@ -132,6 +132,14 @@ struct RiceCompressionHeader {
   uint8_t scanLinesPerPacket;
 };
 
+struct DCSFileNameHeader {
+  static const int CODE;
+
+  uint8_t headerType;
+  uint16_t headerLength;
+  std::string fileName;
+};
+
 std::map<int, int> getHeaderMap(const Buffer& b);
 
 template <typename H>

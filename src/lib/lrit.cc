@@ -17,6 +17,7 @@ const int SegmentIdentificationHeader::CODE = 128;
 const int NOAALRITHeader::CODE = 129;
 const int HeaderStructureRecordHeader::CODE = 130;
 const int RiceCompressionHeader::CODE = 131;
+const int DCSFileNameHeader::CODE = 132;
 
 // The days field in CCSDS time starts counting on January 1, 1958.
 // Unix time starts counting on January 1, 1970.
@@ -222,6 +223,14 @@ RiceCompressionHeader getHeader(const Buffer& b, int pos) {
   r.read(&h.flags);
   r.read(&h.pixelsPerBlock);
   r.read(&h.scanLinesPerPacket);
+  return h;
+}
+
+template<>
+DCSFileNameHeader getHeader(const Buffer& b, int pos) {
+  auto r = HeaderReader<DCSFileNameHeader>(b, pos);
+  auto h = r.getHeader();
+  r.read(h.fileName, h.headerLength - 3);
   return h;
 }
 
