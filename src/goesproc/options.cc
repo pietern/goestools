@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #include <iostream>
+#include <limits>
 #include <sstream>
 
 #include "lib/lrit.h"
@@ -23,6 +24,17 @@ std::vector<std::string> split(std::string in, char delim) {
   return items;
 }
 
+bool parseTime(const std::string& str, time_t* out) {
+  const char* buf = str.c_str();
+  struct tm tm;
+  char* pos = strptime(buf, "%Y-%m-%d %H:%M:%S", &tm);
+  if (pos < (buf + str.size())) {
+    return false;
+  }
+  *out = mktime(&tm);
+  return true;
+}
+
 } // namespace
 
 Options parseOptions(int argc, char** argv) {
@@ -31,6 +43,8 @@ Options parseOptions(int argc, char** argv) {
   // Defaults
   opts.shrink = false;
   opts.format = "pgm";
+  opts.start = 0;
+  opts.stop = std::numeric_limits<time_t>::max();
 
   while (1) {
     static struct option longOpts[] = {
@@ -38,6 +52,8 @@ Options parseOptions(int argc, char** argv) {
       {"shrink", no_argument, 0, 0x1001},
       {"scale", required_argument, 0, 0x1002},
       {"format", required_argument, 0, 0x1003},
+      {"start", required_argument, 0, 0x1004},
+      {"stop", required_argument, 0, 0x1005},
     };
     int i;
     int c = getopt_long(argc, argv, "c:", longOpts, &i);
@@ -70,6 +86,18 @@ Options parseOptions(int argc, char** argv) {
     case 0x1003: // --format
       opts.format = optarg;
       break;
+    case 0x1004: // --start
+      if (!parseTime(optarg, &opts.start)) {
+        std::cerr << "Invalid argument to --start" << std::endl;
+        exit(1);
+      }
+      break;
+    case 0x1005: // --stop
+      if (!parseTime(optarg, &opts.stop)) {
+        std::cerr << "Invalid argument to --stop" << std::endl;
+        exit(1);
+      }
+      break;
     default:
       std::cerr << "Invalid option" << std::endl;
       exit(1);
@@ -99,21 +127,26 @@ Options parseOptions(int argc, char** argv) {
     exit(0);
   }
 
-  // Load header of all specified files
-  for (const auto& p : paths) {
-    opts.files.push_back(LRIT::File(p));
-  }
-
-  auto firstHeader = opts.files.front().getHeader<LRIT::PrimaryHeader>();
-  opts.fileType = firstHeader.fileType;
-
-  // Verify all files have the same fundamental type
-  for (const auto& f : opts.files) {
+  // Process and filter files
+  for (unsigned i = 0; i < paths.size(); i++) {
+    auto f = LRIT::File(paths[i]);
     auto ph = f.getHeader<LRIT::PrimaryHeader>();
-    if (ph.fileType != opts.fileType) {
-      std::cerr << "Cannot handle mixed LRIT file types..." << std::endl;
-      exit(1);
+    if (i == 0) {
+      opts.fileType = ph.fileType;
+    } else {
+      // Verify all files have the same fundamental type
+      if (ph.fileType != opts.fileType) {
+        std::cerr << "Cannot handle mixed LRIT file types..." << std::endl;
+        exit(1);
+      }
     }
+
+    auto ts = f.getHeader<LRIT::TimeStampHeader>().getUnix();
+    if (ts.tv_sec < opts.start || ts.tv_sec >= opts.stop) {
+      continue;
+    }
+
+    opts.files.push_back(std::move(f));
   }
 
   return opts;

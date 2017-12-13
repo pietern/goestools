@@ -312,6 +312,11 @@ int processText(Options& opts) {
 
 int main(int argc, char** argv) {
   auto opts = parseOptions(argc, argv);
+  if (opts.files.size() == 0) {
+    std::cout << "No files to process!" << std::endl;
+    exit(0);
+  }
+
   switch (opts.fileType) {
   case 0:
     return processImageData(opts);

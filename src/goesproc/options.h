@@ -1,5 +1,7 @@
 #pragma once
 
+#include <time.h>
+
 #include <string>
 #include <vector>
 
@@ -23,6 +25,10 @@ struct Options {
   int fileType;
   bool shrink;
   std::string format;
+
+  // Process files stamped between [start, stop)
+  time_t start;
+  time_t stop;
 
   struct {
     int width;
