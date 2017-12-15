@@ -44,6 +44,22 @@ public:
 #endif
   }
 
+  ssize_t encodeLength(size_t len) {
+#ifdef __SSE__
+    return correct_convolutional_sse_encode_len(v_, len);
+#else
+    return correct_convolutional_encode_len(v_, len);
+#endif
+  }
+
+  ssize_t encode(const uint8_t *msg, size_t len, uint8_t *encoded) {
+#ifdef __SSE__
+    return correct_convolutional_sse_encode(v_, msg, len, encoded);
+#else
+    return correct_convolutional_encode(v_, msg, len, encoded);
+#endif
+  }
+
 private:
   conv* v_;
 };
