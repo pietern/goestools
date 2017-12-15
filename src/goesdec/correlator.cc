@@ -2,31 +2,44 @@
 
 namespace {
 
-// Sync word after applying convolutional code.
-// First one is in phase, second one is 180 degrees out of phase.
-const uint64_t encodedSyncWords[2] = {
+// The sync words below are compared to the raw bit stream
+// to synchronize it with the start of a new packet.
+// See compute_sync_words.cc for more information.
+const uint64_t encodedSyncWords[4] = {
+  // LRIT sync words
   0x035d49c24ff2686b,
   0xfca2b63db00d9794,
-};
-
-// Signal phase per encoded sync word.
-const int phase[2] = {
-  0,
-  180,
+  // HRIT sync words
+  0x03b10b02f33d2076,
+  0xdafef4fd0cc2df89,
 };
 
 const unsigned encodedSyncWordBits = 64;
 
 } // namespace
 
-int correlate(uint8_t* data, size_t len, int* maxOut, int* phaseOut) {
+const char* correlationTypeToString(correlationType t) {
+  switch (t) {
+  case LRIT_PHASE_000:
+    return "LRIT 0 deg";
+  case LRIT_PHASE_180:
+    return "LRIT 180 deg";
+  case HRIT_PHASE_000:
+    return "HRIT 0 deg";
+  case HRIT_PHASE_180:
+    return "HRIT 180 deg";
+  }
+  return "";
+}
+
+int correlate(uint8_t* data, size_t len, int* maxOut, correlationType* maxType) {
   uint64_t tmp = 0;
 
   // Position with maximum correlation
-  int pos[2] = { 0, 0 };
+  int pos[4] = { 0, 0, 0, 0 };
 
   // Maximum correlation
-  int max[2] = { 0, 0 };
+  int max[4] = { 0, 0, 0, 0 };
 
   // Find maximum correlation
   for (unsigned i = 0; i < len - 1; i++) {
@@ -37,7 +50,7 @@ int correlate(uint8_t* data, size_t len, int* maxOut, int* phaseOut) {
     }
 
     // Match tmp against encoded sync words
-    for (unsigned j = 0; j < 2; j++) {
+    for (unsigned j = 0; j < 4; j++) {
       auto v = 64 - __builtin_popcount(tmp ^ encodedSyncWords[j]);
       if (v > max[j]) {
         max[j] = v;
@@ -46,8 +59,15 @@ int correlate(uint8_t* data, size_t len, int* maxOut, int* phaseOut) {
     }
   }
 
-  unsigned i = (max[0] >= max[1]) ? 0 : 1;
-  *maxOut = max[i];
-  *phaseOut = phase[i];
-  return pos[i];
+  // Return position for best correlating sync word
+  int j = 0;
+  for (unsigned i = 0; i < 4; i++) {
+    if (max[i] > max[j]) {
+      j = i;
+    }
+  }
+
+  *maxOut = max[j];
+  *maxType = static_cast<correlationType>(j);
+  return pos[j];
 }

@@ -42,7 +42,6 @@ public:
     buf_ = static_cast<uint8_t*>(malloc(len_));
     pos_ = 0;
     lock_ = false;
-    phase_ = 0;
   }
 
   void read() {
@@ -77,14 +76,17 @@ public:
         int max = 0;
 
         // Find position in buffer with maximum correlation with sync word
-        pos = correlate(&buf_[skip], len_ - skip, &max, &phase_);
+        pos = correlate(&buf_[skip], len_ - skip, &max, &syncType_);
 
         // Repeat until we have maximum correlation at 0
         while (pos > 0) {
           std::cerr
             << "Skipping "
             << pos
-            << " bits (max. correlation of " << max << " at " << pos << ")"
+            << " bits (max. correlation of " << max
+            << " for " << correlationTypeToString(syncType_)
+            << " at " << pos
+            << ")"
             << std::endl;
 
           // Skip over chunk that didn't qualify and try again,
@@ -97,7 +99,7 @@ public:
 
           // Fill tail and correlate again
           read();
-          pos = correlate(&buf_[skip], len_ - skip, &max, &phase_);
+          pos = correlate(&buf_[skip], len_ - skip, &max, &syncType_);
         }
       }
 
@@ -113,12 +115,27 @@ public:
       pos_ = tail;
 
       // If maximum correlation was found for an out of phase
-      // sync word; negate packet to make it in-phase.
+      // LRIT sync word, negate packet to make it in-phase.
       // We can do this after Viterbi because it works just as
       // well for negated signals. It just yields negated output.
-      if (phase_ == 180) {
+      if (syncType_ == LRIT_PHASE_180) {
         for (unsigned i = 0; i < packet.size(); i++) {
           packet[i] ^= 0xff;
+        }
+      }
+
+      // If maximum correlation was found for an HRIT sync word,
+      // run NRZ-M decoder on the bit stream.
+      if (syncType_ == HRIT_PHASE_000 || syncType_ == HRIT_PHASE_180) {
+        // An NRZ-M encoder performs a bit wise: o[i+1] = in[i] ^ o[i].
+        // Hence, for the decoder we perform: in[i] = o[i+1] ^ o[i].
+        uint8_t b0 = 0;
+        uint8_t m;
+        auto data = packet.data();
+        for (unsigned i = 0; i < packet.size(); i++) {
+          m = (b0 << 7) | ((data[i] >> 1) & 0x7f);
+          b0 = data[i] & 0x1;
+          data[i] ^= m;
         }
       }
 
@@ -162,7 +179,7 @@ protected:
   size_t len_;
   size_t pos_;
   bool lock_;
-  int phase_;
+  correlationType syncType_;
 
   int gpos = 0;
 };
