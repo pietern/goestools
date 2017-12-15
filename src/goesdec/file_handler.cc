@@ -6,6 +6,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 #include <lib/lrit.h>
 
@@ -17,6 +18,7 @@ void FileHandler::handle(std::unique_ptr<SessionPDU> spdu) {
   std::string path;
   auto primary = spdu->getHeader<LRIT::PrimaryHeader>();
   auto annotation = spdu->getHeader<LRIT::AnnotationHeader>();
+  auto fileName = annotation.text;
   switch (primary.fileType) {
   case 0:
     path = "images";
@@ -92,9 +94,20 @@ void FileHandler::handle(std::unique_ptr<SessionPDU> spdu) {
         path += "/special";
       }
     }
+
+    // Special case GOES-16
+    // Some image files (perhaps all?) are segmented, yet have
+    // the same annotation text. If we don't do anything, they are
+    // all written to the same path. To fix this, we add a file suffix.
+    if (lrit.productID == 16) {
+      auto sih = spdu->getHeader<LRIT::SegmentIdentificationHeader>();
+      std::stringstream ss;
+      ss << "." << sih.segmentNumber;
+      fileName += ss.str();
+    }
   }
 
-  save(*spdu, dir_ + "/" + path + "/" + annotation.text);
+  save(*spdu, dir_ + "/" + path + "/" + fileName);
 }
 
 void FileHandler::save(const SessionPDU& spdu, const std::string& path) {
