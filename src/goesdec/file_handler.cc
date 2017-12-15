@@ -71,6 +71,9 @@ void FileHandler::handle(std::unique_ptr<SessionPDU> spdu) {
     case 15:
       path += "/goes15";
       break;
+    case 16:
+      path += "/goes16";
+      break;
     default:
       std::cerr << "Unhandled productID: " << lrit.productID << std::endl;
     }
