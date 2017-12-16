@@ -23,14 +23,12 @@ void SessionPDU::completeHeader() {
     return;
   }
 
-  // Check compression flag
+  // Check compression flag.
+  // If it is anything other than "1" we ignore it.
   auto ish = LRIT::getHeader<LRIT::ImageStructureHeader>(buf_, m_);
-  if (ish.compression == 0) {
+  if (ish.compression != 1) {
     return;
   }
-
-  // Can only deal with lossless compression (compression flag == 1)
-  assert(ish.compression == 1);
 
   // Quote from 5_LRIT_Mission-data.pdf (next to Figure 6)
   //
@@ -42,16 +40,18 @@ void SessionPDU::completeHeader() {
   //   specific Rice Compression Record with a header type equal to
   //   "131" as shown in Figure 6.
   //
-  // Therefore, we can now assert this buffer has a Rice compression header.
+  // Therefore, we should now check if this buffer has a Rice
+  // compression header and setup the decoder if so.
   //
-  assert(LRIT::hasHeader<LRIT::RiceCompressionHeader>(m_));
-  auto rch = LRIT::getHeader<LRIT::RiceCompressionHeader>(buf_, m_);
-  szParam_.reset(new SZ_com_t);
-  szParam_->options_mask = rch.flags | SZ_RAW_OPTION_MASK;
-  szParam_->bits_per_pixel = ish.bitsPerPixel;
-  szParam_->pixels_per_block = rch.pixelsPerBlock;
-  szParam_->pixels_per_scanline = ish.columns;
-  szTmp_.resize(szParam_->pixels_per_scanline);
+  if (LRIT::hasHeader<LRIT::RiceCompressionHeader>(m_)) {
+    auto rch = LRIT::getHeader<LRIT::RiceCompressionHeader>(buf_, m_);
+    szParam_.reset(new SZ_com_t);
+    szParam_->options_mask = rch.flags | SZ_RAW_OPTION_MASK;
+    szParam_->bits_per_pixel = ish.bitsPerPixel;
+    szParam_->pixels_per_block = rch.pixelsPerBlock;
+    szParam_->pixels_per_scanline = ish.columns;
+    szTmp_.resize(szParam_->pixels_per_scanline);
+  }
 }
 
 bool SessionPDU::append(
