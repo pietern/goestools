@@ -135,7 +135,14 @@ void FileHandler::handle(std::unique_ptr<SessionPDU> spdu) {
     }
   }
 
-  save(*spdu, dir_ + "/" + path + "/" + fileName);
+  auto finalPath = dir_ + "/" + path + "/" + fileName;
+
+  // Ignore EMWIN files and weather reports (on HRIT stream)
+  if (primary.fileType == 2 && (lrit.productID == 6 || lrit.productID == 9)) {
+    return;
+  }
+
+  save(*spdu, finalPath);
 }
 
 void FileHandler::save(const SessionPDU& spdu, const std::string& path) {
