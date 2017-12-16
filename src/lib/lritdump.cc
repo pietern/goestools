@@ -1,4 +1,8 @@
 #include <getopt.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include <iostream>
 
@@ -168,8 +172,15 @@ int dump(const std::string& name) {
 }
 
 int main(int argc, char** argv) {
+  int rv;
+  struct stat st;
   for (auto i = 1; i < argc; i++) {
-    auto rv = dump(argv[i]);
+    rv = stat(argv[i], &st);
+    if (rv < 0) {
+      fprintf(stderr, "%s: %s\n", argv[i], strerror(errno));
+      exit(1);
+    }
+    rv = dump(argv[i]);
     if (rv != 0) {
       return rv;
     }
