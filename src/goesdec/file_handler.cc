@@ -96,14 +96,16 @@ void FileHandler::handle(std::unique_ptr<SessionPDU> spdu) {
     }
 
     // Special case GOES-16
-    // Some image files (perhaps all?) are segmented, yet have
-    // the same annotation text. If we don't do anything, they are
-    // all written to the same path. To fix this, we add a file suffix.
     if (lrit.productID == 16) {
-      auto sih = spdu->getHeader<LRIT::SegmentIdentificationHeader>();
-      std::stringstream ss;
-      ss << "." << sih.segmentNumber;
-      fileName += ss.str();
+      // Some image files are segmented, yet have the same annotation
+      // text. If we don't do anything, they are all written to the
+      // same path. To fix this, we add a file suffix.
+      if (spdu->hasHeader<LRIT::SegmentIdentificationHeader>()) {
+        auto sih = spdu->getHeader<LRIT::SegmentIdentificationHeader>();
+        std::stringstream ss;
+        ss << "." << sih.segmentNumber;
+        fileName += ss.str();
+      }
     }
   }
 
