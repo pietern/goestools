@@ -13,6 +13,8 @@ std::string Image::getSatellite() const {
     return "GOES13";
   case 15:
     return "GOES15";
+  case 16:
+    return "GOES16";
   case 3:
     return "Himawari";
   case 4:
@@ -43,6 +45,10 @@ std::string Image::getProductShort() const {
       auto len = snprintf(buf.data(), buf.size(), "SI%02d", num);
       product = std::string(buf.data(), len);
     }
+    break;
+  case 16:
+    // GOES-16
+    product = "FD";
     break;
   case 3:
   case 4:
@@ -83,6 +89,10 @@ std::string Image::getProductLong() const {
       product += std::string(buf.data(), len);
     }
     break;
+  case 16:
+    // GOES-16
+    product = "Full Disk";
+    break;
   case 3:
   case 4:
     // Himawari/Meteosat
@@ -116,6 +126,14 @@ std::string Image::getChannelShort() const {
       channel = "WV";
     }
     break;
+  case 16:
+    // GOES-16
+    {
+      std::array<char, 8> buf;
+      auto len = snprintf(buf.data(), buf.size(), "%02d", nl_.productSubID);
+      channel = "CH" + std::string(buf.data(), len);
+    }
+    break;
   case 3:
   case 4:
     // Himawari/Meteosat
@@ -145,6 +163,14 @@ std::string Image::getChannelLong() const {
       channel = "Visible";
     } else {
       channel = "Water Vapor";
+    }
+    break;
+  case 16:
+    // GOES-16
+    {
+      std::array<char, 8> buf;
+      auto len = snprintf(buf.data(), buf.size(), "%d", nl_.productSubID);
+      channel = "Channel " + std::string(buf.data(), len);
     }
     break;
   case 3:

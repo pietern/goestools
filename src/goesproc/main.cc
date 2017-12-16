@@ -283,6 +283,9 @@ int processImageData(Options& opts) {
   case 15:
     // GOES-15
     return processSegmentedImageData(opts);
+  case 16:
+    // GOES-16
+    return processSegmentedImageData(opts);
   case 3:
     // GMS
     return processPlainImageData(opts);

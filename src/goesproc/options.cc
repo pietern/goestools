@@ -115,7 +115,7 @@ Options parseOptions(int argc, char** argv) {
     }
     if (S_ISDIR(st.st_mode)) {
       Dir dir(argv[i]);
-      auto result = dir.matchFiles("*.lrit");
+      auto result = dir.matchFiles("*.lrit*");
       paths.insert(paths.end(), result.begin(), result.end());
     } else {
       paths.push_back(argv[i]);
