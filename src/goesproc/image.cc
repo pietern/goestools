@@ -220,6 +220,13 @@ std::string Image::getBasename() const {
       getProductShort() + "_" +
       getChannelShort() + "_" +
       getTimeShort();
+  } else if (nl_.productID == 16) {
+    // GOES-16
+    return
+      getSatellite() + "_" +
+      getProductShort() + "_" +
+      getChannelShort() + "_" +
+      getTimeShort();
   } else if (nl_.productID == 3) {
     // Himawari
     return

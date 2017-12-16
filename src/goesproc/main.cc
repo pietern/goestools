@@ -266,6 +266,7 @@ int processPlainImageData(Options& opts) {
 int processImageData(Options& opts) {
   auto& files = opts.files;
   auto productID = files.front().getHeader<LRIT::NOAALRITHeader>().productID;
+  unsigned numSegmented = 0;
 
   // Check we're dealing with files from a single satellite
   for (const auto& f : files) {
@@ -274,6 +275,16 @@ int processImageData(Options& opts) {
       std::cerr << "Specified images from multiple satellites..." << std::endl;
       return 1;
     }
+    if (f.hasHeader<LRIT::SegmentIdentificationHeader>()) {
+      numSegmented++;
+    }
+  }
+
+  if (numSegmented > 0 && numSegmented < files.size()) {
+    std::cerr
+      << "Specified mix of segmented and non-segmented images..."
+      << std::endl;
+    return 1;
   }
 
   switch (productID) {
@@ -285,7 +296,11 @@ int processImageData(Options& opts) {
     return processSegmentedImageData(opts);
   case 16:
     // GOES-16
-    return processSegmentedImageData(opts);
+    if (numSegmented > 0) {
+      return processSegmentedImageData(opts);
+    } else {
+      return processPlainImageData(opts);
+    }
   case 3:
     // GMS
     return processPlainImageData(opts);
