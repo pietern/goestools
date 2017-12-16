@@ -10,6 +10,20 @@
 
 #include <lib/lrit.h>
 
+namespace {
+
+std::vector<std::string> split(const std::string& in) {
+  std::stringstream ss(in);
+  std::vector<std::string> out;
+  std::string item;
+  while (std::getline(ss, item, '-')) {
+    out.push_back(item);
+  }
+  return out;
+}
+
+}
+
 FileHandler::FileHandler(const std::string& dir)
   : dir_(dir) {
 }
@@ -97,6 +111,18 @@ void FileHandler::handle(std::unique_ptr<SessionPDU> spdu) {
 
     // Special case GOES-16
     if (lrit.productID == 16) {
+      auto fileNameParts = split(fileName);
+      assert(fileNameParts.size() >= 4);
+      if (fileNameParts[2] == "CMIPF") {
+        path += "/fd";
+      } else if (fileNameParts[2] == "CMIPM1") {
+        path += "/m1";
+      } else if (fileNameParts[2] == "CMIPM2") {
+        path += "/m2";
+      } else {
+        path += "/unknown";
+      }
+
       // Some image files are segmented, yet have the same annotation
       // text. If we don't do anything, they are all written to the
       // same path. To fix this, we add a file suffix.
