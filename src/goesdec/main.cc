@@ -9,7 +9,6 @@
 #include "correlator.h"
 #include "derandomizer.h"
 #include "file_handler.h"
-#include "packet.h"
 #include "reader.h"
 #include "reed_solomon.h"
 #include "vcdu.h"
