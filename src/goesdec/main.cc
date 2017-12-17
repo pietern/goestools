@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
 
   std::map<int, VirtualChannel> vcs;
   for (auto j = 0; ; j++) {
-    p.nextPacket(buf);
+    p.nextPacket(buf, nullptr);
     VCDU vcdu(buf);
 
     // Ignore fill packets

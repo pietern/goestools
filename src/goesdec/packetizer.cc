@@ -27,7 +27,7 @@ void Packetizer::read()  {
   gpos += nbytes;
 }
 
-void Packetizer::nextPacket(std::array<uint8_t, 892>& out) {
+void Packetizer::nextPacket(std::array<uint8_t, 892>& out, struct timespec* ts) {
   int rv;
 
   for (;;) {
@@ -71,6 +71,15 @@ void Packetizer::nextPacket(std::array<uint8_t, 892>& out) {
         // Fill tail and correlate again
         read();
         pos = correlate(&buf_[skip], len_ - skip, &max, &syncType_);
+      }
+
+      // Store symbol rate for this stream
+      if (syncType_ == HRIT_PHASE_000 || syncType_ == HRIT_PHASE_180) {
+        symbolRate_ = 927000;
+      } else if (syncType_ == LRIT_PHASE_000 || syncType_ == LRIT_PHASE_180) {
+        symbolRate_ = 293883;
+      } else {
+        assert(false);
       }
     }
 
@@ -137,5 +146,12 @@ void Packetizer::nextPacket(std::array<uint8_t, 892>& out) {
     // We have a packet!
     lock_ = true;
     break;
+  }
+
+  // Include relative time of packet from start of packetizer.
+  if (ts != nullptr) {
+    auto pos = gpos - (encodedFrameBits + encodedSyncWordBits);
+    ts->tv_nsec = (1000000000 * (pos % symbolRate_)) / symbolRate_;
+    ts->tv_sec = pos / symbolRate_;
   }
 }

@@ -27,7 +27,7 @@ class Packetizer {
 public:
   explicit Packetizer(std::unique_ptr<Reader> reader);
 
-  void nextPacket(std::array<uint8_t, 892>& out);
+  void nextPacket(std::array<uint8_t, 892>& out, struct timespec* ts);
 
 protected:
   void read();
@@ -42,6 +42,7 @@ protected:
   size_t pos_;
   bool lock_;
   correlationType syncType_;
+  int symbolRate_;
 
   int gpos = 0;
 };
