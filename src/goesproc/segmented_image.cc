@@ -40,6 +40,13 @@ SegmentedImage::SegmentedImage(uint16_t imageIdentifier, std::vector<Image> imag
     tmp.minLine = -in.lineOffset;
     tmp.maxLine = -in.lineOffset + is.lines;
 
+    // For Himawari-8, the offset accounting is done differently
+    if (nlh_.productID == 43) {
+      auto lineOffset = -in.lineOffset + si.segmentStartLine;
+      tmp.minLine = lineOffset;
+      tmp.maxLine = lineOffset + is.lines;
+    }
+
     // Special case for GOES 13 -- United States: offset is off by 1.
     if (nlh_.productID == 13 && (nlh_.productSubID % 10) == 4) {
       tmp.minLine++;

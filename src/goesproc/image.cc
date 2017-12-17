@@ -15,6 +15,8 @@ std::string Image::getSatellite() const {
     return "GOES15";
   case 16:
     return "GOES16";
+  case 43:
+    return "HIMAWARI8";
   case 3:
     return "Himawari";
   case 4:
@@ -50,6 +52,13 @@ std::string Image::getProductShort() const {
     // GOES-16
     product = "FD";
     break;
+  case 43:
+    // Himawari-8
+    if (nl_.productSubID % 2 == 1) {
+      product = "FD";
+    } else {
+      assert(false);
+    }
   case 3:
   case 4:
     // Himawari/Meteosat
@@ -93,6 +102,13 @@ std::string Image::getProductLong() const {
     // GOES-16
     product = "Full Disk";
     break;
+  case 43:
+    // Himawari-8
+    if (nl_.productSubID % 2 == 1) {
+      product = "Full Disk";
+    } else {
+      assert(false);
+    }
   case 3:
   case 4:
     // Himawari/Meteosat
@@ -134,6 +150,18 @@ std::string Image::getChannelShort() const {
       channel = "CH" + std::string(buf.data(), len);
     }
     break;
+  case 43:
+    // Himawari-8
+    if (nl_.productSubID == 1) {
+      channel = "IR1";
+    } else if (nl_.productSubID == 3) {
+      channel = "IR2";
+    } else if (nl_.productSubID == 7) {
+      channel = "VS";
+    } else {
+      assert(false);
+    }
+    break;
   case 3:
   case 4:
     // Himawari/Meteosat
@@ -173,6 +201,18 @@ std::string Image::getChannelLong() const {
       channel = "Channel " + std::string(buf.data(), len);
     }
     break;
+  case 43:
+    // Himawari-8
+    if (nl_.productSubID == 1) {
+      channel = "Infrared 1";
+    } else if (nl_.productSubID == 3) {
+      channel = "Infrared 2";
+    } else if (nl_.productSubID == 7) {
+      channel = "Visible";
+    } else {
+      assert(false);
+    }
+    break;
   case 3:
   case 4:
     // Himawari/Meteosat
@@ -190,9 +230,36 @@ std::string Image::getChannelLong() const {
   return channel;
 }
 
+struct timespec Image::getTimeStamp() const {
+  // Himawari-8 doesn't have a valid time stamp header
+  if (nl_.productID == 43) {
+    // Example annotation: IMG_DK01VIS_201712162250_003.lrit
+    auto ah = file_.getHeader<LRIT::AnnotationHeader>();
+    std::stringstream ss(ah.text);
+    std::string tmp;
+    assert(std::getline(ss, tmp, '_'));
+    assert(std::getline(ss, tmp, '_'));
+    assert(std::getline(ss, tmp, '_'));
+
+    // Third substring represents time stamp
+    struct timespec ts{0, 0};
+    struct tm tm{0};
+    tm.tm_year = std::stoi(tmp.substr(0, 4)) - 1900;
+    tm.tm_mon = std::stoi(tmp.substr(4, 2)) - 1;
+    tm.tm_mday = std::stoi(tmp.substr(6, 2));
+    tm.tm_hour = std::stoi(tmp.substr(8, 2));
+    tm.tm_min = std::stoi(tmp.substr(10, 2));
+    ts.tv_sec = timegm(&tm);
+    ts.tv_nsec = 0;
+    return ts;
+  }
+
+  return file_.getHeader<LRIT::TimeStampHeader>().getUnix();
+}
+
 std::string Image::getTimeShort() const {
   std::array<char, 128> tsbuf;
-  auto ts = file_.getHeader<LRIT::TimeStampHeader>().getUnix();
+  auto ts = getTimeStamp();
   auto len = strftime(
     tsbuf.data(),
     tsbuf.size(),
@@ -203,7 +270,7 @@ std::string Image::getTimeShort() const {
 
 std::string Image::getTimeLong() const {
   std::array<char, 128> tsbuf;
-  auto ts = file_.getHeader<LRIT::TimeStampHeader>().getUnix();
+  auto ts = getTimeStamp();
   auto len = strftime(
     tsbuf.data(),
     tsbuf.size(),

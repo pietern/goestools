@@ -11,6 +11,7 @@
 #include "image.h"
 #include "options.h"
 #include "segmented_image.h"
+#include "string.h"
 
 class ProcessImageData {
 public:
@@ -249,6 +250,39 @@ int processSegmentedImageData(Options& opts) {
   return ProcessImageData(std::move(opts), std::move(images)).run();
 }
 
+// Segmented Himawari-8 image files relayed by GOES appears to not use
+// the image identification field, so we use the annotation text to
+// figure out which files are part of the same image.
+int processHimawariImageData(Options& opts) {
+  std::map<std::string, std::vector<Image>> imagesByID;
+  for (const auto& f : opts.files) {
+    auto ah = f.getHeader<LRIT::AnnotationHeader>();
+
+    // Find last _ in annotation text and use this prefix
+    // as identification for this segmented image.
+    // Example annotation: IMG_DK01VIS_201712162250_003.lrit
+    auto pos = findLast(ah.text, '_');
+    assert(pos != std::string::npos);
+    auto id = ah.text.substr(0, pos);
+    imagesByID[id].push_back(Image(std::move(f)));
+  }
+
+  std::vector<SegmentedImage> images;
+  for (auto& e : imagesByID) {
+    // Image identifier is not included in Himawari-8 files
+    SegmentedImage image(0, e.second);
+
+    // Filter by channel if channel option is set
+    if (!opts.channel.empty() && opts.channel != image.getChannelShort()) {
+      continue;
+    }
+
+    images.push_back(std::move(image));
+  }
+
+  return ProcessImageData(std::move(opts), std::move(images)).run();
+}
+
 int processPlainImageData(Options& opts) {
   for (const auto& f : opts.files) {
     Image image(f);
@@ -301,6 +335,9 @@ int processImageData(Options& opts) {
     } else {
       return processPlainImageData(opts);
     }
+  case 43:
+    // Himawari-8
+    return processHimawariImageData(opts);
   case 3:
     // GMS
     return processPlainImageData(opts);

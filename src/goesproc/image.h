@@ -20,6 +20,7 @@ public:
   std::string getProductLong() const;
   std::string getChannelShort() const;
   std::string getChannelLong() const;
+  struct timespec getTimeStamp() const;
   std::string getTimeShort() const;
   std::string getTimeLong() const;
   std::string getBasename() const;
