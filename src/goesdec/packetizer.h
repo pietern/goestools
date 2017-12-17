@@ -43,6 +43,5 @@ protected:
   bool lock_;
   correlationType syncType_;
   int symbolRate_;
-
-  int gpos = 0;
+  int64_t symbolPos_;
 };

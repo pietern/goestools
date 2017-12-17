@@ -13,6 +13,7 @@ Packetizer::Packetizer(std::unique_ptr<Reader> reader)
   buf_ = static_cast<uint8_t*>(malloc(len_));
   pos_ = 0;
   lock_ = false;
+  symbolPos_ = 0;
 }
 
 bool Packetizer::read()  {
@@ -27,7 +28,7 @@ bool Packetizer::read()  {
     return false;
   }
   assert(rv == nbytes);
-  gpos += nbytes;
+  symbolPos_ += nbytes;
   return true;
 }
 
@@ -160,7 +161,7 @@ bool Packetizer::nextPacket(std::array<uint8_t, 892>& out, struct timespec* ts) 
 
   // Include relative time of packet from start of packetizer.
   if (ts != nullptr) {
-    auto pos = gpos - (encodedFrameBits + encodedSyncWordBits);
+    auto pos = symbolPos_ - (encodedFrameBits + encodedSyncWordBits);
     ts->tv_nsec = (1000000000 * (pos % symbolRate_)) / symbolRate_;
     ts->tv_sec = pos / symbolRate_;
   }
