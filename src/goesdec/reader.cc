@@ -44,15 +44,14 @@ MultiFileReader::~MultiFileReader() {
   }
 }
 
-void MultiFileReader::next() {
+bool MultiFileReader::next() {
   if (fd_ != -1) {
     close(fd_);
   }
 
   // Pop next file off of the list
   if (files_.empty()) {
-    std::cerr << "No more files!";
-    exit(1);
+    return false;
   }
   current_file_ = files_.front();
   std::cerr << "Reading from: " << current_file_ << std::endl;
@@ -64,6 +63,7 @@ void MultiFileReader::next() {
     perror("open");
     exit(1);
   }
+  return true;
 }
 
 size_t MultiFileReader::read(void* buf, size_t count) {
@@ -71,7 +71,9 @@ size_t MultiFileReader::read(void* buf, size_t count) {
   int rv;
 
   if (fd_ == -1) {
-    next();
+    if (!next()) {
+      return 0;
+    }
   }
 
   while (nread < count) {
@@ -85,7 +87,9 @@ size_t MultiFileReader::read(void* buf, size_t count) {
 
     // Move to next file on EOF
     if (rv == 0) {
-      next();
+      if (!next()) {
+        return 0;
+      }
     }
   }
 

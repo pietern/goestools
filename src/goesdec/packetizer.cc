@@ -15,7 +15,7 @@ Packetizer::Packetizer(std::unique_ptr<Reader> reader)
   lock_ = false;
 }
 
-void Packetizer::read()  {
+bool Packetizer::read()  {
   int rv;
   int nbytes = len_ - pos_;
   rv = reader_->read(buf_ + pos_, nbytes);
@@ -23,15 +23,22 @@ void Packetizer::read()  {
     perror("read");
     exit(1);
   }
+  if (rv == 0) {
+    return false;
+  }
   assert(rv == nbytes);
   gpos += nbytes;
+  return true;
 }
 
-void Packetizer::nextPacket(std::array<uint8_t, 892>& out, struct timespec* ts) {
+bool Packetizer::nextPacket(std::array<uint8_t, 892>& out, struct timespec* ts) {
   int rv;
 
   for (;;) {
-    read();
+    auto ok = read();
+    if (!ok) {
+      return false;
+    }
 
     // If there is a frame lock, don't try and find sync words
     // with better correlation. It is possible that once in a
@@ -69,7 +76,10 @@ void Packetizer::nextPacket(std::array<uint8_t, 892>& out, struct timespec* ts) 
         pos_ = len_ - pos;
 
         // Fill tail and correlate again
-        read();
+        ok = read();
+        if (!ok) {
+          return false;
+        }
         pos = correlate(&buf_[skip], len_ - skip, &max, &syncType_);
       }
 
@@ -154,4 +164,6 @@ void Packetizer::nextPacket(std::array<uint8_t, 892>& out, struct timespec* ts) 
     ts->tv_nsec = (1000000000 * (pos % symbolRate_)) / symbolRate_;
     ts->tv_sec = pos / symbolRate_;
   }
+
+  return true;
 }

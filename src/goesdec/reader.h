@@ -23,5 +23,5 @@ protected:
   std::string current_file_;
   int fd_;
 
-  void next();
+  bool next();
 };

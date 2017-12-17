@@ -27,10 +27,10 @@ class Packetizer {
 public:
   explicit Packetizer(std::unique_ptr<Reader> reader);
 
-  void nextPacket(std::array<uint8_t, 892>& out, struct timespec* ts);
+  bool nextPacket(std::array<uint8_t, 892>& out, struct timespec* ts);
 
 protected:
-  void read();
+  bool read();
 
   std::unique_ptr<Reader> reader_;
   Viterbi viterbi_;
