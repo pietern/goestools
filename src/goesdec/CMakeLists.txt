@@ -7,6 +7,9 @@ add_library(packetizer
   )
 target_link_libraries(packetizer correct_static)
 
+add_executable(packetinfo packetinfo.cc)
+target_link_libraries(packetinfo stdc++)
+
 add_executable(goesdec
   crc.cc
   file_handler.cc
