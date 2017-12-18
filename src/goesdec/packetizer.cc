@@ -3,7 +3,7 @@
 #include <cstring>
 #include <iostream>
 
-Packetizer::Packetizer(std::unique_ptr<Reader> reader)
+Packetizer::Packetizer(std::shared_ptr<Reader> reader)
   : reader_(std::move(reader)) {
   // Include frame prelude at the beginning of the buffer so there
   // is always some preceding data for Viterbi decoder warmup.

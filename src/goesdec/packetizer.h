@@ -25,14 +25,14 @@ class Packetizer {
   static constexpr auto framePreludeBytes = framePreludeBits / 8;
 
 public:
-  explicit Packetizer(std::unique_ptr<Reader> reader);
+  explicit Packetizer(std::shared_ptr<Reader> reader);
 
   bool nextPacket(std::array<uint8_t, 892>& out, struct timespec* ts);
 
 protected:
   bool read();
 
-  std::unique_ptr<Reader> reader_;
+  std::shared_ptr<Reader> reader_;
   Viterbi viterbi_;
   Derandomizer derandomizer_;
   ReedSolomon reedSolomon_;

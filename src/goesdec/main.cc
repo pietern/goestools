@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
   }
 
   FileHandler handler("./out");
-  Packetizer p(std::make_unique<MultiFileReader>(files));
+  Packetizer p(std::make_shared<MultiFileReader>(files));
   std::array<uint8_t, 892> buf;
 
   std::map<int, VirtualChannel> vcs;
