@@ -153,11 +153,11 @@ std::string Image::getChannelShort() const {
   case 43:
     // Himawari-8
     if (nl_.productSubID == 1) {
-      channel = "IR1";
-    } else if (nl_.productSubID == 3) {
-      channel = "IR2";
-    } else if (nl_.productSubID == 7) {
       channel = "VS";
+    } else if (nl_.productSubID == 3) {
+      channel = "IR";
+    } else if (nl_.productSubID == 7) {
+      channel = "WV";
     } else {
       assert(false);
     }
@@ -204,11 +204,11 @@ std::string Image::getChannelLong() const {
   case 43:
     // Himawari-8
     if (nl_.productSubID == 1) {
-      channel = "Infrared 1";
-    } else if (nl_.productSubID == 3) {
-      channel = "Infrared 2";
-    } else if (nl_.productSubID == 7) {
       channel = "Visible";
+    } else if (nl_.productSubID == 3) {
+      channel = "Infrared";
+    } else if (nl_.productSubID == 7) {
+      channel = "Water Vapor";
     } else {
       assert(false);
     }
