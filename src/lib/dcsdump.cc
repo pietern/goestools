@@ -12,13 +12,17 @@ int main(int argc, char** argv) {
 
   for (int i = optind; i < argc; i++) {
     auto file = LRIT::File(argv[i]);
-    if (!file.hasHeader<LRIT::DCSFileNameHeader>()) {
-      std::cerr << "File " << argv[i] << " doesn't have DCS header";
+    auto ph = file.getHeader<LRIT::PrimaryHeader>();
+    if (ph.fileType != 130) {
+      std::cerr
+        << "File " << argv[i]
+        << " has file type " << int(ph.fileType)
+        << " (expected: 130)"
+        << std::endl;
       exit(1);
     }
 
     // Read DCS data
-    auto ph = file.getHeader<LRIT::PrimaryHeader>();
     int nbytes = (ph.dataLength + 7) / 8;
     auto ifs = file.getData();
     auto buf = std::make_unique<char[]>(nbytes);
