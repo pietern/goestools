@@ -23,7 +23,7 @@ add_executable(goesdec
   virtual_channel.cc
   )
 add_sanitizers(goesdec)
-target_link_libraries(goesdec lrit packetizer aec sz)
+target_link_libraries(goesdec lrit aec sz)
 
 add_executable(compute_sync_words compute_sync_words.cc)
 add_sanitizers(compute_sync_words)
