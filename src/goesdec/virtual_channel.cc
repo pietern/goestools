@@ -165,7 +165,20 @@ void VirtualChannel::process(
   //   file beginning in an earlier packet.
   auto flag = tpdu->sequenceFlag();
   if (flag == 3 || flag == 1) {
-    assert(apidSessionPDU_.count(apid) == 0);
+    if (apidSessionPDU_.count(apid) > 0) {
+      if (true) {
+        std::cerr
+          << "VC "
+          << id_
+          << ": New S_PDU for "
+          << apid
+          << ", but didn't finish previous one"
+          << std::endl;
+      }
+
+      // Erase pending S_PDU as it won't be finished now
+      apidSessionPDU_.erase(apid);
+    }
 
     // Check if this S_PDU is contained in a single TP_PDU
     if (flag == 3) {
