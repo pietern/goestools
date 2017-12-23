@@ -182,7 +182,17 @@ void VirtualChannel::process(
 
     // Check if this S_PDU is contained in a single TP_PDU
     if (flag == 3) {
-      out.push_back(std::make_unique<SessionPDU>(*tpdu));
+      auto spdu = std::make_unique<SessionPDU>(*tpdu);
+      if (spdu->size() == 0) {
+        std::cerr
+          << "VC "
+          << id_
+          << ": Zero length S_PDU for APID "
+          << apid
+          << std::endl;
+      } else {
+        out.push_back(std::move(spdu));
+      }
     } else {
       // Expecting subsequent TP_PDUs to fill this S_PDU
       apidSessionPDU_.insert(

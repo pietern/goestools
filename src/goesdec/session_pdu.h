@@ -32,6 +32,10 @@ public:
     return buf_;
   }
 
+  const size_t size() const {
+    return buf_.size();
+  }
+
   const LRIT::HeaderMap& getHeaderMap() {
     return m_;
   }
