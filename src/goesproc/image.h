@@ -84,13 +84,22 @@ public:
 
 class ImageGOES16 : public Image {
 public:
-  explicit ImageGOES16(LRIT::File file)
-    : Image(file) {
-  }
+  explicit ImageGOES16(LRIT::File file);
 
   virtual std::string getSatellite() const override;
   virtual Region getRegion() const override;
   virtual Channel getChannel() const override;
+  virtual struct timespec getTimeStamp() const override;
+
+protected:
+  struct timespec frameStart_;
+  std::string satellite_;
+  std::string instrument_;
+  Channel channel_;
+  std::string imagingMode_;
+  Region region_;
+  std::string resolution_;
+  bool segmented_;
 };
 
 class ImageHimawari8 : public Image {

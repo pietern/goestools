@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include "lib/util.h"
+
 namespace {
 
 // GOES 13 and 15 use identical region identification.
@@ -44,28 +46,6 @@ Image::Channel getGOESLRITChannel(const LRIT::NOAALRITHeader& h) {
     channel.nameShort = "WV";
     channel.nameLong = "Water Vapor";
   }
-  return channel;
-}
-
-// GOES 16 uses different region identification.
-// Need to differentiate between full disk and mesoscale.
-Image::Region getGOESHRITRegion(const LRIT::NOAALRITHeader& h) {
-  Image::Region region;
-  region.nameShort = "FD";
-  region.nameLong = "Full Disk";
-  return region;
-}
-
-// GOES 16 ABI has 16 channels.
-Image::Channel getGOESHRITChannel(const LRIT::NOAALRITHeader& h) {
-  Image::Channel channel;
-  std::array<char, 32> buf;
-  size_t len;
-  auto num = h.productSubID;
-  len = snprintf(buf.data(), buf.size(), "CH%02d", num);
-  channel.nameShort = std::string(buf.data(), len);
-  len = snprintf(buf.data(), buf.size(), "Channel %d", num);
-  channel.nameLong = std::string(buf.data(), len);
   return channel;
 }
 
@@ -207,16 +187,105 @@ Image::Channel ImageGOES15::getChannel() const {
   return getGOESLRITChannel(this->nl_);
 }
 
+ImageGOES16::ImageGOES16(LRIT::File file) : Image(file) {
+  auto text = getFile().getHeader<LRIT::AncillaryTextHeader>().text;
+  auto pairs = split(text, ';');
+  for (const auto& pair : pairs) {
+    auto elements = split(pair, '=');
+    assert(elements.size() == 2);
+    auto key = trimRight(elements[0]);
+    auto value = trimLeft(elements[1]);
+
+    if (key == "Time of frame start") {
+      auto ok = parseTime(value, &frameStart_);
+      assert(ok);
+      continue;
+    }
+
+    if (key == "Satellite") {
+      satellite_ = value;
+      continue;
+    }
+
+    if (key == "Instrument") {
+      instrument_ = value;
+      continue;
+    }
+
+    if (key == "Channel") {
+      std::array<char, 32> buf;
+      size_t len;
+      auto num = std::stoi(value);
+      assert(num >= 1 && num <= 16);
+      len = snprintf(buf.data(), buf.size(), "CH%02d", num);
+      channel_.nameShort = std::string(buf.data(), len);
+      len = snprintf(buf.data(), buf.size(), "Channel %d", num);
+      channel_.nameLong = std::string(buf.data(), len);
+      continue;
+    }
+
+    if (key == "Imaging Mode") {
+      imagingMode_ = value;
+      continue;
+    }
+
+    if (key == "Region") {
+      // Ignore; this needs to be derived from the file name
+      // because the mesoscale sector is not included here.
+      continue;
+    }
+
+    if (key == "Resolution") {
+      resolution_ = value;
+      continue;
+    }
+
+    if (key == "Segmented") {
+      segmented_ = (value == "yes");
+      continue;
+    }
+
+    std::cerr << "Unhandled key in ancillary text: " << key << std::endl;
+    assert(false);
+  }
+
+  // Tell apart the two mesoscale sectors
+  {
+    auto fileName = getFile().getHeader<LRIT::AnnotationHeader>().text;
+    auto parts = split(fileName, '-');
+    assert(parts.size() >= 4);
+    if (parts[2] == "CMIPF") {
+      region_.nameLong = "Full Disk";
+      region_.nameShort = "FD";
+    } else if (parts[2] == "CMIPM1") {
+      region_.nameLong = "Mesoscale 1";
+      region_.nameShort = "M1";
+    } else if (parts[2] == "CMIPM2") {
+      region_.nameLong = "Mesoscale 2";
+      region_.nameShort = "M2";
+    } else {
+      std::cerr << "Unable to derive region from: " << parts[2] << std::endl;
+      assert(false);
+    }
+  }
+}
+
 std::string ImageGOES16::getSatellite() const {
   return "GOES16";
 }
 
 Image::Region ImageGOES16::getRegion() const {
-  return getGOESHRITRegion(this->nl_);
+  return region_;
 }
 
 Image::Channel ImageGOES16::getChannel() const {
-  return getGOESHRITChannel(this->nl_);
+  return channel_;
+}
+
+// Every GOES 16 ABI image has an ancillary text field
+// that contains the exact time that the frame scan started.
+struct timespec ImageGOES16::getTimeStamp() const {
+  return frameStart_;
 }
 
 std::string ImageHimawari8::getSatellite() const {
