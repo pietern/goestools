@@ -3,16 +3,18 @@
 #include <algorithm>
 #include <cmath>
 
-SegmentedImage::SegmentedImage(uint16_t imageIdentifier, std::vector<Image> images)
+SegmentedImage::SegmentedImage(
+  uint16_t imageIdentifier,
+  std::vector<std::unique_ptr<Image>>&& images)
   : imageIdentifier_(imageIdentifier),
-    images_(images) {
+    images_(std::move(images)) {
   // Sort images by their segment number
   std::sort(
     images_.begin(),
     images_.end(),
     [](const auto& a, const auto& b) -> bool {
-      auto sa = a.getFile().template getHeader<LRIT::SegmentIdentificationHeader>();
-      auto sb = b.getFile().template getHeader<LRIT::SegmentIdentificationHeader>();
+      auto sa = a->getFile().template getHeader<LRIT::SegmentIdentificationHeader>();
+      auto sb = b->getFile().template getHeader<LRIT::SegmentIdentificationHeader>();
       return sa.segmentNumber < sb.segmentNumber;
     });
 
@@ -20,7 +22,7 @@ SegmentedImage::SegmentedImage(uint16_t imageIdentifier, std::vector<Image> imag
   columns_ = 0;
   lines_ = 0;
   for (unsigned i = 0; i < images_.size(); i++) {
-    const auto& f = images_[i].getFile();
+    const auto& f = images_[i]->getFile();
     auto is = f.getHeader<LRIT::ImageStructureHeader>();
     auto in = f.getHeader<LRIT::ImageNavigationHeader>();
     auto si = f.getHeader<LRIT::SegmentIdentificationHeader>();
@@ -82,42 +84,42 @@ SegmentedImage::SegmentedImage(uint16_t imageIdentifier, std::vector<Image> imag
 }
 
 std::string SegmentedImage::getSatellite() const {
-  return images_.front().getSatellite();
+  return getImage()->getSatellite();
 }
 
-std::string SegmentedImage::getProductShort() const {
-  return images_.front().getProductShort();
+std::string SegmentedImage::getRegionShort() const {
+  return getImage()->getRegionShort();
 }
 
-std::string SegmentedImage::getProductLong() const {
-  return images_.front().getProductLong();
+std::string SegmentedImage::getRegionLong() const {
+  return getImage()->getRegionLong();
 }
 
 std::string SegmentedImage::getChannelShort() const {
-  return images_.front().getChannelShort();
+  return getImage()->getChannelShort();
 }
 
 std::string SegmentedImage::getChannelLong() const {
-  return images_.front().getChannelLong();
+  return getImage()->getChannelLong();
 }
 
 std::string SegmentedImage::getTimeShort() const {
-  return images_.front().getTimeShort();
+  return getImage()->getTimeShort();
 }
 
 std::string SegmentedImage::getTimeLong() const {
-  return images_.front().getTimeLong();
+  return getImage()->getTimeLong();
 }
 
 std::string SegmentedImage::getBasename() const {
-  return images_.front().getBasename();
+  return getImage()->getBasename();
 }
 
 cv::Mat SegmentedImage::getRawImage() const {
   cv::Mat raw(lines_, columns_, CV_8UC1);
   size_t offset = 0;
   for (const auto& image : images_) {
-    const auto& f = image.getFile();
+    const auto& f = image->getFile();
     auto is = f.getHeader<LRIT::ImageStructureHeader>();
     auto ifs = f.getData();
     for (auto line = 0; line < is.lines; line++) {

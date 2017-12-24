@@ -8,10 +8,16 @@
 
 class SegmentedImage {
 public:
-  SegmentedImage(uint16_t imageIdentifier, std::vector<Image> images);
+  SegmentedImage(
+    uint16_t imageIdentifier,
+    std::vector<std::unique_ptr<Image> >&& images);
 
-  const std::vector<Image>& getImages() {
+  const std::vector<std::unique_ptr<Image> >& getImages() const {
     return images_;
+  }
+
+  const std::unique_ptr<Image>& getImage() const {
+    return images_.front();
   }
 
   uint8_t getExpectedNumberFiles() {
@@ -31,8 +37,8 @@ public:
   }
 
   std::string getSatellite() const;
-  std::string getProductShort() const;
-  std::string getProductLong() const;
+  std::string getRegionShort() const;
+  std::string getRegionLong() const;
   std::string getChannelShort() const;
   std::string getChannelLong() const;
   std::string getTimeShort() const;
@@ -47,7 +53,7 @@ public:
 
 protected:
   uint16_t imageIdentifier_;
-  std::vector<Image> images_;
+  std::vector<std::unique_ptr<Image>> images_;
 
   uint8_t maxSegment_;
   uint16_t columns_;

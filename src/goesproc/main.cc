@@ -20,7 +20,7 @@ public:
       images_(std::move(images)) {
     std::set<int> subProducts;
     for (auto& image : images_) {
-      const auto& firstFile = image.getImages().front().getFile();
+      const auto& firstFile = image.getImage()->getFile();
       subProducts.insert(firstFile.getHeader<LRIT::NOAALRITHeader>().productSubID);
     }
     multiSubProducts_ = (subProducts.size() > 1);
@@ -38,10 +38,10 @@ public:
       auto fileName = image.getSatellite() + "_";
 
       // If this list contains images from multiple products, the
-      // product is omitted from the filename, so the resulting set of
+      // region is omitted from the filename, so the resulting set of
       // files is chronologically ordered by default.
       if (!multiSubProducts_) {
-        fileName += image.getProductShort() + "_";
+        fileName += image.getRegionShort() + "_";
       }
       fileName += image.getChannelShort() + "_";
       fileName += image.getTimeShort();
@@ -179,7 +179,7 @@ public:
         details,
         cv::Rect(i * segWidth, 0, segWidth, topRows));
     }
-    putText(segs[0], 0, image.getSatellite() + " " + image.getProductLong());
+    putText(segs[0], 0, image.getSatellite() + " " + image.getRegionLong());
     putText(segs[1], 1, image.getTimeLong() + " UTC");
     putText(segs[2], 2, image.getChannelLong());
     return tmp;
@@ -221,16 +221,16 @@ protected:
 };
 
 int processSegmentedImageData(Options& opts) {
-  std::map<int, std::vector<Image>> imagesByID;
+  std::map<int, std::vector<std::unique_ptr<Image>>> imagesByID;
   for (const auto& f : opts.files) {
     auto si = f.getHeader<LRIT::SegmentIdentificationHeader>();
-    auto image = Image(std::move(f));
+    auto image = Image::createFromFile(std::move(f));
     imagesByID[si.imageIdentifier].push_back(std::move(image));
   }
 
   std::vector<SegmentedImage> images;
   for (auto& e : imagesByID) {
-    SegmentedImage image(e.first, e.second);
+    SegmentedImage image(e.first, std::move(e.second));
 
     // Filter by channel if channel option is set
     if (!opts.channel.empty() && opts.channel != image.getChannelShort()) {
@@ -254,7 +254,7 @@ int processSegmentedImageData(Options& opts) {
 // the image identification field, so we use the annotation text to
 // figure out which files are part of the same image.
 int processHimawariImageData(Options& opts) {
-  std::map<std::string, std::vector<Image>> imagesByID;
+  std::map<std::string, std::vector<std::unique_ptr<Image>>> imagesByID;
   for (const auto& f : opts.files) {
     auto ah = f.getHeader<LRIT::AnnotationHeader>();
 
@@ -264,13 +264,13 @@ int processHimawariImageData(Options& opts) {
     auto pos = findLast(ah.text, '_');
     assert(pos != std::string::npos);
     auto id = ah.text.substr(0, pos);
-    imagesByID[id].push_back(Image(std::move(f)));
+    imagesByID[id].push_back(Image::createFromFile(std::move(f)));
   }
 
   std::vector<SegmentedImage> images;
   for (auto& e : imagesByID) {
     // Image identifier is not included in Himawari-8 files
-    SegmentedImage image(0, e.second);
+    SegmentedImage image(0, std::move(e.second));
 
     // Filter by channel if channel option is set
     if (!opts.channel.empty() && opts.channel != image.getChannelShort()) {
@@ -285,14 +285,14 @@ int processHimawariImageData(Options& opts) {
 
 int processPlainImageData(Options& opts) {
   for (const auto& f : opts.files) {
-    Image image(f);
-    auto fileName = image.getBasename();
+    auto image = Image::createFromFile(f);
+    auto fileName = image->getBasename();
     fileName += "." + opts.format;
     std::cout
       << "Writing "
       << fileName
       << std::endl;
-    cv::imwrite(fileName, image.getRawImage());
+    cv::imwrite(fileName, image->getRawImage());
   }
   return 0;
 }

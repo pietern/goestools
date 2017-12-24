@@ -2,258 +2,123 @@
 
 #include <memory>
 
+namespace {
+
+// GOES 13 and 15 use identical region identification.
+Image::Region getGOESLRITRegion(const LRIT::NOAALRITHeader& h) {
+  Image::Region region;
+  if (h.productSubID % 10 == 1) {
+    region.nameShort = "FD";
+    region.nameLong = "Full Disk";
+  } else if (h.productSubID % 10 == 2) {
+    region.nameShort = "NH";
+    region.nameLong = "Northern Hemisphere";
+  } else if (h.productSubID % 10 == 3) {
+    region.nameShort = "SH";
+    region.nameLong = "Southern Hemisphere";
+  } else if (h.productSubID % 10 == 4) {
+    region.nameShort = "US";
+    region.nameLong = "United States";
+  } else {
+    std::array<char, 32> buf;
+    size_t len;
+    auto num = (h.productSubID % 10) - 5;
+    len = snprintf(buf.data(), buf.size(), "SI%02d", num);
+    region.nameShort = std::string(buf.data(), len);
+    len = snprintf(buf.data(), buf.size(), "Special Interest %d", num);
+    region.nameLong = std::string(buf.data(), len);
+  }
+  return region;
+}
+
+// GOES 13 and 15 use identical channel identification.
+Image::Channel getGOESLRITChannel(const LRIT::NOAALRITHeader& h) {
+  Image::Channel channel;
+  if (h.productSubID <= 10) {
+    channel.nameShort = "IR";
+    channel.nameLong = "Infrared";
+  } else if (h.productSubID <= 20) {
+    channel.nameShort = "VS";
+    channel.nameLong = "Visible";
+  } else {
+    channel.nameShort = "WV";
+    channel.nameLong = "Water Vapor";
+  }
+  return channel;
+}
+
+// GOES 16 uses different region identification.
+// Need to differentiate between full disk and mesoscale.
+Image::Region getGOESHRITRegion(const LRIT::NOAALRITHeader& h) {
+  Image::Region region;
+  region.nameShort = "FD";
+  region.nameLong = "Full Disk";
+  return region;
+}
+
+// GOES 16 ABI has 16 channels.
+Image::Channel getGOESHRITChannel(const LRIT::NOAALRITHeader& h) {
+  Image::Channel channel;
+  std::array<char, 32> buf;
+  size_t len;
+  auto num = h.productSubID;
+  len = snprintf(buf.data(), buf.size(), "CH%02d", num);
+  channel.nameShort = std::string(buf.data(), len);
+  len = snprintf(buf.data(), buf.size(), "Channel %d", num);
+  channel.nameLong = std::string(buf.data(), len);
+  return channel;
+}
+
+} // namespace
+
+std::unique_ptr<Image> Image::createFromFile(LRIT::File file) {
+  auto nl = file.getHeader<LRIT::NOAALRITHeader>();
+  switch (nl.productID) {
+  case 13:
+    return std::unique_ptr<Image>(new ImageGOES13(std::move(file)));
+  case 15:
+    return std::unique_ptr<Image>(new ImageGOES15(std::move(file)));
+  case 16:
+    return std::unique_ptr<Image>(new ImageGOES16(std::move(file)));
+  case 43:
+    return std::unique_ptr<Image>(new ImageHimawari8(std::move(file)));
+  case 3:
+    return std::unique_ptr<Image>(new ImageHimawari8(std::move(file)));
+  case 4:
+    return std::unique_ptr<Image>(new ImageMeteosat(std::move(file)));
+  case 6:
+    return std::unique_ptr<Image>(new ImageNWS(std::move(file)));
+  }
+
+  assert(false && "Unhandled productID");
+}
+
 Image::Image(LRIT::File file) : file_(file) {
   is_ = file_.getHeader<LRIT::ImageStructureHeader>();
   nl_ = file_.getHeader<LRIT::NOAALRITHeader>();
 }
 
 std::string Image::getSatellite() const {
-  switch (nl_.productID) {
-  case 13:
-    return "GOES13";
-  case 15:
-    return "GOES15";
-  case 16:
-    return "GOES16";
-  case 43:
-    return "HIMAWARI8";
-  case 3:
-    return "Himawari";
-  case 4:
-    return "Meteosat";
-  default:
-    assert(false);
-  }
-  return "";
+  assert(false);
 }
 
-std::string Image::getProductShort() const {
-  std::string product;
-  switch (nl_.productID) {
-  case 13:
-  case 15:
-    // GOES
-    if (nl_.productSubID % 10 == 1) {
-      product = "FD";
-    } else if (nl_.productSubID % 10 == 2) {
-      product = "NH";
-    } else if (nl_.productSubID % 10 == 3) {
-      product = "SH";
-    } else if (nl_.productSubID % 10 == 4) {
-      product = "US";
-    } else {
-      std::array<char, 8> buf;
-      auto num = (nl_.productSubID % 10) - 5;
-      auto len = snprintf(buf.data(), buf.size(), "SI%02d", num);
-      product = std::string(buf.data(), len);
-    }
-    break;
-  case 16:
-    // GOES-16
-    product = "FD";
-    break;
-  case 43:
-    // Himawari-8
-    if (nl_.productSubID % 2 == 1) {
-      product = "FD";
-    } else {
-      assert(false);
-    }
-  case 3:
-  case 4:
-    // Himawari/Meteosat
-    if (nl_.productSubID % 2 == 1) {
-      product = "FD";
-    } else {
-      std::array<char, 8> buf;
-      auto len = snprintf(buf.data(), buf.size(), "S%05d", nl_.parameter);
-      product = std::string(buf.data(), len);
-    }
-    break;
-  default:
-    assert(false);
-  }
-  return product;
+Image::Region Image::getRegion() const {
+  assert(false);
 }
 
-std::string Image::getProductLong() const {
-  std::string product;
-  switch (nl_.productID) {
-  case 13:
-  case 15:
-    // GOES
-    if (nl_.productSubID % 10 == 1) {
-      product = "Full Disk";
-    } else if (nl_.productSubID % 10 == 2) {
-      product = "Northern Hemisphere";
-    } else if (nl_.productSubID % 10 == 3) {
-      product = "Southern Hemisphere";
-    } else if (nl_.productSubID % 10 == 4) {
-      product = "United States";
-    } else {
-      product = "Special Interest ";
-      std::array<char, 8> buf;
-      auto num = (nl_.productSubID % 10) - 5;
-      auto len = snprintf(buf.data(), buf.size(), "%d", num);
-      product += std::string(buf.data(), len);
-    }
-    break;
-  case 16:
-    // GOES-16
-    product = "Full Disk";
-    break;
-  case 43:
-    // Himawari-8
-    if (nl_.productSubID % 2 == 1) {
-      product = "Full Disk";
-    } else {
-      assert(false);
-    }
-  case 3:
-  case 4:
-    // Himawari/Meteosat
-    if (nl_.productSubID % 2 == 1) {
-      product = "Full Disk";
-    } else {
-      product = "Sector ";
-      std::array<char, 8> buf;
-      auto num = nl_.parameter;
-      auto len = snprintf(buf.data(), buf.size(), "%d", num);
-      product += std::string(buf.data(), len);
-    }
-    break;
-  default:
-    assert(false);
-  }
-  return product;
+Image::Channel Image::getChannel() const {
+  assert(false);
 }
 
-std::string Image::getChannelShort() const {
-  std::string channel;
-  switch (nl_.productID) {
-  case 13:
-  case 15:
-    // GOES
-    if (nl_.productSubID <= 10) {
-      channel = "IR";
-    } else if (nl_.productSubID <= 20) {
-      channel = "VS";
-    } else {
-      channel = "WV";
-    }
-    break;
-  case 16:
-    // GOES-16
-    {
-      std::array<char, 8> buf;
-      auto len = snprintf(buf.data(), buf.size(), "%02d", nl_.productSubID);
-      channel = "CH" + std::string(buf.data(), len);
-    }
-    break;
-  case 43:
-    // Himawari-8
-    if (nl_.productSubID == 1) {
-      channel = "VS";
-    } else if (nl_.productSubID == 3) {
-      channel = "IR";
-    } else if (nl_.productSubID == 7) {
-      channel = "WV";
-    } else {
-      assert(false);
-    }
-    break;
-  case 3:
-  case 4:
-    // Himawari/Meteosat
-    if (nl_.productSubID <= 2) {
-      channel = "IR";
-    } else if (nl_.productSubID <= 4) {
-      channel = "VS";
-    } else {
-      channel = "WV";
-    }
-    break;
-  default:
-    assert(false);
-  }
-  return channel;
-}
-
-std::string Image::getChannelLong() const {
-  std::string channel;
-  switch (nl_.productID) {
-  case 13:
-  case 15:
-    // GOES
-    if (nl_.productSubID <= 10) {
-      channel = "Infrared";
-    } else if (nl_.productSubID <= 20) {
-      channel = "Visible";
-    } else {
-      channel = "Water Vapor";
-    }
-    break;
-  case 16:
-    // GOES-16
-    {
-      std::array<char, 8> buf;
-      auto len = snprintf(buf.data(), buf.size(), "%d", nl_.productSubID);
-      channel = "Channel " + std::string(buf.data(), len);
-    }
-    break;
-  case 43:
-    // Himawari-8
-    if (nl_.productSubID == 1) {
-      channel = "Visible";
-    } else if (nl_.productSubID == 3) {
-      channel = "Infrared";
-    } else if (nl_.productSubID == 7) {
-      channel = "Water Vapor";
-    } else {
-      assert(false);
-    }
-    break;
-  case 3:
-  case 4:
-    // Himawari/Meteosat
-    if (nl_.productSubID <= 2) {
-      channel = "Infrared";
-    } else if (nl_.productSubID <= 4) {
-      channel = "Visible";
-    } else {
-      channel = "Water Vapor";
-    }
-    break;
-  default:
-    assert(false);
-  }
-  return channel;
+std::string Image::getBasename() const {
+  return
+    getSatellite() + "_" +
+    getRegionShort() + "_" +
+    getChannelShort() + "_" +
+    getTimeShort();
 }
 
 struct timespec Image::getTimeStamp() const {
-  // Himawari-8 doesn't have a valid time stamp header
-  if (nl_.productID == 43) {
-    // Example annotation: IMG_DK01VIS_201712162250_003.lrit
-    auto ah = file_.getHeader<LRIT::AnnotationHeader>();
-    std::stringstream ss(ah.text);
-    std::string tmp;
-    assert(std::getline(ss, tmp, '_'));
-    assert(std::getline(ss, tmp, '_'));
-    assert(std::getline(ss, tmp, '_'));
-
-    // Third substring represents time stamp
-    struct timespec ts{0, 0};
-    struct tm tm{0};
-    tm.tm_year = std::stoi(tmp.substr(0, 4)) - 1900;
-    tm.tm_mon = std::stoi(tmp.substr(4, 2)) - 1;
-    tm.tm_mday = std::stoi(tmp.substr(6, 2));
-    tm.tm_hour = std::stoi(tmp.substr(8, 2));
-    tm.tm_min = std::stoi(tmp.substr(10, 2));
-    ts.tv_sec = timegm(&tm);
-    ts.tv_nsec = 0;
-    return ts;
-  }
-
   return file_.getHeader<LRIT::TimeStampHeader>().getUnix();
 }
 
@@ -277,48 +142,6 @@ std::string Image::getTimeLong() const {
     "%Y-%m-%d %H:%M:%S",
     gmtime(&ts.tv_sec));
   return std::string(tsbuf.data(), len);
-}
-
-std::string Image::getBasename() const {
-  if (nl_.productID == 13 || nl_.productID == 15) {
-    // GOES
-    return
-      getSatellite() + "_" +
-      getProductShort() + "_" +
-      getChannelShort() + "_" +
-      getTimeShort();
-  } else if (nl_.productID == 16) {
-    // GOES-16
-    return
-      getSatellite() + "_" +
-      getProductShort() + "_" +
-      getChannelShort() + "_" +
-      getTimeShort();
-  } else if (nl_.productID == 3) {
-    // Himawari
-    return
-      getSatellite() + "_" +
-      getProductShort() + "_" +
-      getChannelShort() + "_" +
-      getTimeShort();
-  } else if (nl_.productID == 4) {
-    // Meteosat
-    return
-      getSatellite() + "_" +
-      getProductShort() + "_" +
-      getChannelShort() + "_" +
-      getTimeShort();
-  } else if (nl_.productID == 6) {
-    // NWS
-    // Use annotation without the "dat327221257926.lrit" suffix
-    auto text = file_.getHeader<LRIT::AnnotationHeader>().text;
-    auto pos = text.find("dat");
-    assert(pos != std::string::npos);
-    return text.substr(0, pos) + "_" + getTimeShort();
-  } else {
-    assert(false);
-  }
-  return "";
 }
 
 cv::Mat Image::getRawImage() const {
@@ -358,4 +181,134 @@ cv::Mat Image::getRawImage() const {
     assert(false);
   }
   return raw;
+}
+
+std::string ImageGOES13::getSatellite() const {
+  return "GOES13";
+}
+
+Image::Region ImageGOES13::getRegion() const {
+  return getGOESLRITRegion(this->nl_);
+}
+
+Image::Channel ImageGOES13::getChannel() const {
+  return getGOESLRITChannel(this->nl_);
+}
+
+std::string ImageGOES15::getSatellite() const {
+  return "GOES15";
+}
+
+Image::Region ImageGOES15::getRegion() const {
+  return getGOESLRITRegion(this->nl_);
+}
+
+Image::Channel ImageGOES15::getChannel() const {
+  return getGOESLRITChannel(this->nl_);
+}
+
+std::string ImageGOES16::getSatellite() const {
+  return "GOES16";
+}
+
+Image::Region ImageGOES16::getRegion() const {
+  return getGOESHRITRegion(this->nl_);
+}
+
+Image::Channel ImageGOES16::getChannel() const {
+  return getGOESHRITChannel(this->nl_);
+}
+
+std::string ImageHimawari8::getSatellite() const {
+  return "Himawari8";
+}
+
+Image::Region ImageHimawari8::getRegion() const {
+  Region region;
+  if (nl_.productSubID % 2 == 1) {
+    region.nameShort = "FD";
+    region.nameLong = "Full Disk";
+  } else {
+    assert(false);
+  }
+  return region;
+}
+
+Image::Channel ImageHimawari8::getChannel() const {
+  Image::Channel channel;
+  if (nl_.productSubID == 1) {
+    channel.nameShort = "VS";
+    channel.nameLong = "Visible";
+  } else if (nl_.productSubID == 3) {
+    channel.nameShort = "IR";
+    channel.nameLong = "Infrared";
+  } else if (nl_.productSubID == 7) {
+    channel.nameShort = "WV";
+    channel.nameLong = "Water Vapor";
+  } else {
+    assert(false);
+  }
+  return channel;
+}
+
+// Himawari 8 doesn't have a valid time stamp header
+struct timespec ImageHimawari8::getTimeStamp() const {
+  // Example annotation: IMG_DK01VIS_201712162250_003.lrit
+  auto ah = file_.getHeader<LRIT::AnnotationHeader>();
+  std::stringstream ss(ah.text);
+  std::string tmp;
+  assert(std::getline(ss, tmp, '_'));
+  assert(std::getline(ss, tmp, '_'));
+  assert(std::getline(ss, tmp, '_'));
+
+  // Third substring represents time stamp
+  struct timespec ts{0, 0};
+  struct tm tm{0};
+  tm.tm_year = std::stoi(tmp.substr(0, 4)) - 1900;
+  tm.tm_mon = std::stoi(tmp.substr(4, 2)) - 1;
+  tm.tm_mday = std::stoi(tmp.substr(6, 2));
+  tm.tm_hour = std::stoi(tmp.substr(8, 2));
+  tm.tm_min = std::stoi(tmp.substr(10, 2));
+  ts.tv_sec = timegm(&tm);
+  ts.tv_nsec = 0;
+
+  return ts;
+}
+
+std::string ImageMeteosat::getSatellite() const {
+  return "Meteosat";
+}
+
+Image::Region ImageMeteosat::getRegion() const {
+  Image::Region region;
+  if (nl_.productSubID % 2 == 1) {
+    region.nameShort = "FD";
+    region.nameLong = "Full Disk";
+  } else {
+    assert(false);
+  }
+  return region;
+}
+
+Image::Channel ImageMeteosat::getChannel() const {
+  Image::Channel channel;
+  if (nl_.productSubID <= 2) {
+    channel.nameShort = "IR";
+    channel.nameLong = "Infrared";
+  } else if (nl_.productSubID <= 4) {
+    channel.nameShort = "VS";
+    channel.nameLong = "Visible";
+ } else {
+    channel.nameShort = "WV";
+    channel.nameLong = "Water Vapor";
+  }
+  return channel;
+}
+
+std::string ImageNWS::getBasename() const {
+  // Use annotation without the "dat327221257926.lrit" suffix
+  auto text = file_.getHeader<LRIT::AnnotationHeader>().text;
+  auto pos = text.find("dat");
+  assert(pos != std::string::npos);
+  return text.substr(0, pos) + "_" + getTimeShort();
 }
