@@ -7,22 +7,12 @@
 
 #include <iostream>
 #include <limits>
-#include <sstream>
 
 #include "lib/lrit.h"
+#include "lib/util.h"
 #include "dir.h"
 
 namespace {
-
-std::vector<std::string> split(std::string in, char delim) {
-  std::vector<std::string> items;
-  std::istringstream ss(in);
-  std::string item;
-  while (std::getline(ss, item, delim)) {
-    items.push_back(item);
-  }
-  return items;
-}
 
 bool parseTime(const std::string& str, time_t* out) {
   const char* buf = str.c_str();
