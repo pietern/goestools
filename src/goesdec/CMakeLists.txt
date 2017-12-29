@@ -14,7 +14,7 @@ add_executable(packetdump packetdump.cc)
 add_sanitizers(packetdump)
 target_link_libraries(packetdump packetizer stdc++)
 
-add_executable(goesdec
+set(GOESDEC_SRCS
   crc.cc
   file_handler.cc
   main.cc
@@ -22,8 +22,20 @@ add_executable(goesdec
   transport_pdu.cc
   virtual_channel.cc
   )
+
+find_package(OpenSSL)
+if(OPENSSL_FOUND)
+  list(APPEND GOESDEC_SRCS sha_handler.cc)
+endif()
+
+add_executable(goesdec ${GOESDEC_SRCS})
 add_sanitizers(goesdec)
 target_link_libraries(goesdec lrit aec sz)
+
+if(OPENSSL_FOUND)
+  target_link_libraries(goesdec ${OPENSSL_CRYPTO_LIBRARY})
+  target_compile_definitions(goesdec PRIVATE HAVE_OPENSSL)
+endif()
 
 add_executable(compute_sync_words compute_sync_words.cc)
 add_sanitizers(compute_sync_words)
