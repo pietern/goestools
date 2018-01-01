@@ -366,6 +366,10 @@ int processText(Options& opts) {
 }
 
 int main(int argc, char** argv) {
+  // Dealing with time zones is a PITA even if you only care about UTC.
+  // Since this is not a library we can get away with the following...
+  setenv("TZ", "", 1);
+
   auto opts = parseOptions(argc, argv);
   if (opts.files.size() == 0) {
     std::cout << "No files to process!" << std::endl;
