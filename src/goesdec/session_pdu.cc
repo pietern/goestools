@@ -59,7 +59,9 @@ bool SessionPDU::append(
     std::vector<uint8_t>::const_iterator end) {
   // Copy primary header first so we can determine total header length
   if (buf_.size() < 16) {
-    size_t len = std::min(16 - buf_.size(), uint64_t(end - begin));
+    size_t len = std::min(
+      uint32_t(16 - buf_.size()),
+      uint32_t(end - begin));
     buf_.insert(buf_.end(), begin, begin + len);
     begin += len;
     if (buf_.size() < 16) {
@@ -70,7 +72,9 @@ bool SessionPDU::append(
 
   // Copy secondary headers verbatim
   if (ph_.totalHeaderLength > buf_.size()) {
-    size_t len = std::min(ph_.totalHeaderLength - buf_.size(), uint64_t(end - begin));
+    size_t len = std::min(
+      uint32_t(ph_.totalHeaderLength - buf_.size()),
+      uint32_t(end - begin));
     buf_.insert(buf_.end(), begin, begin + len);
     begin += len;
     if (ph_.totalHeaderLength > buf_.size()) {

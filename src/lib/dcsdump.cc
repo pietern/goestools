@@ -26,8 +26,8 @@ int main(int argc, char** argv) {
     int nbytes = (ph.dataLength + 7) / 8;
     auto ifs = file.getData();
     auto buf = std::make_unique<char[]>(nbytes);
-    ifs.read(buf.get(), nbytes);
-    assert(ifs);
+    ifs->read(buf.get(), nbytes);
+    assert(*ifs);
     nread = 0;
 
     // Read DCS file header (container for multiple DCS payloads)

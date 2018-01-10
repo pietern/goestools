@@ -39,12 +39,12 @@ std::string File::getTime() const {
   return std::string(tsbuf.data(), len);
 }
 
-std::ifstream File::getData() const {
-  std::ifstream ifs(file_.c_str());
-  assert(ifs);
-  ifs.seekg(ph_.totalHeaderLength);
-  assert(ifs);
-  return std::move(ifs);
+std::unique_ptr<std::ifstream> File::getData() const {
+  auto ifs = std::make_unique<std::ifstream>(file_.c_str());
+  assert(*ifs);
+  ifs->seekg(ph_.totalHeaderLength);
+  assert(*ifs);
+  return ifs;
 }
 
 } // namespace LRIT

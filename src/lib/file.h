@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -33,7 +34,7 @@ public:
 
   std::string getTime() const;
 
-  std::ifstream getData() const;
+  std::unique_ptr<std::ifstream> getData() const;
 
 protected:
   std::string file_;

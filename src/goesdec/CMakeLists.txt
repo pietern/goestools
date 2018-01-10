@@ -30,7 +30,7 @@ endif()
 
 add_executable(goesdec ${GOESDEC_SRCS})
 add_sanitizers(goesdec)
-target_link_libraries(goesdec lrit aec sz)
+target_link_libraries(goesdec lrit aec sz stdc++)
 
 if(OPENSSL_FOUND)
   target_link_libraries(goesdec ${OPENSSL_CRYPTO_LIBRARY})
@@ -39,4 +39,4 @@ endif()
 
 add_executable(compute_sync_words compute_sync_words.cc)
 add_sanitizers(compute_sync_words)
-target_link_libraries(compute_sync_words correct_static)
+target_link_libraries(compute_sync_words correct_static stdc++)

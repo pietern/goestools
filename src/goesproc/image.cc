@@ -138,8 +138,8 @@ cv::Mat Image::getRawImage() const {
     // Read everything in one shot
     // Round up to nearest multiple of 8 because we're reading bytes
     auto line = std::make_unique<char[]>((n + 7) / 8);
-    ifs.read(line.get(), (n + 7) / 8);
-    assert(ifs);
+    ifs->read(line.get(), (n + 7) / 8);
+    assert(*ifs);
 
     // Pixel by pixel
     for (unsigned long i = 0; i < n; i += 8) {
