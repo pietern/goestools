@@ -154,7 +154,7 @@ cv::Mat Image::getRawImage() const {
       }
     }
   } else if (is_.bitsPerPixel == 8) {
-    ifs.read((char*)raw.data, raw.size().width * raw.size().height);
+    ifs->read((char*)raw.data, raw.size().width * raw.size().height);
     assert(ifs);
   } else {
     std::cerr << "bitsPerPixel == " << is_.bitsPerPixel << std::endl;
