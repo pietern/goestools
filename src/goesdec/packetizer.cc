@@ -41,14 +41,35 @@ bool Packetizer::nextPacket(std::array<uint8_t, 892>& out, struct timespec* ts) 
       return false;
     }
 
-    // If there is a frame lock, don't try and find sync words
-    // with better correlation. It is possible that once in a
-    // while the frame contains some random sequence that
-    // correlates better than our locked position. This then
-    // causes unnecessary packet drops.
+    // If there is a frame lock, only run correlation detector against
+    // the sync word itself. This will ensure that we catch phase
+    // flips that happen so quickly that bit errors can be corrected.
+    // Note that this typically only happens if the signal demodulator
+    // it too jittery. To make it less jittery, it can help to reduce
+    // the loop bandwidth of the carrier tracking loop (Costas Loop).
+    //
+    // Only do this for LRIT because HRIT doesn't have this ambiguity.
+    //
+    // We don't run the correlation detector against the whole frame
+    // if there is a lock. It is possible that once in a while the
+    // frame contains some random sequence that correlates better than
+    // our locked position. This then causes unnecessary packet drops.
     //
     // Instead, wait for packet corruption before reacquiring a lock.
     //
+    if (lock_ && (syncType_ == LRIT_PHASE_000 || syncType_ == LRIT_PHASE_180)) {
+      auto prevSyncType = syncType_;
+      correlate(&buf_[0], encodedSyncWordBits, nullptr, &syncType_);
+      if (syncType_ != prevSyncType) {
+        std::cerr
+          << "Phase flip detected"
+          << " from "<< correlationTypeToString(prevSyncType)
+          << " to " << correlationTypeToString(syncType_)
+          << std::endl;
+      }
+    }
+
+    // Reacquire lock
     if (!lock_) {
       const auto skip = encodedFramePreludeBits;
       int pos;

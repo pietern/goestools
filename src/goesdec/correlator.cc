@@ -14,9 +14,9 @@ const uint64_t encodedSyncWords[4] = {
   0xdafef4fd0cc2df89,
 };
 
-const unsigned encodedSyncWordBits = 64;
-
 } // namespace
+
+const unsigned encodedSyncWordBits = 64;
 
 const char* correlationTypeToString(correlationType t) {
   switch (t) {
@@ -67,7 +67,11 @@ int correlate(uint8_t* data, size_t len, int* maxOut, correlationType* maxType) 
     }
   }
 
-  *maxOut = max[j];
-  *maxType = static_cast<correlationType>(j);
+  if (maxOut != nullptr) {
+    *maxOut = max[j];
+  }
+  if (maxType != nullptr) {
+    *maxType = static_cast<correlationType>(j);
+  }
   return pos[j];
 }

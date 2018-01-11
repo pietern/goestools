@@ -12,6 +12,9 @@ enum correlationType {
   HRIT_PHASE_180 = 3,
 };
 
+// Number of bits used by sync word
+extern const unsigned encodedSyncWordBits;
+
 const char* correlationTypeToString(correlationType type);
 
 // Correlates bit stream with sync words.
