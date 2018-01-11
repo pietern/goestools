@@ -54,19 +54,18 @@ bool Packetizer::nextPacket(std::array<uint8_t, 892>& out, struct timespec* ts) 
       int pos;
       int max = 0;
 
-      // Find position in buffer with maximum correlation with sync word
-      pos = correlate(&buf_[skip], len_ - skip, &max, &syncType_);
-
       // Repeat until we have maximum correlation at 0
-      while (pos > 0) {
+      for (;;) {
+        // Find position in buffer with maximum correlation with sync word
+        pos = correlate(&buf_[skip], len_ - skip, &max, &syncType_);
         std::cerr
-          << "Skipping "
-          << pos
-          << " bits (max. correlation of " << max
+          << "Maximum correlation of " << max
           << " for " << correlationTypeToString(syncType_)
-          << " at " << pos
-          << ")"
+          << " at index " << pos
           << std::endl;
+        if (pos == 0) {
+          break;
+        }
 
         // Skip over chunk that didn't qualify and try again,
         // while keeping the frame prelude for the aspiring frame.
@@ -81,7 +80,6 @@ bool Packetizer::nextPacket(std::array<uint8_t, 892>& out, struct timespec* ts) 
         if (!ok) {
           return false;
         }
-        pos = correlate(&buf_[skip], len_ - skip, &max, &syncType_);
       }
 
       // Store symbol rate for this stream
