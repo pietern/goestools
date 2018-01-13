@@ -1,0 +1,21 @@
+#pragma once
+
+#include <complex>
+#include <memory>
+#include <vector>
+
+class Publisher {
+public:
+  static std::unique_ptr<Publisher> create(const char* url);
+
+  explicit Publisher(int fd);
+
+  bool hasSubscribers();
+
+  void publish(const std::vector<std::complex<float> >& samples);
+
+protected:
+  int fd_;
+
+  std::vector<std::complex<int8_t> > tmp_;
+};
