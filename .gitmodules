@@ -7,3 +7,6 @@
 [submodule "vendor/sanitizers-cmake"]
 	path = vendor/sanitizers-cmake
 	url = https://github.com/arsenm/sanitizers-cmake.git
+[submodule "vendor/libsimdpp"]
+	path = vendor/libsimdpp
+	url = https://github.com/p12tic/libsimdpp.git
