@@ -20,6 +20,11 @@ void Costas::work(
     const std::shared_ptr<Queue<Samples> >& qin,
     const std::shared_ptr<Queue<Samples> >& qout) {
   auto input = qin->popForRead();
+  if (!input) {
+    qout->close();
+    return;
+  }
+
   auto output = qout->popForWrite();
   auto nsamples = input->size();
   output->resize(nsamples);

@@ -92,6 +92,9 @@ void Airspy::stop() {
   // Wait for thread to terminate
   thread_.join();
 
+  // Close queue to signal downstream
+  queue_->close();
+
   // Clear reference to queue
   queue_.reset();
 }
