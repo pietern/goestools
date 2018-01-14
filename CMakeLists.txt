@@ -8,8 +8,8 @@ find_package(Sanitizers)
 # Force static build of libaec
 set(BUILD_SHARED_LIBS OFF)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -fPIC -pedantic -Wall")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC -pedantic -Wall")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -fPIC -O3 -pedantic -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC -O3 -pedantic -Wall")
 
 add_subdirectory(vendor/libcorrect)
 add_subdirectory(vendor/libaec)
