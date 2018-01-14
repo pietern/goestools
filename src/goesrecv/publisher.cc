@@ -49,3 +49,15 @@ void Publisher::publish(const std::vector<std::complex<float> >& samples) {
     assert(false);
   }
 }
+
+void Publisher::publish(const std::vector<int8_t>& samples) {
+  if (!hasSubscribers()) {
+    return;
+  }
+
+  auto rv = nn_send(fd_, samples.data(), samples.size() * sizeof(samples[0]), 0);
+  if (rv < 0) {
+    fprintf(stderr, "nn_send: %s\n", nn_strerror(nn_errno()));
+    assert(false);
+  }
+}

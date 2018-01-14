@@ -13,6 +13,7 @@ public:
   bool hasSubscribers();
 
   void publish(const std::vector<std::complex<float> >& samples);
+  void publish(const std::vector<int8_t>& samples);
 
 protected:
   int fd_;
