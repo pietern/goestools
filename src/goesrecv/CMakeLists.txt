@@ -12,3 +12,6 @@ target_link_libraries(agc m stdc++)
 
 add_library(rrc rrc.cc)
 target_link_libraries(rrc stdc++)
+
+add_library(costas costas.cc)
+target_link_libraries(costas stdc++)
