@@ -3,7 +3,7 @@
 #include <cassert>
 #include <cstring>
 
-#include <simdpp/simd.h>
+#include <arm_neon.h>
 
 static float taps[][RRC::NTAPS] = {
   // Sample rate 3M, symbol rate 293883
@@ -149,7 +149,7 @@ static float taps[][RRC::NTAPS] = {
 
 RRC::RRC(int decimation, int sampleRate, int symbolRate) :
     decimation_(decimation) {
-  int offset;
+  int offset = 0;
 
   if (sampleRate == 3000000) {
     offset = 0;
@@ -188,35 +188,69 @@ void RRC::work(
   // Return read buffer (it has been copied into tmp_)
   qin->pushRead(std::move(input));
 
-  // Load taps
-  simdpp::float32<4> taps[(NTAPS + 1) / 4];
-  for (size_t i = 0; i < (NTAPS + 1); i += 4) {
-    taps[i / 4] = simdpp::load(&taps_[i]);
-  }
-
   // Input/output cursors
   std::complex<float>* fi = tmp_.data();
   std::complex<float>* fo = output->data();
 
-  for (size_t i = 0; i < nsamples; i += decimation_) {
-    simdpp::float32<4> acci = simdpp::splat(0.0f);
-    simdpp::float32<4> accq = simdpp::splat(0.0f);
+  // Below should work generically with libsimdpp, but fmadd
+  // seems to be missing for NEON.
+  //
+  // // Load taps
+  // simdpp::float32<4> taps[(NTAPS + 1) / 4];
+  // for (size_t i = 0; i < (NTAPS + 1); i += 4) {
+  //   taps[i / 4] = simdpp::load(&taps_[i]);
+  // }
+  //
+  // for (size_t i = 0; i < nsamples; i += decimation_) {
+  //   simdpp::float32<4> acci = simdpp::splat(0.0f);
+  //   simdpp::float32<4> accq = simdpp::splat(0.0f);
+  //
+  //   // This can be unrolled
+  //   for (size_t j = 0; j < ((NTAPS + 1) / 4); j++) {
+  //     simdpp::float32<4> vali;
+  //     simdpp::float32<4> valq;
+  //     simdpp::load_packed2(vali, valq, &fi[j * 4]);
+  //     acci = simdpp::fmadd(vali, taps[j], acci);
+  //     accq = simdpp::fmadd(valq, taps[j], accq);
+  //   }
+  //
+  //   fo[i].real(simdpp::reduce_add(acci));
+  //   fo[i].imag(simdpp::reduce_add(accq));
+  //
+  //   // Advance input/output cursors
+  //   fi += decimation_;
+  //   fo += decimation_;
+  // }
 
-    // This can be unrolled
-    for (size_t j = 0; j < ((NTAPS + 1) / 4); j++) {
-      simdpp::float32<4> vali;
-      simdpp::float32<4> valq;
-      simdpp::load_packed2(vali, valq, &fi[j * 4]);
-      acci = simdpp::fmadd(vali, taps[j], acci);
-      accq = simdpp::fmadd(valq, taps[j], accq);
+  // Load taps
+  float32x4_t taps[(NTAPS + 1) / 4];
+  for (size_t i = 0; i < (NTAPS + 1); i += 4) {
+    taps[i / 4] = vld1q_f32(&taps_[i]);
+  }
+
+  for (size_t i = 0; i < (nsamples / decimation_); i++) {
+    float32x4x2_t acc;
+    acc.val[0] = vdupq_n_f32(0.0f);
+    acc.val[1] = vdupq_n_f32(0.0f);
+
+    // The compiler should unroll this
+    for (size_t j = 0; j < (NTAPS + 1); j += 4) {
+      float32x4x2_t val = vld2q_f32((const float32_t*) &fi[j]);
+      acc.val[0] = vmlaq_f32(acc.val[0], val.val[0], taps[j / 4]);
+      acc.val[1] = vmlaq_f32(acc.val[1], val.val[1], taps[j / 4]);
     }
 
-    fo[i].real(simdpp::reduce_add(acci));
-    fo[i].imag(simdpp::reduce_add(accq));
+    // Sum accumulators
+    auto acci = vpadd_f32(vget_low_f32(acc.val[0]), vget_high_f32(acc.val[0]));
+    auto accq = vpadd_f32(vget_low_f32(acc.val[1]), vget_high_f32(acc.val[1]));
+    acci = vpadd_f32(acci, acci);
+    accq = vpadd_f32(accq, accq);
+    fo->real(vget_lane_f32(acci, 0));
+    fo->imag(vget_lane_f32(accq, 0));
 
     // Advance input/output cursors
     fi += decimation_;
-    fo += decimation_;
+    fo += 1;
   }
 
   // Keep final NTAPS samples around
