@@ -18,3 +18,6 @@ target_link_libraries(costas stdc++)
 
 add_library(clock_recovery clock_recovery.cc)
 target_link_libraries(clock_recovery stdc++)
+
+add_library(quantize quantize.cc)
+target_link_libraries(quantize stdc++)
