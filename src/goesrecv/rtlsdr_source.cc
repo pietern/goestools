@@ -5,7 +5,7 @@
 #include <cmath>
 #include <iostream>
 
-#include <simdpp/simd.h>
+#include <arm_neon.h>
 
 std::unique_ptr<RTLSDR> RTLSDR::open(uint32_t index) {
   rtlsdr_dev_t* dev = nullptr;
@@ -110,26 +110,58 @@ void RTLSDR::handle(unsigned char* buf, uint32_t len) {
   auto out = queue_->popForWrite();
   out->resize(nsamples);
 
+  // // Number to subtract from samples for normalization
+  // // See http://cgit.osmocom.org/gr-osmosdr/tree/lib/rtl/rtl_source_c.cc#n176
+  // simdpp::float32<4> norm = simdpp::splat(127.4f / 128.0f);
+  //
+  // // Iterate over samples in blocks of 4 (each sample has I and Q)
+  // for (uint32_t i = 0; i < (nsamples / 4); i++) {
+  //   simdpp::uint32<4> ui;
+  //   simdpp::uint32<4> uq;
+  //   simdpp::load_packed2(ui, uq, &buf[i * 8]);
+  //
+  //   // Convert to float32 and divide by 128
+  //   simdpp::float32<4> fi = simdpp::to_float32(ui) * (1.0f / 128.0f);
+  //   simdpp::float32<4> fq = simdpp::to_float32(ui) * (1.0f / 128.0f);
+  //
+  //   // Subtract to normalize to [-1.0, 1.0]
+  //   fi = fi - norm;
+  //   fq = fq - norm;
+  //
+  //   // Store in output
+  //   simdpp::store_packed2(&(out->data()[i * 4]), fi, fq);
+  // }
+
   // Number to subtract from samples for normalization
   // See http://cgit.osmocom.org/gr-osmosdr/tree/lib/rtl/rtl_source_c.cc#n176
-  simdpp::float32<4> norm = simdpp::splat(127.4f / 128.0f);
+  const float32_t norm_ = 127.4f / 128.0f;
+  float32x4_t norm = vld1q_dup_f32(&norm_);
 
   // Iterate over samples in blocks of 4 (each sample has I and Q)
   for (uint32_t i = 0; i < (nsamples / 4); i++) {
-    simdpp::uint32<4> ui;
-    simdpp::uint32<4> uq;
-    simdpp::load_packed2(ui, uq, &buf[i * 8]);
+    uint32x4_t ui;
+    ui[0] = buf[i * 8 + 0];
+    ui[1] = buf[i * 8 + 2];
+    ui[2] = buf[i * 8 + 4];
+    ui[3] = buf[i * 8 + 6];
 
-    // Convert to float32 and divide by 128
-    simdpp::float32<4> fi = simdpp::to_float32(ui) * (1.0f / 128.0f);
-    simdpp::float32<4> fq = simdpp::to_float32(ui) * (1.0f / 128.0f);
+    uint32x4_t uq;
+    uq[0] = buf[i * 8 + 1];
+    uq[1] = buf[i * 8 + 3];
+    uq[2] = buf[i * 8 + 5];
+    uq[3] = buf[i * 8 + 7];
+
+    // Convert to float32x4 and divide by 2^7 (128)
+    float32x4_t fi = vcvtq_n_f32_u32(ui, 7);
+    float32x4_t fq = vcvtq_n_f32_u32(uq, 7);
 
     // Subtract to normalize to [-1.0, 1.0]
-    fi = fi - norm;
-    fq = fq - norm;
+    float32x4x2_t fiq;
+    fiq.val[0] = vsubq_f32(fi, norm);
+    fiq.val[1] = vsubq_f32(fq, norm);
 
     // Store in output
-    simdpp::store_packed2(&(out->data()[i * 4]), fi, fq);
+    vst2q_f32((float*) (&out->data()[i * 4]), fiq);
   }
 
   // Publish output if applicable
