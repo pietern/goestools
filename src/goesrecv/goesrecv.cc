@@ -1,8 +1,4 @@
 #include <signal.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <stdint.h>
-#include <getopt.h>
 
 #include <iostream>
 #include <memory>
@@ -12,6 +8,7 @@
 #include "airspy_source.h"
 #include "clock_recovery.h"
 #include "costas.h"
+#include "decoder.h"
 #include "options.h"
 #include "publisher.h"
 #include "quantize.h"
@@ -108,6 +105,13 @@ public:
           clockRecovery_->work(costasQueue_, clockRecoveryQueue_);
           quantization_->work(clockRecoveryQueue_, softBitsQueue_);
         }
+
+        // Close queues to signal downstream consumers of termination
+        agcQueue_->close();
+        rrcQueue_->close();
+        costasQueue_->close();
+        clockRecoveryQueue_->close();
+        softBitsQueue_->close();
       });
 
     if (airspy_) {
@@ -189,6 +193,8 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
+  Decoder decode(demod.getSoftBitsQueue());
+
   // Install signal handler
   struct sigaction sa;
   sa.sa_handler = signalHandler;
@@ -198,22 +204,14 @@ int main(int argc, char** argv) {
   sigaction(SIGTERM, &sa, NULL);
 
   demod.start();
+  decode.start();
 
-  auto softBitsQueue = demod.getSoftBitsQueue();
   while (!sigint) {
-    // Discard items on the soft bits queue.
-    // They are consumed through the publisher attached to the queue.
-    auto softBits = softBitsQueue->popForRead();
-    if (softBits) {
-      softBitsQueue->pushRead(std::move(softBits));
-      continue;
-    }
-
-    // The queue shut down; so we can shut down
-    break;
+    pause();
   }
 
   demod.stop();
+  decode.stop();
 
   return 0;
 }

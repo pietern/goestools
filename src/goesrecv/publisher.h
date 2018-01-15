@@ -14,6 +14,7 @@ public:
 
   void publish(const std::vector<std::complex<float> >& samples);
   void publish(const std::vector<int8_t>& samples);
+  void publish(const std::array<uint8_t, 892>& packet);
 
 protected:
   int fd_;
