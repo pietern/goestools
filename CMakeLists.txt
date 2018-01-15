@@ -22,3 +22,10 @@ include_directories(${PROJECT_SOURCE_DIR}/src)
 add_subdirectory(src/lib)
 add_subdirectory(src/goesdec)
 add_subdirectory(src/goesproc)
+
+# Only compile goesrecv if target is Raspberry Pi.
+# It includes unguarded ARM NEON code. Assume the variable that is
+# tested below is set in the Raspberry Pi specific toolchain.cmake.
+if(RASPBERRYPI_SYSROOT)
+  add_subdirectory(src/goesrecv)
+endif()

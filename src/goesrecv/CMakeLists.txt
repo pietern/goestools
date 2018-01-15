@@ -21,3 +21,13 @@ target_link_libraries(clock_recovery stdc++)
 
 add_library(quantize quantize.cc)
 target_link_libraries(quantize stdc++)
+
+add_executable(goesrecv goesrecv.cc options.cc)
+target_link_libraries(goesrecv publisher pthread)
+target_link_libraries(goesrecv airspy_source)
+target_link_libraries(goesrecv rtlsdr_source)
+target_link_libraries(goesrecv agc)
+target_link_libraries(goesrecv rrc)
+target_link_libraries(goesrecv costas)
+target_link_libraries(goesrecv clock_recovery)
+target_link_libraries(goesrecv quantize)
