@@ -42,7 +42,7 @@ int correlate(uint8_t* data, size_t len, int* maxOut, correlationType* maxType) 
   int max[4] = { 0, 0, 0, 0 };
 
   // Find maximum correlation
-  for (unsigned i = 0; i < len - 1; i++) {
+  for (unsigned i = 0; i < len; i++) {
     // If data >= 128 (i.e. MSB == 1), set bit in stream.
     tmp = (tmp << 1) | (data[i] & 0x80) >> 7;
     if (i < (encodedSyncWordBits - 1)) {

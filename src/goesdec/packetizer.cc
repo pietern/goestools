@@ -58,8 +58,9 @@ bool Packetizer::nextPacket(std::array<uint8_t, 892>& out, struct timespec* ts) 
     // Instead, wait for packet corruption before reacquiring a lock.
     //
     if (lock_ && (syncType_ == LRIT_PHASE_000 || syncType_ == LRIT_PHASE_180)) {
+      const auto skip = encodedFramePreludeBits;
       auto prevSyncType = syncType_;
-      correlate(&buf_[0], encodedSyncWordBits, nullptr, &syncType_);
+      correlate(&buf_[skip], encodedSyncWordBits, nullptr, &syncType_);
       if (syncType_ != prevSyncType) {
         std::cerr
           << "Phase flip detected"
