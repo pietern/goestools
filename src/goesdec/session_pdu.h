@@ -19,12 +19,12 @@ public:
   bool append(const TransportPDU& tpdu);
 
   template <typename H>
-  bool hasHeader() {
+  bool hasHeader() const {
     return LRIT::hasHeader<H>(m_);
   }
 
   template <typename H>
-  H getHeader() {
+  H getHeader() const {
     return LRIT::getHeader<H>(buf_, m_);
   }
 
@@ -36,7 +36,7 @@ public:
     return buf_.size();
   }
 
-  const LRIT::HeaderMap& getHeaderMap() {
+  const LRIT::HeaderMap& getHeaderMap() const {
     return m_;
   }
 
