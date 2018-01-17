@@ -10,23 +10,6 @@
 #include "transport_pdu.h"
 #include "vcdu.h"
 
-// Compute difference between two integers taking into account wrapping.
-template <unsigned int N>
-int diffWithWrap(unsigned int a, unsigned int b) {
-  int skip;
-
-  assert(a < N);
-  assert(b < N);
-
-  if (a <= b) {
-    skip = b - a;
-  } else {
-    skip = N - a + b;
-  }
-
-  return skip;
-}
-
 class VirtualChannel {
 public:
   explicit VirtualChannel(int id);

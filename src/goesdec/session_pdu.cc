@@ -4,14 +4,79 @@
 #include <iostream>
 
 SessionPDU::SessionPDU(const TransportPDU& tpdu)
-  : remainingHeaderBytes_(0) {
+  : remainingHeaderBytes_(0),
+    lastSequenceCount_(tpdu.sequenceCount()) {
   // First 10 bytes of the first TP_PDU appears to be garbage.
   // Last 2 bytes of every TP_PDU is a CRC.
   auto ok = append(tpdu.data.begin() + 10, tpdu.data.begin() + tpdu.length() - 2);
   assert(ok);
 }
 
+bool SessionPDU::canResumeFrom(const TransportPDU& tpdu) const {
+  // Can't skip packets if the header is not yet complete.
+  if (!hasCompleteHeader()) {
+    return false;
+  }
+
+  // Can't skip if this is not an image
+  if (ph_.fileType != 0) {
+    return false;
+  }
+
+  // Can't skip if we don't know how many pixels to fill in
+  if (!szParam_) {
+    return false;
+  }
+
+  // Can't skip if the transport PDU is not either a continuation
+  // segment, or the last segment for this session PDU.
+  auto seq = tpdu.sequenceFlag();
+  if (!(seq == 0 || seq == 2)) {
+    return false;
+  }
+
+  // Can't skip if we need to skip more lines than remaining
+  auto ish = getHeader<LRIT::ImageStructureHeader>();
+  auto remaining = ish.lines - (int) (buf_.size() / szParam_->pixels_per_scanline);
+  auto skip = diffWithWrap<16384>(lastSequenceCount_, tpdu.sequenceCount()) - 1;
+  if (skip > remaining) {
+    return false;
+  }
+
+  return true;
+}
+
+std::string SessionPDU::getName() const {
+  if (!hasCompleteHeader()) {
+    return "(missing header)";
+  }
+
+  auto ah = getHeader<LRIT::AnnotationHeader>();
+  return ah.text;
+}
+
 bool SessionPDU::append(const TransportPDU& tpdu) {
+  auto sequenceCount = tpdu.sequenceCount();
+  auto skip = diffWithWrap<16384>(lastSequenceCount_, sequenceCount);
+  if (skip > 1) {
+    // We assume that virtual_channel.cc called the resumable function
+    // and it returned that it is OK to skip a number of lines.
+    assert(szParam_);
+
+    // Insert black line if there is no contents yet
+    auto columns = szParam_->pixels_per_scanline;
+    if (buf_.empty()) {
+      buf_.insert(buf_.end(), columns, 0);
+      skip--;
+    }
+
+    // Insert copies of the most recent line
+    for (auto i = 0; i < skip; i++) {
+      buf_.insert(buf_.end(), buf_.end() - columns, buf_.end());
+    }
+  }
+
+  lastSequenceCount_ = sequenceCount;
   return append(tpdu.data.begin(), tpdu.data.end() - 2);
 }
 

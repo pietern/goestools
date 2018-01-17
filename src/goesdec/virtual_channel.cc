@@ -138,19 +138,40 @@ void VirtualChannel::process(
   if (apidSeq_.count(apid) > 0) {
     auto skip = diffWithWrap<16384>(apidSeq_[apid], seq);
     if (skip != 1) {
+      auto skipped = (skip - 1);
       std::cerr
         << "VC "
         << id_
         << ": Detected TP_PDU drop"
-        << " (skipped " << (skip - 1) << " packet(s)"
+        << " (skipped " << skipped << " packet(s)"
         << " on APID " << apid
         << "; prev: " << apidSeq_[apid]
         << ", packet: " << seq
         << ")"
         << std::endl;
 
-      // Clear accumulation for this APID
-      apidSessionPDU_.erase(apid);
+      // Figure out what to do with existing session PDU, if applicable
+      auto it = apidSessionPDU_.find(apid);
+      if (it != apidSessionPDU_.end()) {
+        auto& spdu = it->second;
+        if (!spdu->canResumeFrom(*tpdu)) {
+          // Can't resume accumulation with this TPDU (i.e. cannot skip packets)
+          std::cerr
+            << "VC "
+            << id_
+            << ": Dropping session PDU: "
+            << spdu->getName()
+            << std::endl;
+          apidSessionPDU_.erase(apid);
+        } else {
+          std::cerr
+            << "VC "
+            << id_
+            << ": Synthesizing skipped packets for session PDU: "
+            << spdu->getName()
+            << std::endl;
+        }
+      }
     }
   }
   apidSeq_[apid] = seq;
