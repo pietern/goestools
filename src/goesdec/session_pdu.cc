@@ -159,6 +159,10 @@ bool SessionPDU::append(
   size_t outLen = szTmp_.size();
   const uint8_t* dataIn = &(*begin);
   size_t dataInLen = end - begin;
+  if (dataInLen == 0) {
+    return true;
+  }
+
   int rv = SZ_BufftoBuffDecompress(out, &outLen, dataIn, dataInLen, szParam_.get());
   if (rv != AEC_OK) {
     return false;
