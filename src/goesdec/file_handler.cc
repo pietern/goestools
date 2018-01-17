@@ -30,6 +30,12 @@ FileHandler::FileHandler(const std::string& dir)
 
 void FileHandler::handle(std::unique_ptr<SessionPDU> spdu) {
   std::string path;
+
+  // Ignore files without annotation header
+  if (!spdu->hasHeader<LRIT::AnnotationHeader>()) {
+    return;
+  }
+
   auto primary = spdu->getHeader<LRIT::PrimaryHeader>();
   auto annotation = spdu->getHeader<LRIT::AnnotationHeader>();
   auto fileName = annotation.text;
