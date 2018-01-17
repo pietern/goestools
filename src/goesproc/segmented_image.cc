@@ -122,21 +122,9 @@ cv::Mat SegmentedImage::getRawImage() const {
     const auto& f = image->getFile();
     auto is = f.getHeader<LRIT::ImageStructureHeader>();
     auto ifs = f.getData();
-    for (auto line = 0; line < is.lines; line++) {
-      ifs->read((char*)raw.data + offset, is.columns);
-      assert(*ifs);
-      offset += is.columns;
-
-      // Overwrite the first line with the second line.
-      // The first line contains garbage, but we have to put
-      // something in its place.
-      if (line == 1) {
-        memcpy(
-          raw.data + offset - (2 * is.columns),
-          raw.data + offset - is.columns,
-          is.columns);
-      }
-    }
+    ifs->read((char*)raw.data + offset, is.lines * is.columns);
+    assert(*ifs);
+    offset += is.lines * is.columns;
   }
   return raw;
 }

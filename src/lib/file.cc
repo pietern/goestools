@@ -44,6 +44,25 @@ std::unique_ptr<std::ifstream> File::getData() const {
   assert(*ifs);
   ifs->seekg(ph_.totalHeaderLength);
   assert(*ifs);
+
+  // Because of a bug in goesdec, LRIT image files that used
+  // compression have an initial bogus line, followed by the real
+  // image. Detect if this is one of those files and ignore the bogus
+  // line if so. See 2bd11f16 for more info.
+  if (ph_.fileType == 0) {
+    // Number of bytes remaining in file
+    std::streampos fpos1 = ifs->tellg();
+    ifs->seekg(0, std::ios::end);
+    std::streampos fpos2 = ifs->tellg();
+    ifs->seekg(fpos1);
+    // Seek to first byte beyond bogus line
+    auto delta = (fpos2 - fpos1) - ((int) (ph_.dataLength / 8));
+    if (delta > 0) {
+      ifs->seekg(delta, ifs->cur);
+      assert(*ifs);
+    }
+  }
+
   return ifs;
 }
 
