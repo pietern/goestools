@@ -124,6 +124,26 @@ cv::Mat SegmentedImage::getRawImage() const {
     auto ifs = f.getData();
     ifs->read((char*)raw.data + offset, is.lines * is.columns);
     assert(*ifs);
+
+    // Fill the contour with black pixels (left side)
+    for (auto y = 0; y < is.lines; y++) {
+      uint8_t* data = (uint8_t*)raw.data + offset + y * is.columns;
+      for (auto x = 0; x < is.columns / 2; x++) {
+        if (data[x] == 0xff) {
+          data[x] = 0x00;
+        } else {
+          break;
+        }
+      }
+      for (auto x = is.columns - 1; x >= is.columns / 2; x--) {
+        if (data[x] == 0xff) {
+          data[x] = 0x00;
+        } else {
+          break;
+        }
+      }
+    }
+
     offset += is.lines * is.columns;
   }
   return raw;
