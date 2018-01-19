@@ -106,7 +106,7 @@ documents.
 
 Also, these blog series:
 
-* http://www.acasper.org/2011/10/24/goes-satellite-decoding/
+* https://web.archive.org/web/20150426214432/http://www.acasper.org/2011/10/24/goes-satellite-decoding/
 * http://www.teske.net.br/lucas/2016/10/goes-satellite-hunt-part-1-antenna-system/
 
 ### Reed-Solomon
