@@ -1,5 +1,7 @@
 #include "rtlsdr_source.h"
 
+#include <pthread.h>
+
 #include <cassert>
 #include <climits>
 #include <cmath>
@@ -83,6 +85,7 @@ void RTLSDR::start(const std::shared_ptr<Queue<Samples> >& queue) {
   thread_ = std::thread([&] {
       rtlsdr_read_async(dev_, rtlsdr_callback, this, 0, 0);
     });
+  pthread_setname_np(thread_.native_handle(), "rtlsdr");
 }
 
 void RTLSDR::stop() {

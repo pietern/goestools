@@ -1,5 +1,7 @@
 #include "decoder.h"
 
+#include <pthread.h>
+
 #include <cstring>
 
 namespace {
@@ -75,6 +77,7 @@ void Decoder::start() {
         packetPublisher_->publish(buf);
       }
     });
+  pthread_setname_np(thread_.native_handle(), "decoder");
 }
 
 void Decoder::stop() {

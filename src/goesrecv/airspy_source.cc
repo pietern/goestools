@@ -1,5 +1,7 @@
 #include "airspy_source.h"
 
+#include <pthread.h>
+
 #include <cassert>
 #include <cstring>
 #include <iostream>
@@ -82,6 +84,7 @@ void Airspy::start(const std::shared_ptr<Queue<Samples> >& queue) {
       auto rv = airspy_start_rx(dev_, &airspy_callback, this);
       assert(rv == 0);
     });
+  pthread_setname_np(thread_.native_handle(), "airspy");
 }
 
 void Airspy::stop() {

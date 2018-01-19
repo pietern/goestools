@@ -1,5 +1,7 @@
 #include "demodulator.h"
 
+#include <pthread.h>
+
 Demodulator::Demodulator(Demodulator::Type t) {
   switch (t) {
   case LRIT:
@@ -87,6 +89,7 @@ void Demodulator::start() {
       clockRecoveryQueue_->close();
       softBitsQueue_->close();
     });
+  pthread_setname_np(thread_.native_handle(), "demodulator");
 
   if (airspy_) {
     airspy_->start(sourceQueue_);
