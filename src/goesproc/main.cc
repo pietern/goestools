@@ -220,6 +220,18 @@ protected:
   bool multiSubProducts_;
 };
 
+bool includeChannel(const Options& opts, const std::string& name) {
+  if (opts.channels.empty()) {
+    return true;
+  }
+  auto& ch = opts.channels;
+  if (std::find(ch.begin(), ch.end(), name) != ch.end()) {
+    return true;
+  }
+
+  return false;
+}
+
 int processSegmentedImageData(Options& opts) {
   std::map<int, std::vector<std::unique_ptr<Image>>> imagesByID;
   for (const auto& f : opts.files) {
@@ -232,8 +244,7 @@ int processSegmentedImageData(Options& opts) {
   for (auto& e : imagesByID) {
     SegmentedImage image(e.first, std::move(e.second));
 
-    // Filter by channel if channel option is set
-    if (!opts.channel.empty() && opts.channel != image.getChannelShort()) {
+    if (!includeChannel(opts, image.getChannelShort())) {
       continue;
     }
 
@@ -272,8 +283,7 @@ int processHimawariImageData(Options& opts) {
     // Image identifier is not included in Himawari-8 files
     SegmentedImage image(0, std::move(e.second));
 
-    // Filter by channel if channel option is set
-    if (!opts.channel.empty() && opts.channel != image.getChannelShort()) {
+    if (!includeChannel(opts, image.getChannelShort())) {
       continue;
     }
 

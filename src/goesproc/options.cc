@@ -55,7 +55,7 @@ Options parseOptions(int argc, char** argv) {
     case 0:
       break;
     case 'c':
-      opts.channel = optarg;
+      opts.channels.push_back(optarg);
       break;
     case 0x1001: // --shrink
       opts.shrink = true;
