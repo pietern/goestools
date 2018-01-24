@@ -56,7 +56,10 @@ std::unique_ptr<std::ifstream> File::getData() const {
     std::streampos fpos2 = ifs->tellg();
     ifs->seekg(fpos1);
     // Seek to first byte beyond bogus line
-    auto delta = (fpos2 - fpos1) - ((int) (ph_.dataLength / 8));
+    // Round up (hence the + 7) so that images with 1 bit per pixel
+    // and a number of pixels not equal to a power of 8 are not
+    // accidentally made 1 byte shorter than expected.
+    auto delta = (fpos2 - fpos1) - ((int) ((ph_.dataLength + 7) / 8));
     if (delta > 0) {
       ifs->seekg(delta, ifs->cur);
       assert(*ifs);
