@@ -54,12 +54,19 @@ std::vector<std::unique_ptr<SessionPDU>> VirtualChannel::process(const VCDU& vcd
       // header in the VCDU and we can read the entire thing.
       auto bytesAvailable = (firstHeader == 2047) ? len : firstHeader;
       if (firstHeader != 2047 && bytesAvailable < bytesNeeded) {
-        std::cerr
-          <<  "VC " << id_
-          << ": M_SDU continuation failed; "
-          << bytesNeeded << " byte(s) needed to complete M_SDU, "
-          << bytesAvailable << " byte(s) available"
-          << std::endl;
+        // Don't log error message for fill packets.
+        // On the GOES-16 HRIT feed these can expect 6 more bytes
+        // if they are aligned on the VCDU boundary. I suspect this
+        // number comes from the the 6 header bytes in a VCDU and
+        // that this is a mistake in the HRIT feed assembly code.
+        if (!(bytesAvailable == 0 && bytesNeeded == 6 && tpdu_->apid() == 2047)) {
+          std::cerr
+            <<  "VC " << id_
+            << ": M_SDU continuation failed; "
+            << bytesNeeded << " byte(s) needed to complete M_SDU, "
+            << bytesAvailable << " byte(s) available"
+            << std::endl;
+        }
         tpdu_.reset();
       } else {
         pos += tpdu_->read(&data[pos], len - pos);
