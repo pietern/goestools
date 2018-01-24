@@ -49,12 +49,6 @@ SegmentedImage::SegmentedImage(
       tmp.maxLine = lineOffset + is.lines;
     }
 
-    // Special case for GOES 13 -- United States: offset is off by 1.
-    if (nlh_.productID == 13 && (nlh_.productSubID % 10) == 4) {
-      tmp.minLine++;
-      tmp.maxLine++;
-    }
-
     if (i == 0) {
       area_ = tmp;
     } else {
