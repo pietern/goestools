@@ -35,6 +35,7 @@ Options parseOptions(int argc, char** argv) {
   opts.format = "pgm";
   opts.start = 0;
   opts.stop = std::numeric_limits<time_t>::max();
+  opts.intervalSet = false;
 
   while (1) {
     static struct option longOpts[] = {
@@ -81,12 +82,14 @@ Options parseOptions(int argc, char** argv) {
         std::cerr << "Invalid argument to --start" << std::endl;
         exit(1);
       }
+      opts.intervalSet = true;
       break;
     case 0x1005: // --stop
       if (!parseTime(optarg, &opts.stop)) {
         std::cerr << "Invalid argument to --stop" << std::endl;
         exit(1);
       }
+      opts.intervalSet = true;
       break;
     default:
       std::cerr << "Invalid option" << std::endl;
@@ -131,9 +134,16 @@ Options parseOptions(int argc, char** argv) {
       }
     }
 
-    auto ts = f.getHeader<LRIT::TimeStampHeader>().getUnix();
-    if (ts.tv_sec < opts.start || ts.tv_sec >= opts.stop) {
-      continue;
+    if (f.hasHeader<LRIT::TimeStampHeader>()) {
+      auto ts = f.getHeader<LRIT::TimeStampHeader>().getUnix();
+      if (ts.tv_sec < opts.start || ts.tv_sec >= opts.stop) {
+        continue;
+      }
+    } else {
+      // No time stamp header but time restrictions configured
+      if (opts.intervalSet) {
+        continue;
+      }
     }
 
     opts.files.push_back(std::move(f));

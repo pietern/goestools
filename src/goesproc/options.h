@@ -29,6 +29,7 @@ struct Options {
   // Process files stamped between [start, stop)
   time_t start;
   time_t stop;
+  bool intervalSet;
 
   struct {
     int width;

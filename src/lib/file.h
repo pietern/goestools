@@ -36,6 +36,8 @@ public:
 
   std::unique_ptr<std::ifstream> getData() const;
 
+  std::vector<char> read() const;
+
 protected:
   std::string file_;
   std::vector<uint8_t> header_;

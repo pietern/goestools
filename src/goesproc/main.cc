@@ -297,6 +297,23 @@ int processPlainImageData(Options& opts) {
   for (const auto& f : opts.files) {
     auto image = Image::createFromFile(f);
     auto fileName = image->getBasename();
+
+    // If this is a GIF, then we can't use OpenCV...
+    auto lrit = f.getHeader<LRIT::NOAALRITHeader>();
+    if (lrit.noaaSpecificCompression == 5) {
+      // Since we can't read GIFs, we can't use the specified format
+      fileName += ".gif";
+      std::cout
+        << "Writing "
+        << fileName
+        << std::endl;
+
+      auto buf = f.read();
+      std::ofstream of(fileName);
+      of.write(buf.data(), buf.size());
+      continue;
+    }
+
     fileName += "." + opts.format;
     std::cout
       << "Writing "

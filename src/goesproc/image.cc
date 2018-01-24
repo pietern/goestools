@@ -375,9 +375,26 @@ Image::Channel ImageMeteosat::getChannel() const {
 }
 
 std::string ImageNWS::getBasename() const {
-  // Use annotation without the "dat327221257926.lrit" suffix
+  size_t pos;
+
   auto text = file_.getHeader<LRIT::AnnotationHeader>().text;
-  auto pos = text.find("dat");
-  assert(pos != std::string::npos);
-  return text.substr(0, pos) + "_" + getTimeShort();
+
+  // Use annotation without the "dat327221257926.lrit" suffix
+  pos = text.find("dat");
+  if (pos != std::string::npos) {
+    text = text.substr(0, pos);
+  }
+
+  // Remove .lrit suffix
+  pos = text.find(".lrit");
+  if (pos != std::string::npos) {
+    text = text.substr(0, pos);
+  }
+
+  // Add time if available
+  if (file_.hasHeader<LRIT::TimeStampHeader>()) {
+    text += "_" + getTimeShort();
+  }
+
+  return text;
 }

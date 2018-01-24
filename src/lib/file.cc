@@ -69,4 +69,14 @@ std::unique_ptr<std::ifstream> File::getData() const {
   return ifs;
 }
 
+std::vector<char> File::read() const {
+  std::vector<char> out;
+
+  auto ifs = getData();
+  auto bytes = (int) ((ph_.dataLength + 7) / 8);
+  out.resize(bytes);
+  ifs->read(out.data(), out.size());
+  return out;
+}
+
 } // namespace LRIT
