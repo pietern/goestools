@@ -4,7 +4,7 @@
 #include <thread>
 #include <vector>
 
-#include "goesdec/packetizer.h"
+#include "decoder/packetizer.h"
 
 #include "./publisher.h"
 #include "./queue.h"
@@ -17,7 +17,7 @@ public:
   void stop();
 
 protected:
-  std::unique_ptr<Packetizer> packetizer_;
+  std::unique_ptr<decoder::Packetizer> packetizer_;
   std::unique_ptr<Publisher> packetPublisher_;
   std::thread thread_;
 };

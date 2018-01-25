@@ -5,6 +5,8 @@
 #include <array>
 #include <vector>
 
+namespace decoder {
+
 class Derandomizer {
 public:
   Derandomizer();
@@ -14,3 +16,5 @@ public:
 protected:
   std::array<uint8_t, 1020> table_;
 };
+
+} // namespace decoder

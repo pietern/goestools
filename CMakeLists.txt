@@ -20,6 +20,7 @@ include_directories(BEFORE SYSTEM ${PROJECT_SOURCE_DIR}/vendor/libsimdpp)
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
 add_subdirectory(src/lib)
+add_subdirectory(src/decoder)
 add_subdirectory(src/goesdec)
 add_subdirectory(src/goesproc)
 

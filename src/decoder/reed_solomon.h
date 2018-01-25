@@ -6,6 +6,8 @@ extern "C" {
 
 #include <array>
 
+namespace decoder {
+
 class ReedSolomon {
 public:
   ReedSolomon();
@@ -19,3 +21,5 @@ protected:
 
   correct_reed_solomon* rs_;
 };
+
+} // namespace decoder

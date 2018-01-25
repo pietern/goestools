@@ -9,6 +9,8 @@
 #include "reed_solomon.h"
 #include "viterbi.h"
 
+namespace decoder {
+
 class Packetizer {
   static constexpr auto frameBits = 8192;
   static constexpr auto syncWordBits = 32;
@@ -45,3 +47,5 @@ protected:
   int symbolRate_;
   int64_t symbolPos_;
 };
+
+} // namespace decoder

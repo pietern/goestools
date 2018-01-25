@@ -1,6 +1,8 @@
 #include "reed_solomon.h"
 
-#include <assert.h>
+#include <cassert>
+
+namespace decoder {
 
 namespace {
 
@@ -88,3 +90,5 @@ int ReedSolomon::run(const uint8_t* data, size_t len, uint8_t* dst) {
 
   return err;
 }
+
+} // namespace decoder

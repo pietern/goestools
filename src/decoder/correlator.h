@@ -5,6 +5,8 @@
 
 #include <string>
 
+namespace decoder {
+
 enum correlationType {
   LRIT_PHASE_000 = 0,
   LRIT_PHASE_180 = 1,
@@ -23,3 +25,5 @@ const char* correlationTypeToString(correlationType type);
 // means we don't need a run time flag for the type of stream because
 // we can detect which one we correlate best with.
 int correlate(uint8_t* data, size_t len, int* maxOut, correlationType* maxType);
+
+} // namespace decoder

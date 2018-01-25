@@ -28,7 +28,7 @@ std::array<uint8_t, 4> nrzmEncode(std::array<uint8_t, 4> in, int b) {
 }
 
 int main(int argc, char** argv) {
-  Viterbi v;
+  decoder::Viterbi v;
 
   // Use array of bytes instead of fundamental type so we
   // don't need to worry about host byte order.

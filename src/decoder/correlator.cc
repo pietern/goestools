@@ -1,5 +1,7 @@
 #include "correlator.h"
 
+namespace decoder {
+
 namespace {
 
 // The sync words below are compared to the raw bit stream
@@ -75,3 +77,5 @@ int correlate(uint8_t* data, size_t len, int* maxOut, correlationType* maxType) 
   }
   return pos[j];
 }
+
+} // namespace decoder

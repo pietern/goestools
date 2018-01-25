@@ -1,19 +1,18 @@
-#include <assert.h>
-#include <time.h>
 #include <unistd.h>
 
+#include <cassert>
+#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <memory>
 
 #include "packetizer.h"
 #include "reader.h"
-#include "vcdu.h"
 
 // Read from file descriptor.
 // Stores time when most recent read completed.
 // This is used to name output files.
-class FileReader : public Reader {
+class FileReader : public decoder::Reader {
 public:
   FileReader(int fd) :
     fd_(fd) {}
@@ -98,7 +97,7 @@ protected:
 int main(int argc, char** argv) {
   auto reader = std::make_shared<FileReader>(0);
   auto writer = std::make_shared<FileWriter>(".");
-  Packetizer p(reader);
+  decoder::Packetizer p(reader);
   std::array<uint8_t, 892> buf;
   for (;;) {
     auto ok = p.nextPacket(buf, nullptr);

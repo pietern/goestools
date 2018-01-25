@@ -8,6 +8,8 @@ extern "C" {
 #endif
 }
 
+namespace decoder {
+
 class Viterbi {
 #ifdef __SSE__
   using conv = correct_convolutional_sse;
@@ -63,3 +65,5 @@ public:
 private:
   conv* v_;
 };
+
+} // namespace decoder

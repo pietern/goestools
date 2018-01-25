@@ -3,6 +3,8 @@
 #include <cstring>
 #include <iostream>
 
+namespace decoder {
+
 Packetizer::Packetizer(std::shared_ptr<Reader> reader)
   : reader_(std::move(reader)) {
   // Include frame prelude at the beginning of the buffer so there
@@ -188,3 +190,5 @@ bool Packetizer::nextPacket(std::array<uint8_t, 892>& out, struct timespec* ts) 
 
   return true;
 }
+
+} // namespace decoder

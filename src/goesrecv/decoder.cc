@@ -11,7 +11,7 @@ namespace {
 //
 // The packetizer needs an interface that quacks like read(2).
 //
-class QueueReader : public Reader {
+class QueueReader : public decoder::Reader {
 public:
   explicit QueueReader(std::shared_ptr<Queue<std::vector<int8_t> > > queue)
       : queue_(std::move(queue)) {
@@ -65,7 +65,7 @@ protected:
 } // namespace
 
 Decoder::Decoder(std::shared_ptr<Queue<std::vector<int8_t> > > queue) {
-  packetizer_ = std::make_unique<Packetizer>(
+  packetizer_ = std::make_unique<decoder::Packetizer>(
     std::make_shared<QueueReader>(std::move(queue)));
   packetPublisher_ = Publisher::create("tcp://0.0.0.0:5004");
 }
