@@ -1,8 +1,10 @@
 #include "transport_pdu.h"
 
-#include <string.h>
+#include <cstring>
 
 #include "crc.h"
+
+namespace assembler {
 
 size_t TransportPDU::read(const uint8_t* buf, size_t len) {
   size_t nread = 0;
@@ -33,5 +35,7 @@ size_t TransportPDU::read(const uint8_t* buf, size_t len) {
 }
 
 bool TransportPDU::verifyCRC() {
-  return (::crc(&data[0], length() - 2) == this->crc());
+  return (::assembler::crc(&data[0], length() - 2) == this->crc());
 }
+
+} // namespace assembler

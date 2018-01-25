@@ -1,0 +1,10 @@
+add_executable(packetinfo packetinfo.cc)
+target_link_libraries(packetinfo stdc++)
+
+add_library(assembler
+  crc.cc
+  session_pdu.cc
+  transport_pdu.cc
+  virtual_channel.cc
+  )
+target_link_libraries(assembler aec sz stdc++)

@@ -5,6 +5,8 @@
 
 #include <unistd.h>
 
+namespace assembler {
+
 // Transport Protocol Data Unit
 // See: http://www.noaasis.noaa.gov/LRIT/pdf-files/3_LRIT_Receiver-specs.pdf
 class TransportPDU {
@@ -75,3 +77,5 @@ public:
   std::vector<uint8_t> header;
   std::vector<uint8_t> data;
 };
+
+} // namespace assembler

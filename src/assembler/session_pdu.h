@@ -12,6 +12,8 @@ extern "C" {
 
 #include "transport_pdu.h"
 
+namespace assembler {
+
 // Compute difference between two integers taking into account wrapping.
 template <unsigned int N>
 int diffWithWrap(unsigned int a, unsigned int b) {
@@ -86,3 +88,5 @@ protected:
   std::unique_ptr<SZ_com_t> szParam_;
   std::vector<uint8_t> szTmp_;
 };
+
+} // namespace assembler

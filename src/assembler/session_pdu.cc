@@ -3,6 +3,8 @@
 #include <cassert>
 #include <iostream>
 
+namespace assembler {
+
 SessionPDU::SessionPDU(const TransportPDU& tpdu)
   : remainingHeaderBytes_(0),
     lastSequenceCount_(tpdu.sequenceCount()) {
@@ -172,3 +174,5 @@ bool SessionPDU::append(
   buf_.insert(buf_.end(), szTmp_.begin(), szTmp_.begin() + outLen);
   return true;
 }
+
+} // namespace assembler

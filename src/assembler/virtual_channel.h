@@ -4,11 +4,11 @@
 #include <memory>
 #include <vector>
 
-#include <assert.h>
-
 #include "session_pdu.h"
 #include "transport_pdu.h"
 #include "vcdu.h"
+
+namespace assembler {
 
 class VirtualChannel {
 public:
@@ -35,3 +35,5 @@ protected:
   // Incomplete Session Protocol Data Unit per APID.
   std::map<int, std::unique_ptr<SessionPDU>> apidSessionPDU_;
 };
+
+} // namespace assembler

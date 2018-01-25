@@ -9,8 +9,8 @@
 #include <vector>
 
 #include "file_handler.h"
-#include "vcdu.h"
-#include "virtual_channel.h"
+#include "assembler/vcdu.h"
+#include "assembler/virtual_channel.h"
 
 int main(int argc, char** argv) {
   bool images = false;
@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
 
   std::ifstream ifs;
   std::array<uint8_t, 892> buf;
-  std::map<int, VirtualChannel> vcs;
+  std::map<int, assembler::VirtualChannel> vcs;
   FileHandler handler("./out");
   for (;;) {
     // Make sure the ifstream is OK
@@ -96,7 +96,7 @@ int main(int argc, char** argv) {
 
     // Create virtual channel instance if it does not yet exist
     if (vcs.find(vcid) == vcs.end()) {
-      vcs.insert(std::make_pair(vcid, VirtualChannel(vcid)));
+      vcs.insert(std::make_pair(vcid, assembler::VirtualChannel(vcid)));
     }
 
     // Let virtual channel process VCDU

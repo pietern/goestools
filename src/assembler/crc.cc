@@ -1,5 +1,7 @@
 #include "crc.h"
 
+namespace assembler {
+
 namespace {
 
 // CRC table and implementation from "NOAA GOES LRIT Mission Specific Data".
@@ -48,3 +50,5 @@ uint16_t crc(const uint8_t* buf, size_t len) {
   }
   return crc;
 }
+
+} // namespace assembler

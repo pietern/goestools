@@ -28,7 +28,7 @@ FileHandler::FileHandler(const std::string& dir)
   : dir_(dir) {
 }
 
-void FileHandler::handle(std::unique_ptr<SessionPDU> spdu) {
+void FileHandler::handle(std::unique_ptr<assembler::SessionPDU> spdu) {
   std::string path;
 
   // Ignore files without annotation header
@@ -154,7 +154,7 @@ void FileHandler::handle(std::unique_ptr<SessionPDU> spdu) {
   save(*spdu, finalPath);
 }
 
-void FileHandler::save(const SessionPDU& spdu, const std::string& path) {
+void FileHandler::save(const assembler::SessionPDU& spdu, const std::string& path) {
   std::cerr
     << "Saving " << path
     << " (" << spdu.get().size() << " bytes)"

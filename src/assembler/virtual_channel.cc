@@ -1,6 +1,9 @@
 #include "virtual_channel.h"
 
+#include <cassert>
 #include <iostream>
+
+namespace assembler {
 
 VirtualChannel::VirtualChannel(int id)
   : id_(id), n_(-1) {
@@ -258,3 +261,5 @@ void VirtualChannel::process(
     }
   }
 }
+
+} // namespace assembler
