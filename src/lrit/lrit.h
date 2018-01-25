@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cassert>
-#include <stdint.h>
+#include <cstdint>
 #include <ctime>
 #include <map>
 #include <vector>

@@ -8,7 +8,7 @@ extern "C" {
 #include <szlib.h>
 }
 
-#include <lib/lrit.h>
+#include "lrit/lrit.h"
 
 #include "transport_pdu.h"
 

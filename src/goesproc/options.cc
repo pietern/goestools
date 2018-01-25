@@ -8,7 +8,7 @@
 #include <iostream>
 #include <limits>
 
-#include "lib/lrit.h"
+#include "lrit/lrit.h"
 #include "lib/util.h"
 #include "dir.h"
 

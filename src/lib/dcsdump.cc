@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "dcs.h"
-#include "file.h"
+#include "lrit/file.h"
 
 int main(int argc, char** argv) {
   int rv;

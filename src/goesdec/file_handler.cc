@@ -8,7 +8,7 @@
 #include <iostream>
 #include <sstream>
 
-#include <lib/lrit.h>
+#include "lrit/lrit.h"
 
 namespace {
 

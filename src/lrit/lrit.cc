@@ -1,4 +1,4 @@
-#include "lib/lrit.h"
+#include "lrit.h"
 
 #include <cassert>
 #include <cstring>
