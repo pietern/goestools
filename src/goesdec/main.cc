@@ -9,8 +9,7 @@
 #include <vector>
 
 #include "file_handler.h"
-#include "assembler/vcdu.h"
-#include "assembler/virtual_channel.h"
+#include "assembler/assembler.h"
 
 int main(int argc, char** argv) {
   bool images = false;
@@ -64,7 +63,7 @@ int main(int argc, char** argv) {
 
   std::ifstream ifs;
   std::array<uint8_t, 892> buf;
-  std::map<int, assembler::VirtualChannel> vcs;
+  assembler::Assembler assembler;
   FileHandler handler("./out");
   for (;;) {
     // Make sure the ifstream is OK
@@ -85,23 +84,8 @@ int main(int argc, char** argv) {
       continue;
     }
 
-    // Got packet!
-    VCDU vcdu(buf);
-
-    // Ignore fill packets
-    auto vcid = vcdu.getVCID();
-    if (vcid == 63) {
-      continue;
-    }
-
-    // Create virtual channel instance if it does not yet exist
-    if (vcs.find(vcid) == vcs.end()) {
-      vcs.insert(std::make_pair(vcid, assembler::VirtualChannel(vcid)));
-    }
-
-    // Let virtual channel process VCDU
-    auto it = vcs.find(vcid);
-    auto spdus = it->second.process(vcdu);
+    // Got packet! Let packet assembler process it.
+    auto spdus = assembler.process(buf);
     for (auto& spdu : spdus) {
       auto type = spdu->getHeader<lrit::PrimaryHeader>().fileType;
       if (type == 0 && !images) {

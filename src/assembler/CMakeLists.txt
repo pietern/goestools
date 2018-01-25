@@ -2,6 +2,7 @@ add_executable(packetinfo packetinfo.cc)
 target_link_libraries(packetinfo stdc++)
 
 add_library(assembler
+  assembler.cc
   crc.cc
   session_pdu.cc
   transport_pdu.cc

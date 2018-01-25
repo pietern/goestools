@@ -8,7 +8,8 @@ class VCDU {
   using raw = std::array<uint8_t, 892>;
 
 public:
-  explicit VCDU(raw data)
+  // Allow implicit construction
+  VCDU(raw data)
     : data_(data) {
   };
 
