@@ -36,7 +36,7 @@ bool SessionPDU::canResumeFrom(const TransportPDU& tpdu) const {
   }
 
   // Can't skip if we need to skip more lines than remaining
-  auto ish = getHeader<LRIT::ImageStructureHeader>();
+  auto ish = getHeader<lrit::ImageStructureHeader>();
   auto remaining = ish.lines - (int) (buf_.size() / szParam_->pixels_per_scanline);
   auto skip = diffWithWrap<16384>(lastSequenceCount_, tpdu.sequenceCount()) - 1;
   if (skip > remaining) {
@@ -51,7 +51,7 @@ std::string SessionPDU::getName() const {
     return "(missing header)";
   }
 
-  auto ah = getHeader<LRIT::AnnotationHeader>();
+  auto ah = getHeader<lrit::AnnotationHeader>();
   return ah.text;
 }
 
@@ -81,7 +81,7 @@ bool SessionPDU::append(const TransportPDU& tpdu) {
 }
 
 void SessionPDU::completeHeader() {
-  m_ = LRIT::getHeaderMap(buf_);
+  m_ = lrit::getHeaderMap(buf_);
 
   // File type 0 is image data
   if (ph_.fileType != 0) {
@@ -90,7 +90,7 @@ void SessionPDU::completeHeader() {
 
   // Check compression flag.
   // If it is anything other than "1" we ignore it.
-  auto ish = LRIT::getHeader<LRIT::ImageStructureHeader>(buf_, m_);
+  auto ish = lrit::getHeader<lrit::ImageStructureHeader>(buf_, m_);
   if (ish.compression != 1) {
     return;
   }
@@ -108,8 +108,8 @@ void SessionPDU::completeHeader() {
   // Therefore, we should now check if this buffer has a Rice
   // compression header and setup the decoder if so.
   //
-  if (LRIT::hasHeader<LRIT::RiceCompressionHeader>(m_)) {
-    auto rch = LRIT::getHeader<LRIT::RiceCompressionHeader>(buf_, m_);
+  if (lrit::hasHeader<lrit::RiceCompressionHeader>(m_)) {
+    auto rch = lrit::getHeader<lrit::RiceCompressionHeader>(buf_, m_);
     szParam_.reset(new SZ_com_t);
     szParam_->options_mask = rch.flags | SZ_RAW_OPTION_MASK;
     szParam_->bits_per_pixel = ish.bitsPerPixel;
@@ -132,7 +132,7 @@ bool SessionPDU::append(
     if (buf_.size() < 16) {
       return true;
     }
-    ph_ = LRIT::getHeader<LRIT::PrimaryHeader>(buf_, 0);
+    ph_ = lrit::getHeader<lrit::PrimaryHeader>(buf_, 0);
   }
 
   // Copy secondary headers verbatim

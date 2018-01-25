@@ -11,8 +11,8 @@ int main(int argc, char** argv) {
   int nread;
 
   for (int i = optind; i < argc; i++) {
-    auto file = LRIT::File(argv[i]);
-    auto ph = file.getHeader<LRIT::PrimaryHeader>();
+    auto file = lrit::File(argv[i]);
+    auto ph = file.getHeader<lrit::PrimaryHeader>();
     if (ph.fileType != 130) {
       std::cerr
         << "File " << argv[i]
@@ -31,14 +31,14 @@ int main(int argc, char** argv) {
     nread = 0;
 
     // Read DCS file header (container for multiple DCS payloads)
-    DCS::FileHeader fh;
+    dcs::FileHeader fh;
     rv = fh.readFrom(buf.get(), nbytes);
     assert(rv > 0);
     nread += rv;
 
     while (nread < nbytes) {
       // Read DCS header
-      DCS::Header h;
+      dcs::Header h;
       rv = h.readFrom(buf.get() + nread, nbytes - nread);
       assert(rv > 0);
       nread += rv;

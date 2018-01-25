@@ -48,12 +48,12 @@ public:
 
   template <typename H>
   bool hasHeader() const {
-    return LRIT::hasHeader<H>(m_);
+    return lrit::hasHeader<H>(m_);
   }
 
   template <typename H>
   H getHeader() const {
-    return LRIT::getHeader<H>(buf_, m_);
+    return lrit::getHeader<H>(buf_, m_);
   }
 
   const std::vector<uint8_t>& get() const {
@@ -64,7 +64,7 @@ public:
     return buf_.size();
   }
 
-  const LRIT::HeaderMap& getHeaderMap() const {
+  const lrit::HeaderMap& getHeaderMap() const {
     return m_;
   }
 
@@ -79,9 +79,9 @@ protected:
   uint64_t remainingHeaderBytes_;
   uint32_t lastSequenceCount_;
 
-  LRIT::HeaderMap m_;
-  LRIT::PrimaryHeader ph_;
-  LRIT::ImageStructureHeader ish_;
+  lrit::HeaderMap m_;
+  lrit::PrimaryHeader ph_;
+  lrit::ImageStructureHeader ish_;
 
   std::unique_ptr<SZ_com_t> szParam_;
   std::vector<uint8_t> szTmp_;

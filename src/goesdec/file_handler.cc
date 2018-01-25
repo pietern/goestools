@@ -32,12 +32,12 @@ void FileHandler::handle(std::unique_ptr<SessionPDU> spdu) {
   std::string path;
 
   // Ignore files without annotation header
-  if (!spdu->hasHeader<LRIT::AnnotationHeader>()) {
+  if (!spdu->hasHeader<lrit::AnnotationHeader>()) {
     return;
   }
 
-  auto primary = spdu->getHeader<LRIT::PrimaryHeader>();
-  auto annotation = spdu->getHeader<LRIT::AnnotationHeader>();
+  auto primary = spdu->getHeader<lrit::PrimaryHeader>();
+  auto annotation = spdu->getHeader<lrit::AnnotationHeader>();
   auto fileName = annotation.text;
   switch (primary.fileType) {
   case 0:
@@ -60,7 +60,7 @@ void FileHandler::handle(std::unique_ptr<SessionPDU> spdu) {
 
   // Per http://www.noaasis.noaa.gov/LRIT/pdf-files/LRIT_receiver-specs.pdf,
   // Table 4, every file has a NOAA LRIT header.
-  auto lrit = spdu->getHeader<LRIT::NOAALRITHeader>();
+  auto lrit = spdu->getHeader<lrit::NOAALRITHeader>();
   if (primary.fileType == 0) {
     switch (lrit.productID) {
     case 1:
@@ -135,8 +135,8 @@ void FileHandler::handle(std::unique_ptr<SessionPDU> spdu) {
       // Some image files are segmented, yet have the same annotation
       // text. If we don't do anything, they are all written to the
       // same path. To fix this, we add a file suffix.
-      if (spdu->hasHeader<LRIT::SegmentIdentificationHeader>()) {
-        auto sih = spdu->getHeader<LRIT::SegmentIdentificationHeader>();
+      if (spdu->hasHeader<lrit::SegmentIdentificationHeader>()) {
+        auto sih = spdu->getHeader<lrit::SegmentIdentificationHeader>();
         std::stringstream ss;
         ss << "." << sih.segmentNumber;
         fileName += ss.str();

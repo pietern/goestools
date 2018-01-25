@@ -6,7 +6,7 @@
 #include <map>
 #include <vector>
 
-namespace LRIT {
+namespace lrit {
 
 using HeaderMap = std::map<int, int>;
 using Buffer = std::vector<uint8_t>;
@@ -158,4 +158,4 @@ H getHeader(const Buffer& b, const HeaderMap& m) {
   return getHeader<H>(b, it->second);
 }
 
-} // namespace LRIT
+} // namespace lrit

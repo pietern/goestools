@@ -8,7 +8,7 @@
 
 #include "lrit.h"
 
-namespace LRIT {
+namespace lrit {
 
 class File {
 public:
@@ -24,12 +24,12 @@ public:
 
   template <typename H>
   bool hasHeader() const {
-    return LRIT::hasHeader<H>(m_);
+    return lrit::hasHeader<H>(m_);
   }
 
   template <typename H>
   H getHeader() const {
-    return LRIT::getHeader<H>(header_, m_);
+    return lrit::getHeader<H>(header_, m_);
   }
 
   std::string getTime() const;
@@ -45,4 +45,4 @@ protected:
   PrimaryHeader ph_;
 };
 
-} // namespace LRIT
+} // namespace lrit

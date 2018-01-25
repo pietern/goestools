@@ -19,11 +19,11 @@ public:
     std::string nameLong;
   };
 
-  static std::unique_ptr<Image> createFromFile(LRIT::File file);
+  static std::unique_ptr<Image> createFromFile(lrit::File file);
 
-  explicit Image(LRIT::File file);
+  explicit Image(lrit::File file);
 
-  const LRIT::File& getFile() const {
+  const lrit::File& getFile() const {
     return file_;
   }
 
@@ -54,15 +54,15 @@ public:
   cv::Mat getRawImage() const;
 
 protected:
-  LRIT::File file_;
+  lrit::File file_;
 
-  LRIT::ImageStructureHeader is_;
-  LRIT::NOAALRITHeader nl_;
+  lrit::ImageStructureHeader is_;
+  lrit::NOAALRITHeader nl_;
 };
 
 class ImageGOES13 : public Image {
 public:
-  explicit ImageGOES13(LRIT::File file)
+  explicit ImageGOES13(lrit::File file)
     : Image(file) {
   }
 
@@ -73,7 +73,7 @@ public:
 
 class ImageGOES15 : public Image {
 public:
-  explicit ImageGOES15(LRIT::File file)
+  explicit ImageGOES15(lrit::File file)
     : Image(file) {
   }
 
@@ -84,7 +84,7 @@ public:
 
 class ImageGOES16 : public Image {
 public:
-  explicit ImageGOES16(LRIT::File file);
+  explicit ImageGOES16(lrit::File file);
 
   virtual std::string getSatellite() const override;
   virtual Region getRegion() const override;
@@ -104,7 +104,7 @@ protected:
 
 class ImageHimawari8 : public Image {
 public:
-  explicit ImageHimawari8(LRIT::File file)
+  explicit ImageHimawari8(lrit::File file)
     : Image(file) {
   }
 
@@ -116,7 +116,7 @@ public:
 
 class ImageMeteosat : public Image {
 public:
-  explicit ImageMeteosat(LRIT::File file)
+  explicit ImageMeteosat(lrit::File file)
     : Image(file) {
   }
 
@@ -127,7 +127,7 @@ public:
 
 class ImageNWS : public Image {
 public:
-  explicit ImageNWS(LRIT::File file)
+  explicit ImageNWS(lrit::File file)
     : Image(file) {
   }
 

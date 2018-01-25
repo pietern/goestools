@@ -3,7 +3,7 @@
 #include <cassert>
 #include <cstring>
 
-namespace LRIT {
+namespace lrit {
 
 const int PrimaryHeader::CODE = 0;
 const int ImageStructureHeader::CODE = 1;
@@ -234,4 +234,4 @@ DCSFileNameHeader getHeader(const Buffer& b, int pos) {
   return h;
 }
 
-} // namespace LRIT
+} // namespace lrit

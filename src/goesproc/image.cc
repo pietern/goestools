@@ -7,7 +7,7 @@
 namespace {
 
 // GOES 13 and 15 use identical region identification.
-Image::Region getGOESLRITRegion(const LRIT::NOAALRITHeader& h) {
+Image::Region getGOESLRITRegion(const lrit::NOAALRITHeader& h) {
   Image::Region region;
   if (h.productSubID % 10 == 1) {
     region.nameShort = "FD";
@@ -34,7 +34,7 @@ Image::Region getGOESLRITRegion(const LRIT::NOAALRITHeader& h) {
 }
 
 // GOES 13 and 15 use identical channel identification.
-Image::Channel getGOESLRITChannel(const LRIT::NOAALRITHeader& h) {
+Image::Channel getGOESLRITChannel(const lrit::NOAALRITHeader& h) {
   Image::Channel channel;
   if (h.productSubID <= 10) {
     channel.nameShort = "IR";
@@ -51,8 +51,8 @@ Image::Channel getGOESLRITChannel(const LRIT::NOAALRITHeader& h) {
 
 } // namespace
 
-std::unique_ptr<Image> Image::createFromFile(LRIT::File file) {
-  auto nl = file.getHeader<LRIT::NOAALRITHeader>();
+std::unique_ptr<Image> Image::createFromFile(lrit::File file) {
+  auto nl = file.getHeader<lrit::NOAALRITHeader>();
   switch (nl.productID) {
   case 13:
     return std::unique_ptr<Image>(new ImageGOES13(std::move(file)));
@@ -73,9 +73,9 @@ std::unique_ptr<Image> Image::createFromFile(LRIT::File file) {
   assert(false && "Unhandled productID");
 }
 
-Image::Image(LRIT::File file) : file_(file) {
-  is_ = file_.getHeader<LRIT::ImageStructureHeader>();
-  nl_ = file_.getHeader<LRIT::NOAALRITHeader>();
+Image::Image(lrit::File file) : file_(file) {
+  is_ = file_.getHeader<lrit::ImageStructureHeader>();
+  nl_ = file_.getHeader<lrit::NOAALRITHeader>();
 }
 
 std::string Image::getSatellite() const {
@@ -99,7 +99,7 @@ std::string Image::getBasename() const {
 }
 
 struct timespec Image::getTimeStamp() const {
-  return file_.getHeader<LRIT::TimeStampHeader>().getUnix();
+  return file_.getHeader<lrit::TimeStampHeader>().getUnix();
 }
 
 std::string Image::getTimeShort() const {
@@ -129,7 +129,7 @@ cv::Mat Image::getRawImage() const {
   auto ifs = file_.getData();
 
   if (is_.bitsPerPixel == 1) {
-    auto ph = file_.getHeader<LRIT::PrimaryHeader>();
+    auto ph = file_.getHeader<lrit::PrimaryHeader>();
 
     // Number of pixels
     unsigned long n = (raw.size().width * raw.size().height);
@@ -187,8 +187,8 @@ Image::Channel ImageGOES15::getChannel() const {
   return getGOESLRITChannel(this->nl_);
 }
 
-ImageGOES16::ImageGOES16(LRIT::File file) : Image(file) {
-  auto text = getFile().getHeader<LRIT::AncillaryTextHeader>().text;
+ImageGOES16::ImageGOES16(lrit::File file) : Image(file) {
+  auto text = getFile().getHeader<lrit::AncillaryTextHeader>().text;
   auto pairs = split(text, ';');
   for (const auto& pair : pairs) {
     auto elements = split(pair, '=');
@@ -251,7 +251,7 @@ ImageGOES16::ImageGOES16(LRIT::File file) : Image(file) {
 
   // Tell apart the two mesoscale sectors
   {
-    auto fileName = getFile().getHeader<LRIT::AnnotationHeader>().text;
+    auto fileName = getFile().getHeader<lrit::AnnotationHeader>().text;
     auto parts = split(fileName, '-');
     assert(parts.size() >= 4);
     if (parts[2] == "CMIPF") {
@@ -323,7 +323,7 @@ Image::Channel ImageHimawari8::getChannel() const {
 // Himawari 8 doesn't have a valid time stamp header
 struct timespec ImageHimawari8::getTimeStamp() const {
   // Example annotation: IMG_DK01VIS_201712162250_003.lrit
-  auto ah = file_.getHeader<LRIT::AnnotationHeader>();
+  auto ah = file_.getHeader<lrit::AnnotationHeader>();
   std::stringstream ss(ah.text);
   std::string tmp;
   assert(std::getline(ss, tmp, '_'));
@@ -377,7 +377,7 @@ Image::Channel ImageMeteosat::getChannel() const {
 std::string ImageNWS::getBasename() const {
   size_t pos;
 
-  auto text = file_.getHeader<LRIT::AnnotationHeader>().text;
+  auto text = file_.getHeader<lrit::AnnotationHeader>().text;
 
   // Use annotation without the "dat327221257926.lrit" suffix
   pos = text.find("dat");
@@ -392,7 +392,7 @@ std::string ImageNWS::getBasename() const {
   }
 
   // Add time if available
-  if (file_.hasHeader<LRIT::TimeStampHeader>()) {
+  if (file_.hasHeader<lrit::TimeStampHeader>()) {
     text += "_" + getTimeShort();
   }
 

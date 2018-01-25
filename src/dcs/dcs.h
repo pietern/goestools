@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace DCS {
+namespace dcs {
 
 // Header at the beginning of an LRIT DCS file
 struct FileHeader {
@@ -38,4 +38,4 @@ struct Header {
   int readFrom(const char* buf, size_t len);
 };
 
-} // namespace DCS
+} // namespace dcs

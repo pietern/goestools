@@ -122,8 +122,8 @@ Options parseOptions(int argc, char** argv) {
 
   // Process and filter files
   for (unsigned i = 0; i < paths.size(); i++) {
-    auto f = LRIT::File(paths[i]);
-    auto ph = f.getHeader<LRIT::PrimaryHeader>();
+    auto f = lrit::File(paths[i]);
+    auto ph = f.getHeader<lrit::PrimaryHeader>();
     if (i == 0) {
       opts.fileType = ph.fileType;
     } else {
@@ -134,8 +134,8 @@ Options parseOptions(int argc, char** argv) {
       }
     }
 
-    if (f.hasHeader<LRIT::TimeStampHeader>()) {
-      auto ts = f.getHeader<LRIT::TimeStampHeader>().getUnix();
+    if (f.hasHeader<lrit::TimeStampHeader>()) {
+      auto ts = f.getHeader<lrit::TimeStampHeader>().getUnix();
       if (ts.tv_sec < opts.start || ts.tv_sec >= opts.stop) {
         continue;
       }

@@ -21,7 +21,7 @@ enum class CropWidth {
 
 struct Options {
   std::vector<std::string> channels;
-  std::vector<LRIT::File> files;
+  std::vector<lrit::File> files;
   int fileType;
   bool shrink;
   std::string format;

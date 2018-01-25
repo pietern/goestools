@@ -21,7 +21,7 @@ public:
     std::set<int> subProducts;
     for (auto& image : images_) {
       const auto& firstFile = image.getImage()->getFile();
-      subProducts.insert(firstFile.getHeader<LRIT::NOAALRITHeader>().productSubID);
+      subProducts.insert(firstFile.getHeader<lrit::NOAALRITHeader>().productSubID);
     }
     multiSubProducts_ = (subProducts.size() > 1);
   }
@@ -235,7 +235,7 @@ bool includeChannel(const Options& opts, const std::string& name) {
 int processSegmentedImageData(Options& opts) {
   std::map<int, std::vector<std::unique_ptr<Image>>> imagesByID;
   for (const auto& f : opts.files) {
-    auto si = f.getHeader<LRIT::SegmentIdentificationHeader>();
+    auto si = f.getHeader<lrit::SegmentIdentificationHeader>();
     auto image = Image::createFromFile(std::move(f));
     imagesByID[si.imageIdentifier].push_back(std::move(image));
   }
@@ -267,7 +267,7 @@ int processSegmentedImageData(Options& opts) {
 int processHimawariImageData(Options& opts) {
   std::map<std::string, std::vector<std::unique_ptr<Image>>> imagesByID;
   for (const auto& f : opts.files) {
-    auto ah = f.getHeader<LRIT::AnnotationHeader>();
+    auto ah = f.getHeader<lrit::AnnotationHeader>();
 
     // Find last _ in annotation text and use this prefix
     // as identification for this segmented image.
@@ -299,7 +299,7 @@ int processPlainImageData(Options& opts) {
     auto fileName = image->getBasename();
 
     // If this is a GIF, then we can't use OpenCV...
-    auto lrit = f.getHeader<LRIT::NOAALRITHeader>();
+    auto lrit = f.getHeader<lrit::NOAALRITHeader>();
     if (lrit.noaaSpecificCompression == 5) {
       // Since we can't read GIFs, we can't use the specified format
       fileName += ".gif";
@@ -326,17 +326,17 @@ int processPlainImageData(Options& opts) {
 
 int processImageData(Options& opts) {
   auto& files = opts.files;
-  auto productID = files.front().getHeader<LRIT::NOAALRITHeader>().productID;
+  auto productID = files.front().getHeader<lrit::NOAALRITHeader>().productID;
   unsigned numSegmented = 0;
 
   // Check we're dealing with files from a single satellite
   for (const auto& f : files) {
-    auto lrit = f.getHeader<LRIT::NOAALRITHeader>();
+    auto lrit = f.getHeader<lrit::NOAALRITHeader>();
     if (lrit.productID != productID) {
       std::cerr << "Specified images from multiple satellites..." << std::endl;
       return 1;
     }
-    if (f.hasHeader<LRIT::SegmentIdentificationHeader>()) {
+    if (f.hasHeader<lrit::SegmentIdentificationHeader>()) {
       numSegmented++;
     }
   }

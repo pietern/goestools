@@ -4,7 +4,7 @@
 #include <cstring>
 #include <iostream>
 
-namespace DCS {
+namespace dcs {
 
 int FileHeader::readFrom(const char* buf, size_t len) {
   size_t nread = 0;
@@ -164,4 +164,4 @@ int Header::readFrom(const char* buf, size_t len) {
   return nread;
 }
 
-} // namespace DCS
+} // namespace dcs

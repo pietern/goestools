@@ -13,8 +13,8 @@ SegmentedImage::SegmentedImage(
     images_.begin(),
     images_.end(),
     [](const auto& a, const auto& b) -> bool {
-      auto sa = a->getFile().template getHeader<LRIT::SegmentIdentificationHeader>();
-      auto sb = b->getFile().template getHeader<LRIT::SegmentIdentificationHeader>();
+      auto sa = a->getFile().template getHeader<lrit::SegmentIdentificationHeader>();
+      auto sb = b->getFile().template getHeader<lrit::SegmentIdentificationHeader>();
       return sa.segmentNumber < sb.segmentNumber;
     });
 
@@ -23,14 +23,14 @@ SegmentedImage::SegmentedImage(
   lines_ = 0;
   for (unsigned i = 0; i < images_.size(); i++) {
     const auto& f = images_[i]->getFile();
-    auto is = f.getHeader<LRIT::ImageStructureHeader>();
-    auto in = f.getHeader<LRIT::ImageNavigationHeader>();
-    auto si = f.getHeader<LRIT::SegmentIdentificationHeader>();
+    auto is = f.getHeader<lrit::ImageStructureHeader>();
+    auto in = f.getHeader<lrit::ImageNavigationHeader>();
+    auto si = f.getHeader<lrit::SegmentIdentificationHeader>();
 
     // Use first file as reference for subset of headers
     if (i == 0) {
       inh_ = in;
-      nlh_ = f.getHeader<LRIT::NOAALRITHeader>();
+      nlh_ = f.getHeader<lrit::NOAALRITHeader>();
       assert(nlh_.productSubID > 0);
       assert(nlh_.productSubID <= 30);
     }
@@ -114,7 +114,7 @@ cv::Mat SegmentedImage::getRawImage() const {
   size_t offset = 0;
   for (const auto& image : images_) {
     const auto& f = image->getFile();
-    auto is = f.getHeader<LRIT::ImageStructureHeader>();
+    auto is = f.getHeader<lrit::ImageStructureHeader>();
     auto ifs = f.getData();
     ifs->read((char*)raw.data + offset, is.lines * is.columns);
     assert(*ifs);

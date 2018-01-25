@@ -62,8 +62,8 @@ protected:
   // Measured relative to the offset in the ImageNavigationHeader
   Area area_;
 
-  LRIT::ImageNavigationHeader inh_;
-  LRIT::NOAALRITHeader nlh_;
+  lrit::ImageNavigationHeader inh_;
+  lrit::NOAALRITHeader nlh_;
 
 private:
   cv::Size scaleSize(cv::Size s, bool shrink) const;

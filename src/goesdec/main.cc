@@ -103,7 +103,7 @@ int main(int argc, char** argv) {
     auto it = vcs.find(vcid);
     auto spdus = it->second.process(vcdu);
     for (auto& spdu : spdus) {
-      auto type = spdu->getHeader<LRIT::PrimaryHeader>().fileType;
+      auto type = spdu->getHeader<lrit::PrimaryHeader>().fileType;
       if (type == 0 && !images) {
         continue;
       }

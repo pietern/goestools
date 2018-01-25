@@ -4,7 +4,7 @@
 
 #include <time.h>
 
-namespace LRIT {
+namespace lrit {
 
 File::File(const std::string& file)
   : file_(file) {
@@ -17,7 +17,7 @@ File::File(const std::string& file)
   assert(ifs);
 
   // Parse primary header
-  ph_ = LRIT::getHeader<LRIT::PrimaryHeader>(header_, 0);
+  ph_ = lrit::getHeader<lrit::PrimaryHeader>(header_, 0);
 
   // Read remaining headers
   header_.resize(ph_.totalHeaderLength);
@@ -25,12 +25,12 @@ File::File(const std::string& file)
   assert(ifs);
 
   // Build header map
-  m_ = LRIT::getHeaderMap(header_);
+  m_ = lrit::getHeaderMap(header_);
 }
 
 std::string File::getTime() const {
   std::array<char, 128> tsbuf;
-  auto ts = getHeader<LRIT::TimeStampHeader>().getUnix();
+  auto ts = getHeader<lrit::TimeStampHeader>().getUnix();
   auto len = strftime(
     tsbuf.data(),
     tsbuf.size(),
@@ -79,4 +79,4 @@ std::vector<char> File::read() const {
   return out;
 }
 
-} // namespace LRIT
+} // namespace lrit
