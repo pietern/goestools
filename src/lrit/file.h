@@ -12,7 +12,9 @@ namespace lrit {
 
 class File {
 public:
-  File(const std::string& file);
+  explicit File(const std::string& file);
+
+  explicit File(const std::vector<uint8_t>& buf);
 
   const std::string& getName() const {
     return file_;
@@ -34,12 +36,20 @@ public:
 
   std::string getTime() const;
 
-  std::unique_ptr<std::ifstream> getData() const;
+  std::unique_ptr<std::istream> getData() const;
 
   std::vector<char> read() const;
 
 protected:
+  std::unique_ptr<std::istream> getDataFromFile() const;
+  std::unique_ptr<std::istream> getDataFromBuffer() const;
+
+  // If LRIT file is on disk
   std::string file_;
+
+  // If LRIT file is in memory
+  std::vector<uint8_t> buf_;
+
   std::vector<uint8_t> header_;
   HeaderMap m_;
   PrimaryHeader ph_;

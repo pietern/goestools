@@ -6,6 +6,30 @@
 
 namespace lrit {
 
+namespace {
+
+// http://tuttlem.github.io/2014/08/18/getting-istream-to-work-off-a-byte-array.html
+class membuf : public std::basic_streambuf<char> {
+public:
+  membuf(const uint8_t* p, size_t l) {
+    setg((char*)p, (char*)p, (char*)p + l);
+  }
+};
+
+class memstream : public std::istream {
+public:
+  memstream(const uint8_t* p, size_t l)
+    : std::istream(&buf_),
+      buf_(p, l) {
+    rdbuf(&buf_);
+  }
+
+private:
+  membuf buf_;
+};
+
+} // namespace
+
 File::File(const std::string& file)
   : file_(file) {
   std::ifstream ifs(file_.c_str());
@@ -28,6 +52,23 @@ File::File(const std::string& file)
   m_ = lrit::getHeaderMap(header_);
 }
 
+File::File(const std::vector<uint8_t>& buf) : buf_(buf) {
+  // First 16 bytes hold the primary header
+  header_.insert(header_.end(), buf_.begin(), buf_.begin() + 16);
+
+  // Parse primary header
+  ph_ = lrit::getHeader<lrit::PrimaryHeader>(header_, 0);
+
+  // Read remaining headers
+  header_.insert(
+    header_.end(),
+    buf_.begin() + 16,
+    buf_.begin() + ph_.totalHeaderLength);
+
+  // Build header map
+  m_ = lrit::getHeaderMap(header_);
+}
+
 std::string File::getTime() const {
   std::array<char, 128> tsbuf;
   auto ts = getHeader<lrit::TimeStampHeader>().getUnix();
@@ -39,7 +80,7 @@ std::string File::getTime() const {
   return std::string(tsbuf.data(), len);
 }
 
-std::unique_ptr<std::ifstream> File::getData() const {
+std::unique_ptr<std::istream> File::getDataFromFile() const {
   auto ifs = std::make_unique<std::ifstream>(file_.c_str());
   assert(*ifs);
   ifs->seekg(ph_.totalHeaderLength);
@@ -66,7 +107,24 @@ std::unique_ptr<std::ifstream> File::getData() const {
     }
   }
 
-  return ifs;
+  return std::unique_ptr<std::istream>(ifs.release());
+}
+
+std::unique_ptr<std::istream> File::getDataFromBuffer() const {
+  auto ms = std::make_unique<memstream>(
+    buf_.data() + ph_.totalHeaderLength,
+    buf_.size() - ph_.totalHeaderLength);
+  return std::unique_ptr<std::istream>(ms.release());
+}
+
+std::unique_ptr<std::istream> File::getData() const {
+  if (!file_.empty()) {
+    return getDataFromFile();
+  }
+  if (!buf_.empty()) {
+    return getDataFromBuffer();
+  }
+  assert(nullptr);
 }
 
 std::vector<char> File::read() const {
