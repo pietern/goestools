@@ -92,3 +92,15 @@ std::string toUpper(const std::string& in) {
   std::transform(in.begin(), in.end(), out.begin(), ::toupper);
   return out;
 }
+
+size_t findLast(const std::string& in, char c) {
+  auto pos = in.find('_');
+  while (pos != std::string::npos) {
+    auto npos = in.find(c, pos + 1);
+    if (npos == std::string::npos) {
+      break;
+    }
+    pos = npos;
+  }
+  return pos;
+}

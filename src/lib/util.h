@@ -17,3 +17,5 @@ void mkdirp(const std::string& path);
 std::string toLower(const std::string& in);
 
 std::string toUpper(const std::string& in);
+
+size_t findLast(const std::string& in, char c);
