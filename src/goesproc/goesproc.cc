@@ -11,6 +11,7 @@
 
 #include "config.h"
 #include "handler_goes16.h"
+#include "handler_nws.h"
 
 class Processor {
 public:
@@ -72,6 +73,10 @@ int main(int argc, char** argv) {
         handlers.push_back(
           std::unique_ptr<Handler>(
             new GOES16ImageHandler(handler)));
+      } else if (handler.product == "nws") {
+        handlers.push_back(
+          std::unique_ptr<Handler>(
+            new NWSImageHandler(handler)));
       } else {
         std::cerr << "Invalid image handler product: " << handler.product << std::endl;
         exit(1);
