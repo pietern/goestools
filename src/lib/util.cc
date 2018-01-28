@@ -3,6 +3,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include <algorithm>
 #include <cassert>
 #include <cstring>
 
@@ -76,4 +77,18 @@ void mkdirp(const std::string& path) {
       break;
     }
   }
+}
+
+std::string toLower(const std::string& in) {
+  std::string out;
+  out.resize(in.size());
+  std::transform(in.begin(), in.end(), out.begin(), ::tolower);
+  return out;
+}
+
+std::string toUpper(const std::string& in) {
+  std::string out;
+  out.resize(in.size());
+  std::transform(in.begin(), in.end(), out.begin(), ::toupper);
+  return out;
 }

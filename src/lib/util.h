@@ -13,3 +13,7 @@ std::string trimRight(const std::string& in);
 bool parseTime(const std::string& in, struct timespec* ts);
 
 void mkdirp(const std::string& path);
+
+std::string toLower(const std::string& in);
+
+std::string toUpper(const std::string& in);
