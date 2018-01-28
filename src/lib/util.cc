@@ -1,5 +1,9 @@
 #include "util.h"
 
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#include <cassert>
 #include <cstring>
 
 namespace {
@@ -52,4 +56,24 @@ bool parseTime(const std::string& in, struct timespec* ts) {
   ts->tv_sec = t;
   ts->tv_nsec = tv_nsec;
   return true;
+}
+
+void mkdirp(const std::string& path) {
+  size_t pos = 0;
+
+  for (;; pos++) {
+    pos = path.find('/', pos);
+    if (pos == 0) {
+      continue;
+    }
+    auto sub = path.substr(0, pos);
+    auto rv = mkdir(sub.c_str(), S_IRWXU);
+    if (rv == -1 && errno != EEXIST) {
+      perror("mkdir");
+      assert(rv == 0);
+    }
+    if (pos == std::string::npos) {
+      break;
+    }
+  }
 }

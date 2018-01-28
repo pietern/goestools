@@ -11,3 +11,5 @@ std::string trimLeft(const std::string& in);
 std::string trimRight(const std::string& in);
 
 bool parseTime(const std::string& in, struct timespec* ts);
+
+void mkdirp(const std::string& path);
