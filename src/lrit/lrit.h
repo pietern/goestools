@@ -68,7 +68,10 @@ struct TimeStampHeader {
   char ccsds[7];
 
   // Converts CCSDS time into UNIX timespec.
-  struct timespec getUnix();
+  struct timespec getUnix() const;
+
+  std::string getTimeShort() const;
+  std::string getTimeLong() const;
 };
 
 struct AncillaryTextHeader {
