@@ -11,6 +11,7 @@
 
 #include "config.h"
 #include "handler_goes16.h"
+#include "handler_himawari8.h"
 #include "handler_nws.h"
 
 class Processor {
@@ -77,6 +78,10 @@ int main(int argc, char** argv) {
         handlers.push_back(
           std::unique_ptr<Handler>(
             new NWSImageHandler(handler)));
+      } else if (handler.product == "himawari8") {
+        handlers.push_back(
+          std::unique_ptr<Handler>(
+            new Himawari8ImageHandler(handler)));
       } else {
         std::cerr << "Invalid image handler product: " << handler.product << std::endl;
         exit(1);
