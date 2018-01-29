@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+#include "area.h"
+
 struct Config {
   struct Handler {
     // "image", "dcs", "text"
@@ -19,6 +21,9 @@ struct Config {
 
     // Output directory
     std::string dir;
+
+    // Crop (applied before scaling)
+    Area crop;
   };
 
   static Config load(const std::string& file);

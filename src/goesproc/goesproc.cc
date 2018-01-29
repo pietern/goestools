@@ -11,6 +11,7 @@
 
 #include "config.h"
 #include "handler_goes16.h"
+#include "handler_goesn.h"
 #include "handler_himawari8.h"
 #include "handler_nws.h"
 
@@ -82,6 +83,14 @@ int main(int argc, char** argv) {
         handlers.push_back(
           std::unique_ptr<Handler>(
             new Himawari8ImageHandler(handler)));
+      } else if (handler.product == "goes13") {
+        handlers.push_back(
+          std::unique_ptr<Handler>(
+            new GOESNImageHandler(handler)));
+      } else if (handler.product == "goes15") {
+        handlers.push_back(
+          std::unique_ptr<Handler>(
+            new GOESNImageHandler(handler)));
       } else {
         std::cerr << "Invalid image handler product: " << handler.product << std::endl;
         exit(1);

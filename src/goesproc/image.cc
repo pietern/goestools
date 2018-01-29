@@ -2,16 +2,12 @@
 
 #include <cassert>
 
-namespace {
-
-cv::Mat getRawImage(const lrit::File& f) {
-  cv::Mat raw;
-
-  auto ph = f.getHeader<lrit::PrimaryHeader>();
-  auto ish = f.getHeader<lrit::ImageStructureHeader>();
-  auto ifs = f.getData();
-  raw = cv::Mat(ish.lines, ish.columns, CV_8UC1);
-
+std::unique_ptr<Image> Image::createFromFile(
+    std::shared_ptr<const lrit::File> f) {
+  auto ph = f->getHeader<lrit::PrimaryHeader>();
+  auto ish = f->getHeader<lrit::ImageStructureHeader>();
+  auto ifs = f->getData();
+  cv::Mat raw(ish.lines, ish.columns, CV_8UC1);
   if (ish.bitsPerPixel == 1) {
     // Number of pixels
     unsigned long n = (raw.size().width * raw.size().height);
@@ -43,71 +39,129 @@ cv::Mat getRawImage(const lrit::File& f) {
     assert(false);
   }
 
-  return raw;
-}
-
-} // namespace
-
-std::unique_ptr<Image> Image::createFromFile(
-    std::shared_ptr<const lrit::File> f) {
-  auto raw = getRawImage(*f);
-  return std::make_unique<Image>(*f, raw);
+  return std::make_unique<Image>(*f, raw, Area());
 }
 
 std::unique_ptr<Image> Image::createFromFiles(
     std::vector<std::shared_ptr<const lrit::File> > fs) {
-  uint16_t columns = 0;
-  uint16_t lines = 0;
+  // Sort images by their segment number
+  std::sort(
+    fs.begin(),
+    fs.end(),
+    [](const auto& a, const auto& b) -> bool {
+      auto sa = a->template getHeader<lrit::SegmentIdentificationHeader>();
+      auto sb = b->template getHeader<lrit::SegmentIdentificationHeader>();
+      return sa.segmentNumber < sb.segmentNumber;
+    });
 
-  // Assert these are identical across all segments
-  for (const auto& f : fs) {
-    auto sih = f->getHeader<lrit::SegmentIdentificationHeader>();
-    if (columns == 0) {
-      columns = sih.maxColumn;
-    } else {
-      assert(sih.maxColumn == columns);
+  // NOAA LRIT header is identical across segments
+  auto nl = fs.front()->getHeader<lrit::NOAALRITHeader>();
+
+  // Compute geometry of area shown by this image
+  Area area;
+  for (unsigned i = 0; i < fs.size(); i++) {
+    auto& f = fs[i];
+    auto is = f->getHeader<lrit::ImageStructureHeader>();
+    auto in = f->getHeader<lrit::ImageNavigationHeader>();
+    auto si = f->getHeader<lrit::SegmentIdentificationHeader>();
+
+    // Compute relative area for this segment
+    Area tmp;
+    tmp.minColumn = -in.columnOffset;
+    tmp.maxColumn = -in.columnOffset + is.columns;
+    tmp.minLine = -in.lineOffset;
+    tmp.maxLine = -in.lineOffset + is.lines;
+
+    // For Himawari-8, the offset accounting is done differently
+    if (nl.productID == 43) {
+      auto lineOffset = -in.lineOffset + si.segmentStartLine;
+      tmp.minLine = lineOffset;
+      tmp.maxLine = lineOffset + is.lines;
     }
-    if (lines == 0) {
-      lines = sih.maxLine;
+
+    // Update
+    if (i == 0) {
+      area = tmp;
     } else {
-      assert(sih.maxLine == lines);
+      area = area.getUnion(tmp);
     }
   }
 
-  cv::Mat raw(lines, columns, CV_8UC1);
+  cv::Mat raw(area.height(), area.width(), CV_8UC1);
   for (const auto& f : fs) {
     auto ish = f->getHeader<lrit::ImageStructureHeader>();
     auto sih = f->getHeader<lrit::SegmentIdentificationHeader>();
 
-    char* chunk = (char*) raw.data + (sih.segmentStartLine * columns);
+    char* chunk = (char*) raw.data + (sih.segmentStartLine * area.width());
     auto ifs = f->getData();
     ifs->read(chunk, ish.lines * ish.columns);
     assert(*ifs);
-
-    // Fill the contour with black pixels (left side)
-    for (auto y = 0; y < ish.lines; y++) {
-      uint8_t* data = (uint8_t*) chunk + y * ish.columns;
-      for (auto x = 0; x < ish.columns / 2; x++) {
-        if (data[x] == 0xff) {
-          data[x] = 0x00;
-        } else {
-          break;
-        }
-      }
-      for (auto x = ish.columns - 1; x >= ish.columns / 2; x--) {
-        if (data[x] == 0xff) {
-          data[x] = 0x00;
-        } else {
-          break;
-        }
-      }
-    }
   }
 
-  return std::make_unique<Image>(*fs[0], raw);
+  return std::make_unique<Image>(*fs.front(), raw, area);
 }
 
-Image::Image(const lrit::File& f, cv::Mat m) : m_(m) {
+Image::Image(const lrit::File& f, cv::Mat m, const Area& area)
+    : m_(m),
+      area_(area),
+      columnScaling_(1),
+      lineScaling_(1) {
+  if (f.hasHeader<lrit::ImageNavigationHeader>()) {
+    auto in = f.getHeader<lrit::ImageNavigationHeader>();
+    columnScaling_ = in.columnScaling;
+    lineScaling_ = in.lineScaling;
+  }
+}
+
+cv::Mat Image::getRawImage() const {
+  return m_;
+}
+
+cv::Mat Image::getRawImage(const Area& roi) const {
+  cv::Mat raw = getRawImage();
+  int x = roi.minColumn - area_.minColumn;
+  int y = roi.minLine - area_.minLine;
+  int w = roi.maxColumn - roi.minColumn;
+  int h = roi.maxLine - roi.minLine;
+  assert(x >= 0);
+  assert(y >= 0);
+  assert(w > 0 && (w - x) <= area_.width());
+  assert(h > 0 && (h - y) <= area_.height());
+  cv::Rect crop(x, y, w, h);
+  return raw(crop);
+}
+
+// Scale columns/lines per scaling factor in ImageNavigationHeader
+cv::Size Image::scaleSize(cv::Size s, bool shrink) const {
+  float f = ((float) columnScaling_ / (float) lineScaling_);
+  if (f < 1.0) {
+    if (shrink) {
+      s.height = ceilf(s.height * f);
+    } else {
+      s.width = ceilf(s.width / f);
+    }
+  } else {
+    if (shrink) {
+      s.width = ceilf(s.width / f);
+    } else {
+      s.height = ceilf(s.height * f);
+    }
+  }
+  return s;
+}
+
+cv::Mat Image::getScaledImage(bool shrink) const {
+  cv::Mat raw = getRawImage();
+  cv::Mat out(scaleSize(cv::Size(raw.cols, raw.rows), shrink), CV_8UC1);
+  cv::resize(raw, out, out.size());
+  return std::move(out);
+}
+
+cv::Mat Image::getScaledImage(const Area& roi, bool shrink) const {
+  cv::Mat raw = getRawImage(roi);
+  cv::Mat out(scaleSize(cv::Size(raw.cols, raw.rows), shrink), CV_8UC1);
+  cv::resize(raw, out, out.size());
+  return std::move(out);
 }
 
 void Image::save(const std::string& path) const {

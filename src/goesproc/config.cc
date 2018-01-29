@@ -36,6 +36,21 @@ bool loadHandlers(const toml::Value& v, Config& out) {
       h.dir = ".";
     }
 
+    auto crop = th->find("crop");
+    if (crop) {
+      auto vs = crop->as<std::vector<int>>();
+      if (vs.size() != 4) {
+        out.ok = false;
+        out.error = "Expected \"crop\" to hold 4 integers";
+        return false;
+      }
+
+      h.crop.minColumn = vs[0];
+      h.crop.maxColumn = vs[1];
+      h.crop.minLine = vs[2];
+      h.crop.maxLine = vs[3];
+    }
+
     out.handlers.push_back(h);
   }
 
