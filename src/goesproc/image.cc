@@ -113,6 +113,27 @@ Image::Image(const lrit::File& f, cv::Mat m, const Area& area)
   }
 }
 
+void Image::fillSides() {
+  // Fill the contour with black pixels (left side)
+  for (auto y = 0; y < m_.rows; y++) {
+    uint8_t* data = (uint8_t*) m_.data + y * m_.cols;
+    for (auto x = 0; x < m_.cols; x++) {
+      if (data[x] == 0xff) {
+        data[x] = 0x00;
+      } else {
+        break;
+      }
+    }
+    for (auto x = m_.cols - 1; x >= 0; x--) {
+      if (data[x] == 0xff) {
+        data[x] = 0x00;
+      } else {
+        break;
+      }
+    }
+  }
+}
+
 cv::Mat Image::getRawImage() const {
   return m_;
 }

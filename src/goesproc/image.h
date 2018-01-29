@@ -29,6 +29,8 @@ public:
 
   explicit Image(const lrit::File& f, cv::Mat m, const Area& area);
 
+  void fillSides();
+
   void save(const std::string& path) const;
 
   cv::Mat getRawImage() const;

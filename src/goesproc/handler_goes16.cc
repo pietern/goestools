@@ -52,6 +52,10 @@ void GOES16ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   vector.push_back(f);
   if (vector.size() == sih.maxSegment) {
     auto image = Image::createFromFiles(vector);
+
+    // Fill sides with black only for GOES-16
+    image->fillSides();
+
     auto filename = getBasename(*f);
     image->save(config_.dir + "/" + filename + ".png");
 
