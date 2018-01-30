@@ -17,7 +17,7 @@ struct Config {
     std::string region;
 
     // "vs", "ir", "wv", "ch01", ...
-    std::string channel;
+    std::vector<std::string> channels;
 
     // Output directory
     std::string dir;

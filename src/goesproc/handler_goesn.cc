@@ -7,7 +7,9 @@
 GOESNImageHandler::GOESNImageHandler(const Config::Handler& config)
     : config_(config) {
   config_.region = toUpper(config_.region);
-  config_.channel = toUpper(config_.channel);
+  for (auto& channel : config_.channels) {
+    channel = toUpper(channel);
+  }
 
   if (config_.product == "goes13") {
     productID_ = 13;
@@ -41,8 +43,13 @@ void GOESNImageHandler::handle(std::shared_ptr<const lrit::File> f) {
 
   // Filter by channel
   auto channel = loadChannel(nlh);
-  if (!config_.channel.empty() && config_.channel != channel.nameShort) {
-    return;
+  if (!config_.channels.empty()) {
+    auto begin = std::begin(config_.channels);
+    auto end = std::end(config_.channels);
+    auto it = std::find(begin, end, channel.nameShort);
+    if (it == end) {
+      return;
+    }
   }
 
   if (!f->hasHeader<lrit::SegmentIdentificationHeader>()) {

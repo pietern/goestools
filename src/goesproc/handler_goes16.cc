@@ -7,7 +7,9 @@
 GOES16ImageHandler::GOES16ImageHandler(const Config::Handler& config)
     : config_(config) {
   config_.region = toUpper(config_.region);
-  config_.channel = toUpper(config_.channel);
+  for (auto& channel : config_.channels) {
+    channel = toUpper(channel);
+  }
 
   // Ensure output directory exists
   mkdirp(config_.dir);
@@ -33,8 +35,13 @@ void GOES16ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   }
 
   // Filter by channel
-  if (!config_.channel.empty() && config_.channel != details.channel.nameShort) {
-    return;
+  if (!config_.channels.empty()) {
+    auto begin = std::begin(config_.channels);
+    auto end = std::end(config_.channels);
+    auto it = std::find(begin, end, details.channel.nameShort);
+    if (it == end) {
+      return;
+    }
   }
 
   // If this is not a segmented image we can post process immediately

@@ -7,7 +7,9 @@
 Himawari8ImageHandler::Himawari8ImageHandler(const Config::Handler& config)
     : config_(config) {
   config_.region = toUpper(config_.region);
-  config_.channel = toUpper(config_.channel);
+  for (auto& channel : config_.channels) {
+    channel = toUpper(channel);
+  }
 
   // Ensure output directory exists
   mkdirp(config_.dir);

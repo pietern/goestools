@@ -24,9 +24,9 @@ bool loadHandlers(const toml::Value& v, Config& out) {
       h.region = region->as<std::string>();
     }
 
-    auto channel = th->find("channel");
-    if (channel) {
-      h.channel = channel->as<std::string>();
+    auto channels = th->find("channels");
+    if (channels) {
+      h.channels = channels->as<std::vector<std::string>>();
     }
 
     auto dir = th->find("dir");
