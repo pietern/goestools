@@ -47,8 +47,7 @@ void GOES16ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   // If this is not a segmented image we can post process immediately
   if (!details.segmented) {
     auto image = Image::createFromFile(f);
-    auto text = f->getHeader<lrit::AnnotationHeader>().text;
-    image->save(config_.dir + "/" + text + ".png");
+    handleImage(*f, std::move(image), details);
     return;
   }
 
@@ -62,14 +61,26 @@ void GOES16ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
 
     // Fill sides with black only for GOES-16
     image->fillSides();
-
-    auto filename = getBasename(*f);
-    image->save(config_.dir + "/" + filename + ".png");
+    handleImage(*f, std::move(image), details);
 
     // Remove from handler cache
     map.erase(sih.imageIdentifier);
     return;
   }
+}
+
+void GOES16ImageHandler::handleImage(
+    const lrit::File& f,
+    std::unique_ptr<Image> image,
+    GOES16ImageHandler::Details details) {
+  // Remap image values if configured for this channel
+  auto it = config_.remap.find(details.channel.nameShort);
+  if (it != std::end(config_.remap)) {
+    image->remap(it->second);
+  }
+
+  auto filename = getBasename(f);
+  image->save(config_.dir + "/" + filename + ".png");
 }
 
 GOES16ImageHandler::Details GOES16ImageHandler::loadDetails(const lrit::File& f) {

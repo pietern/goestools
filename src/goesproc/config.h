@@ -1,7 +1,10 @@
 #pragma once
 
+#include <map>
 #include <string>
 #include <vector>
+
+#include <opencv2/opencv.hpp>
 
 #include "area.h"
 
@@ -24,6 +27,12 @@ struct Config {
 
     // Crop (applied before scaling)
     Area crop;
+
+    // Remap is used to point handlers to a lookup table
+    // to map raw values in an image to new values.
+    // The lookup table must be loadable by OpenCV and must
+    // have dimensions equal to either 1x256 or 256x1.
+    std::map<std::string, cv::Mat> remap;
   };
 
   static Config load(const std::string& file);

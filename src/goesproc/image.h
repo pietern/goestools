@@ -31,6 +31,8 @@ public:
 
   void fillSides();
 
+  void remap(const cv::Mat& mat);
+
   void save(const std::string& path) const;
 
   cv::Mat getRawImage() const;

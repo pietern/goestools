@@ -27,6 +27,11 @@ protected:
     bool segmented;
   };
 
+  void handleImage(
+    const lrit::File& f,
+    std::unique_ptr<Image> image,
+    GOES16ImageHandler::Details details);
+
   Details loadDetails(const lrit::File& f);
 
   std::string getBasename(const lrit::File& f) const;

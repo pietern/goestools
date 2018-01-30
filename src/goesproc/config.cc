@@ -2,6 +2,8 @@
 
 #include <toml/toml.h>
 
+#include "lib/util.h"
+
 namespace {
 
 bool loadHandlers(const toml::Value& v, Config& out) {
@@ -49,6 +51,28 @@ bool loadHandlers(const toml::Value& v, Config& out) {
       h.crop.maxColumn = vs[1];
       h.crop.minLine = vs[2];
       h.crop.maxLine = vs[3];
+    }
+
+    auto remap = th->find("remap");
+    if (remap) {
+      auto trs = remap->as<toml::Table>();
+      for (const auto& it : trs) {
+        auto channel = toUpper(it.first);
+        auto path = it.second.get<std::string>("path");
+        auto img = cv::imread(path, CV_8UC1);
+        if (!img.data) {
+          out.ok = false;
+          out.error = "Unable to load image at: " + path;
+          return false;
+        }
+        if (img.total() != 256) {
+          out.ok = false;
+          out.error = "Expected channel remap image to have 256 pixels";
+          return false;
+        }
+
+        h.remap[toUpper(it.first)] = img;
+      }
     }
 
     out.handlers.push_back(h);

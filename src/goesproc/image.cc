@@ -134,6 +134,16 @@ void Image::fillSides() {
   }
 }
 
+void Image::remap(const cv::Mat& img) {
+  uint8_t* map = (uint8_t*) img.data;
+  for (auto y = 0; y < m_.rows; y++) {
+    uint8_t* data = (uint8_t*) m_.data + y * m_.cols;
+    for (auto x = 0; x < m_.cols; x++) {
+      data[x] = map[data[x]];
+    }
+  }
+}
+
 cv::Mat Image::getRawImage() const {
   return m_;
 }
