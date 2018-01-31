@@ -6,54 +6,13 @@
 #include <string>
 #include <vector>
 
-#include "assembler/assembler.h"
-#include "lrit/file.h"
-
 #include "config.h"
 #include "handler_goes16.h"
 #include "handler_goesn.h"
 #include "handler_himawari8.h"
 #include "handler_nws.h"
 
-class Processor {
-public:
-  explicit Processor(std::vector<std::unique_ptr<Handler> > handlers)
-    : handlers_(std::move(handlers)) {
-  }
-
-  void run(std::istream& is);
-
-protected:
-  std::vector<std::unique_ptr<Handler> > handlers_;
-  assembler::Assembler assembler_;
-};
-
-void Processor::run(std::istream& is) {
-  std::array<uint8_t, 892> buf;
-
-  // Keep reading until EOF (supposedly indefinitely)
-  for (;;) {
-    is.read((char*) buf.data(), buf.size());
-    if (!is.good() || is.eof()) {
-      break;
-    }
-
-    auto spdus = assembler_.process(buf);
-    for (auto& spdu : spdus) {
-      auto type = spdu->getHeader<lrit::PrimaryHeader>().fileType;
-
-      // Only deal with images for now
-      if (type != 0) {
-        continue;
-      }
-
-      auto file = std::make_shared<lrit::File>(spdu->get());
-      for (auto& handler : handlers_) {
-        handler->handle(file);
-      }
-    }
-  }
-}
+#include "packet_processor.h"
 
 int main(int argc, char** argv) {
   // Dealing with time zones is a PITA even if you only care about UTC.
@@ -61,7 +20,7 @@ int main(int argc, char** argv) {
   setenv("TZ", "", 1);
 
   // Load configuration
-  auto config = Config::load("./goesproc.conf");
+  auto config = Config::load("./etc/goesproc.conf");
   if (!config.ok) {
     std::cerr << "Invalid configuration: " << config.error << std::endl;
     exit(1);
@@ -105,6 +64,6 @@ int main(int argc, char** argv) {
     }
   }
 
-  Processor p(std::move(handlers));
-  p.run(std::cin);
+  PacketProcessor p(std::move(handlers));
+  p.run(argc - 1, argv + 1);
 }
