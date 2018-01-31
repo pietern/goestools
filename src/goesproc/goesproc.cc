@@ -12,6 +12,7 @@
 #include "handler_himawari8.h"
 #include "handler_nws.h"
 
+#include "lrit_processor.h"
 #include "packet_processor.h"
 
 int main(int argc, char** argv) {
