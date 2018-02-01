@@ -11,6 +11,7 @@
 #include "handler_goesn.h"
 #include "handler_himawari8.h"
 #include "handler_nws.h"
+#include "options.h"
 
 #include "lrit_processor.h"
 #include "packet_processor.h"
@@ -20,8 +21,8 @@ int main(int argc, char** argv) {
   // Since this is not a library we can get away with the following...
   setenv("TZ", "", 1);
 
-  // Load configuration
-  auto config = Config::load("./etc/goesproc.conf");
+  auto opts = parseOptions(argc, argv);
+  auto config = Config::load(opts.config);
   if (!config.ok) {
     std::cerr << "Invalid configuration: " << config.error << std::endl;
     exit(1);
@@ -65,6 +66,13 @@ int main(int argc, char** argv) {
     }
   }
 
-  PacketProcessor p(std::move(handlers));
-  p.run(argc - 1, argv + 1);
+  if (opts.mode == ProcessMode::PACKET) {
+    PacketProcessor p(std::move(handlers));
+    p.run(argc, argv);
+  }
+
+  if (opts.mode == ProcessMode::LRIT) {
+    LRITProcessor p(std::move(handlers));
+    p.run(argc, argv);
+  }
 }
