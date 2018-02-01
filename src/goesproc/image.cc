@@ -39,11 +39,13 @@ std::unique_ptr<Image> Image::createFromFile(
     assert(false);
   }
 
-  return std::make_unique<Image>(*f, raw, Area());
+  return std::make_unique<Image>(raw, Area());
 }
 
 std::unique_ptr<Image> Image::createFromFiles(
     std::vector<std::shared_ptr<const lrit::File> > fs) {
+  auto f = fs.front();
+
   // Sort images by their segment number
   std::sort(
     fs.begin(),
@@ -98,19 +100,21 @@ std::unique_ptr<Image> Image::createFromFiles(
     assert(*ifs);
   }
 
-  return std::make_unique<Image>(*fs.front(), raw, area);
+  auto image = std::make_unique<Image>(raw, area);
+  if (f->hasHeader<lrit::ImageNavigationHeader>()) {
+    auto in = f->getHeader<lrit::ImageNavigationHeader>();
+    image->columnScaling_ = in.columnScaling;
+    image->lineScaling_ = in.lineScaling;
+  }
+
+  return image;
 }
 
-Image::Image(const lrit::File& f, cv::Mat m, const Area& area)
+Image::Image(cv::Mat m, const Area& area)
     : m_(m),
       area_(area),
       columnScaling_(1),
       lineScaling_(1) {
-  if (f.hasHeader<lrit::ImageNavigationHeader>()) {
-    auto in = f.getHeader<lrit::ImageNavigationHeader>();
-    columnScaling_ = in.columnScaling;
-    lineScaling_ = in.lineScaling;
-  }
 }
 
 void Image::fillSides() {

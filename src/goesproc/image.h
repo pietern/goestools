@@ -27,7 +27,7 @@ public:
   static std::unique_ptr<Image> createFromFiles(
     std::vector<std::shared_ptr<const lrit::File> > fs);
 
-  explicit Image(const lrit::File& f, cv::Mat m, const Area& area);
+  explicit Image(cv::Mat m, const Area& area);
 
   void fillSides();
 
