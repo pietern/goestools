@@ -12,6 +12,12 @@ void PacketProcessor::run(int argc, char** argv) {
     files.push_back(argv[i]);
   }
 
+  // Read from stdin if nothing is specified
+  if (files.empty()) {
+    // This only works on Linux...
+    files.push_back("/proc/self/fd/0");
+  }
+
   // This function assumes the files to read are given in
   // chronological order. Bash shell expansion maintains alphabetical
   // order and we assume that alphabetical ordering implies
