@@ -110,6 +110,32 @@ std::unique_ptr<Image> Image::createFromFiles(
   return image;
 }
 
+std::unique_ptr<Image> Image::generateFalseColor(
+    std::unique_ptr<Image> i0,
+    std::unique_ptr<Image> i1,
+    cv::Mat lut) {
+  auto img0 = i0->getRawImage();
+  auto img1 = i1->getRawImage();
+  uint8_t* data0 = img0.data;
+  uint8_t* data1 = img1.data;
+  auto rows = img0.rows;
+  auto cols = img0.cols;
+
+  cv::Mat raw(rows, cols, CV_8UC3);
+  uint8_t* ptr = (uint8_t*) raw.data;
+  for (auto y = 0; y < rows; y++) {
+    for (auto x = 0; x < cols; x++) {
+      auto luty = data0[y * cols + x];
+      auto lutx = data1[y * cols + x];
+      ptr[(y * cols + x) * 3 + 0] = lut.data[(luty * 256 + lutx) * 3 + 0];
+      ptr[(y * cols + x) * 3 + 1] = lut.data[(luty * 256 + lutx) * 3 + 1];
+      ptr[(y * cols + x) * 3 + 2] = lut.data[(luty * 256 + lutx) * 3 + 2];
+    }
+  }
+
+  return std::make_unique<Image>(raw, i0->area_);
+}
+
 Image::Image(cv::Mat m, const Area& area)
     : m_(m),
       area_(area),

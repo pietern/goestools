@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tuple>
 #include <unordered_map>
 
 #include "config.h"
@@ -32,6 +33,11 @@ protected:
     std::unique_ptr<Image> image,
     GOES16ImageHandler::Details details);
 
+  void handleImageForFalseColor(
+    const lrit::File& f,
+    std::unique_ptr<Image> image,
+    GOES16ImageHandler::Details details);
+
   Details loadDetails(const lrit::File& f);
 
   std::string getBasename(const lrit::File& f) const;
@@ -45,4 +51,8 @@ protected:
   // Mapping by channel (and assuming the feed always sends images
   // for a single region sequentially), means we can detect missing segments.
   std::unordered_map<std::string, SegmentsMap> segments_;
+
+  // To generate false color images we have to keep the image of one channel
+  // around while we wait for the other one to be received.
+  std::tuple<std::unique_ptr<Image>, Details> tmp_;
 };

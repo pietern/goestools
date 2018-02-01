@@ -79,6 +79,36 @@ void GOES16ImageHandler::handleImage(
     image->remap(it->second);
   }
 
+  // If this handler is configured to produce false color images,
+  // we may need to wait for the other channel to come along.
+  if (config_.lut.data) {
+    handleImageForFalseColor(f, std::move(image), details);
+    return;
+  }
+
+  auto filename = getBasename(f);
+  image->save(config_.dir + "/" + filename + ".png");
+}
+
+void GOES16ImageHandler::handleImageForFalseColor(
+    const lrit::File& f,
+    std::unique_ptr<Image> i1,
+    GOES16ImageHandler::Details d1) {
+  auto i0 = std::move(std::get<0>(tmp_));
+  auto d0 = std::move(std::get<1>(tmp_));
+
+  // If this is the first image of a pair, keep it around and wait for the next one.
+  if (!i0 || (d0.frameStart.tv_sec != d1.frameStart.tv_sec)) {
+    tmp_ = std::make_tuple<std::unique_ptr<Image>, Details>(std::move(i1), std::move(d1));
+    return;
+  }
+
+  // Swap if ordering of images doesn't match ordering of channels
+  if (d0.channel.nameShort != config_.channels.front()) {
+    i0.swap(i1);
+  }
+
+  auto image = Image::generateFalseColor(std::move(i0), std::move(i1), config_.lut);
   auto filename = getBasename(f);
   image->save(config_.dir + "/" + filename + ".png");
 }

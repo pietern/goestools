@@ -27,6 +27,11 @@ public:
   static std::unique_ptr<Image> createFromFiles(
     std::vector<std::shared_ptr<const lrit::File> > fs);
 
+  static std::unique_ptr<Image> generateFalseColor(
+    std::unique_ptr<Image> i0,
+    std::unique_ptr<Image> i1,
+    cv::Mat lut);
+
   explicit Image(cv::Mat m, const Area& area);
 
   void fillSides();

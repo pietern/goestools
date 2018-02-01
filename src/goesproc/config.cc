@@ -75,6 +75,31 @@ bool loadHandlers(const toml::Value& v, Config& out) {
       }
     }
 
+    auto lut = th->find("lut");
+    if (lut) {
+      auto path = lut->get<std::string>("path");
+      auto img = cv::imread(path);
+      if (!img.data) {
+        out.ok = false;
+        out.error = "Unable to load image at: " + path;
+        return false;
+      }
+      if (img.total() != (256 * 256)) {
+        out.ok = false;
+        out.error = "Expected false color table to have 256x256 pixels";
+        return false;
+      }
+
+      h.lut = img;
+    }
+
+    // Sanity check
+    if (h.lut.data && h.channels.size() != 2) {
+      out.ok = false;
+      out.error = "Using a false color table requires selecting 2 channels";
+      return false;
+    }
+
     out.handlers.push_back(h);
   }
 
