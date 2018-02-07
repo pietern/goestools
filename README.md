@@ -2,6 +2,7 @@
 
 Tools to work with signals and files from GOES satellites.
 
+* **goesrecv**: Demodulate and decode signal into packet stream.
 * **goesdec**: Decode demodulated signal into LRIT files.
 * **goesproc**: Process LRIT files into plain files and images.
 
@@ -9,8 +10,9 @@ I started writing this to learn about things involved in the GOES
 communication pipeline and in the process learn more about space
 communication standards. Everything is written in C++ to strike a
 balance between usability (no need for yet another hash table in C)
-and performance. Eventually it would be nice to run the entire RX
-pipeline on a little ARM board.
+and performance. ~~Eventually it would be nice to run the entire RX
+pipeline on a little ARM board.~~ The entire RX pipeline can run on a
+Raspberry Pi 3.
 
 ## Requirements
 
@@ -37,6 +39,12 @@ ls ./src/goesdec ./src/goesproc
 ```
 
 ## Usage
+
+### goesrecv
+
+As of February 2018 goesrecv only runs ARM processors with NEON
+extensions (such as the Raspberry Pi 3). Stay tuned for compilation
+instructions...
 
 ### goesdec
 
