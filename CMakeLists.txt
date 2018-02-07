@@ -19,17 +19,28 @@ include_directories(BEFORE SYSTEM ${PROJECT_SOURCE_DIR}/vendor/libaec/src)
 include_directories(BEFORE SYSTEM ${PROJECT_SOURCE_DIR}/vendor/libsimdpp)
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
+option(BUILD_GOESRECV "Build goesrecv" OFF)
+option(BUILD_GOESDEC "Build goesdec" ON)
+option(BUILD_GOESPROC "Build goesproc" ON)
+
 add_subdirectory(src/lib)
 add_subdirectory(src/lrit)
 add_subdirectory(src/dcs)
 add_subdirectory(src/decoder)
 add_subdirectory(src/assembler)
-add_subdirectory(src/goesdec)
-add_subdirectory(src/goesproc)
 
 # Only compile goesrecv if target is Raspberry Pi.
 # It includes unguarded ARM NEON code. Assume the variable that is
 # tested below is set in the Raspberry Pi specific toolchain.cmake.
-if(RASPBERRYPI_SYSROOT)
+# Configure CMake with -DBUILD_GOESRECV=ON to compile.
+if(${BUILD_GOESRECV})
   add_subdirectory(src/goesrecv)
+endif()
+
+if(${BUILD_GOESDEC})
+  add_subdirectory(src/goesdec)
+endif()
+
+if(${BUILD_GOESPROC})
+  add_subdirectory(src/goesproc)
 endif()
