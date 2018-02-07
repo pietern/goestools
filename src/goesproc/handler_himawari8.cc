@@ -62,7 +62,7 @@ void Himawari8ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   vector.push_back(f);
   if (vector.size() == sih.maxSegment) {
     auto image = Image::createFromFiles(vector);
-    image->save(config_.dir + "/" + imageIdentifier + ".png");
+    image->save(config_.dir + "/" + imageIdentifier + "." + config_.format);
 
     // Remove from handler cache
     segments_.erase(imageIdentifier);

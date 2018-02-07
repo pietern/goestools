@@ -35,7 +35,7 @@ void NWSImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   }
 
   auto image = Image::createFromFile(f);
-  image->save(config_.dir + "/" + filename + ".png");
+  image->save(config_.dir + "/" + filename + "." + config_.format);
   return;
 }
 

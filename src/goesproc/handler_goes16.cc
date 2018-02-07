@@ -87,7 +87,7 @@ void GOES16ImageHandler::handleImage(
   }
 
   auto filename = getBasename(f);
-  image->save(config_.dir + "/" + filename + ".png");
+  image->save(config_.dir + "/" + filename + "." + config_.format);
 }
 
 void GOES16ImageHandler::handleImageForFalseColor(
@@ -110,7 +110,7 @@ void GOES16ImageHandler::handleImageForFalseColor(
 
   auto image = Image::generateFalseColor(std::move(i0), std::move(i1), config_.lut);
   auto filename = getBasename(f);
-  image->save(config_.dir + "/" + filename + ".png");
+  image->save(config_.dir + "/" + filename + "." + config_.format);
 }
 
 GOES16ImageHandler::Details GOES16ImageHandler::loadDetails(const lrit::File& f) {

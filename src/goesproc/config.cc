@@ -38,6 +38,13 @@ bool loadHandlers(const toml::Value& v, Config& out) {
       h.dir = ".";
     }
 
+    auto format = th->find("format");
+    if (format) {
+      h.format = format->as<std::string>();
+    } else {
+      h.format = "png";
+    }
+
     auto crop = th->find("crop");
     if (crop) {
       auto vs = crop->as<std::vector<int>>();

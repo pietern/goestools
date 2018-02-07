@@ -25,6 +25,9 @@ struct Config {
     // Output directory
     std::string dir;
 
+    // Output format ("png", "jpg", ...)
+    std::string format;
+
     // Crop (applied before scaling)
     Area crop;
 

@@ -72,7 +72,7 @@ void GOESNImageHandler::handle(std::shared_ptr<const lrit::File> f) {
       raw = image->getScaledImage(config_.crop, false);
     }
 
-    cv::imwrite(config_.dir + "/" + filename + ".png", raw);
+    cv::imwrite(config_.dir + "/" + filename + "." + config_.format, raw);
 
     // Remove from handler cache
     map.erase(sih.imageIdentifier);
