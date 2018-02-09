@@ -2,6 +2,21 @@ cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
 project(goesdec CXX C)
 
+if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "^arm")
+  # Enable NEON
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfpu=neon")
+  set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -mfpu=neon")
+
+  # Assume Raspbian if we're cross compiling for ARM
+  if(CMAKE_CROSSCOMPILING)
+    # Raspbian supports multiarch and as such places libraries in
+    # directories named after their architecture identifier.
+    # These paths are not included when cross compiling, so add them here.
+    link_directories(${RASPBERRYPI_SYSROOT}/lib/arm-linux-gnueabihf)
+    link_directories(${RASPBERRYPI_SYSROOT}/usr/lib/arm-linux-gnueabihf)
+  endif()
+endif()
+
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/vendor/sanitizers-cmake/cmake ${CMAKE_MODULE_PATH})
 find_package(Sanitizers)
 

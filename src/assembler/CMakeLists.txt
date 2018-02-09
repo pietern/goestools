@@ -1,5 +1,5 @@
 add_executable(packetinfo packetinfo.cc)
-target_link_libraries(packetinfo stdc++)
+target_link_libraries(packetinfo m stdc++)
 
 add_library(assembler
   assembler.cc
