@@ -50,8 +50,8 @@ int main(int argc, char** argv) {
     }
   }
 
-  if (!images && !dcs && !text) {
-    std::cerr << "Specify one of --images, --dcs, --text" << std::endl;
+  if (!images && !messages && !text && !dcs) {
+    std::cerr << "Specify one of --images, --messages, --text, --dcs" << std::endl;
     exit(1);
   }
 
