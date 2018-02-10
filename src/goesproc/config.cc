@@ -100,6 +100,11 @@ bool loadHandlers(const toml::Value& v, Config& out) {
       h.lut = img;
     }
 
+    auto filename = th->find("filename");
+    if (filename) {
+      h.filename = filename->as<std::string>();
+    }
+
     // Sanity check
     if (h.lut.data && h.channels.size() != 2) {
       out.ok = false;

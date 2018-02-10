@@ -4,6 +4,8 @@
 
 #include "lib/util.h"
 
+#include "filename.h"
+
 GOESNImageHandler::GOESNImageHandler(const Config::Handler& config)
     : config_(config) {
   config_.region = toUpper(config_.region);
@@ -65,6 +67,16 @@ void GOESNImageHandler::handle(std::shared_ptr<const lrit::File> f) {
     auto image = Image::createFromFiles(vector);
     auto filename = getBasename(*f);
 
+    if (!config_.filename.empty()) {
+      auto tsh = vector.front()->getHeader<lrit::TimeStampHeader>();
+
+      FilenameBuilder fb;
+      fb.region = region;
+      fb.channel = channel;
+      fb.time = tsh.getUnix();
+      filename = fb.build(config_.filename);
+    }
+
     cv::Mat raw;
     if (config_.crop.empty()) {
       raw = image->getScaledImage(false);
@@ -72,7 +84,9 @@ void GOESNImageHandler::handle(std::shared_ptr<const lrit::File> f) {
       raw = image->getScaledImage(config_.crop, false);
     }
 
-    cv::imwrite(config_.dir + "/" + filename + "." + config_.format, raw);
+    filename = config_.dir + "/" + filename + "." + config_.format;
+    std::cerr << "Writing " << filename << std::endl;
+    cv::imwrite(filename, raw);
 
     // Remove from handler cache
     map.erase(sih.imageIdentifier);

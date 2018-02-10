@@ -39,6 +39,9 @@ struct Config {
 
     // Lookup table to use to generate false color images
     cv::Mat lut;
+
+    // Filename format (see filename.cc for more info)
+    std::string filename;
   };
 
   static Config load(const std::string& file);
