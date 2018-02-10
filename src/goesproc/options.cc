@@ -9,6 +9,7 @@ namespace {
 
 void usage(int argc, char** argv) {
   fprintf(stderr, "Usage: %s [OPTIONS] [path...]\n", argv[0]);
+  fprintf(stderr, "Process stream of packets (VCDUs) or list of LRIT files.\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "Options:\n");
   fprintf(stderr, "  -c, --config PATH          Path to configuration file\n");
@@ -16,17 +17,17 @@ void usage(int argc, char** argv) {
   fprintf(stderr, "                             or pre-assembled LRIT files\n");
   fprintf(stderr, "      --help                 Show this help\n");
   fprintf(stderr, "\n");
-  fprintf(stderr, "If mode is set to packet, goesproc reads VCDU packets from the");
-  fprintf(stderr, "specified path(s). To process real time data you can setup a pipe from");
-  fprintf(stderr, "the decoder into goesproc (e.g. use /dev/stdin as path argument).");
-  fprintf(stderr, "To process recorded data you can specify a list of files that contain");
-  fprintf(stderr, "VCDU packets in chronological order.");
+  fprintf(stderr, "If mode is set to packet, goesproc reads VCDU packets from the\n");
+  fprintf(stderr, "specified path(s). To process real time data you can setup a pipe from\n");
+  fprintf(stderr, "the decoder into goesproc (e.g. use /dev/stdin as path argument).\n");
+  fprintf(stderr, "To process recorded data you can specify a list of files that contain\n");
+  fprintf(stderr, "VCDU packets in chronological order.\n");
   fprintf(stderr, "\n");
-  fprintf(stderr, "If mode is set to lrit, goesproc finds all LRIT files in the specified");
-  fprintf(stderr, "paths and processes them sequentially. You can specify a mix of files");
-  fprintf(stderr, "and directories. Directory arguments expand into the files they");
-  fprintf(stderr, "contain that match the glob '*.lrit*'. The complete list of LRIT files");
-  fprintf(stderr, "is sorted according to their time stamp header prior to processing it.");
+  fprintf(stderr, "If mode is set to lrit, goesproc finds all LRIT files in the specified\n");
+  fprintf(stderr, "paths and processes them sequentially. You can specify a mix of files\n");
+  fprintf(stderr, "and directories. Directory arguments expand into the files they\n");
+  fprintf(stderr, "contain that match the glob '*.lrit*'. The complete list of LRIT files\n");
+  fprintf(stderr, "is sorted according to their time stamp header prior to processing it.\n");
   fprintf(stderr, "\n");
   exit(0);
 }
@@ -44,7 +45,7 @@ Options parseOptions(int& argc, char**& argv) {
     static struct option longOpts[] = {
       {"config", required_argument, 0, 'c'},
       {"mode", required_argument, 0, 'm'},
-      {"help", required_argument, 0, 0x1337},
+      {"help", no_argument, 0, 0x1337},
     };
     int i;
     int c = getopt_long(argc, argv, "c:m:", longOpts, &i);
