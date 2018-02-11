@@ -10,3 +10,6 @@
 [submodule "vendor/libsimdpp"]
 	path = vendor/libsimdpp
 	url = https://github.com/p12tic/libsimdpp.git
+[submodule "vendor/tinytoml"]
+	path = vendor/tinytoml
+	url = https://github.com/mayah/tinytoml.git

@@ -2,52 +2,53 @@
 
 #include <stdlib.h>
 #include <getopt.h>
-#include <sys/stat.h>
-#include <unistd.h>
 
 #include <iostream>
-#include <limits>
-
-#include "lrit/lrit.h"
-#include "lib/util.h"
-#include "dir.h"
 
 namespace {
 
-bool parseTime(const std::string& str, time_t* out) {
-  const char* buf = str.c_str();
-  struct tm tm;
-  char* pos = strptime(buf, "%Y-%m-%d %H:%M:%S", &tm);
-  if (pos < (buf + str.size())) {
-    return false;
-  }
-  *out = mktime(&tm);
-  return true;
+void usage(int argc, char** argv) {
+  fprintf(stderr, "Usage: %s [OPTIONS] [path...]\n", argv[0]);
+  fprintf(stderr, "Process stream of packets (VCDUs) or list of LRIT files.\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "Options:\n");
+  fprintf(stderr, "  -c, --config PATH          Path to configuration file\n");
+  fprintf(stderr, "  -m, --mode [packet|lrit]   Process stream of VCDU packets\n");
+  fprintf(stderr, "                             or pre-assembled LRIT files\n");
+  fprintf(stderr, "      --help                 Show this help\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "If mode is set to packet, goesproc reads VCDU packets from the\n");
+  fprintf(stderr, "specified path(s). To process real time data you can setup a pipe from\n");
+  fprintf(stderr, "the decoder into goesproc (e.g. use /dev/stdin as path argument).\n");
+  fprintf(stderr, "To process recorded data you can specify a list of files that contain\n");
+  fprintf(stderr, "VCDU packets in chronological order.\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "If mode is set to lrit, goesproc finds all LRIT files in the specified\n");
+  fprintf(stderr, "paths and processes them sequentially. You can specify a mix of files\n");
+  fprintf(stderr, "and directories. Directory arguments expand into the files they\n");
+  fprintf(stderr, "contain that match the glob '*.lrit*'. The complete list of LRIT files\n");
+  fprintf(stderr, "is sorted according to their time stamp header prior to processing it.\n");
+  fprintf(stderr, "\n");
+  exit(0);
 }
 
 } // namespace
 
-Options parseOptions(int argc, char** argv) {
+Options parseOptions(int& argc, char**& argv) {
   Options opts;
 
   // Defaults
-  opts.shrink = false;
-  opts.format = "pgm";
-  opts.start = 0;
-  opts.stop = std::numeric_limits<time_t>::max();
-  opts.intervalSet = false;
+  opts.config = "";
+  opts.mode = ProcessMode::UNDEFINED;
 
   while (1) {
     static struct option longOpts[] = {
-      {"channel", required_argument, 0, 'c'},
-      {"shrink", no_argument, 0, 0x1001},
-      {"scale", required_argument, 0, 0x1002},
-      {"format", required_argument, 0, 0x1003},
-      {"start", required_argument, 0, 0x1004},
-      {"stop", required_argument, 0, 0x1005},
+      {"config", required_argument, 0, 'c'},
+      {"mode", required_argument, 0, 'm'},
+      {"help", no_argument, 0, 0x1337},
     };
     int i;
-    int c = getopt_long(argc, argv, "c:", longOpts, &i);
+    int c = getopt_long(argc, argv, "c:m:", longOpts, &i);
     if (c == -1) {
       break;
     }
@@ -56,40 +57,21 @@ Options parseOptions(int argc, char** argv) {
     case 0:
       break;
     case 'c':
-      opts.channels.push_back(optarg);
+      opts.config = optarg;
       break;
-    case 0x1001: // --shrink
-      opts.shrink = true;
-      break;
-    case 0x1002: // --scale
+    case 'm':
       {
-        auto parts = split(optarg, 'x');
-        if (parts.size() != 2) {
-          std::cerr << "Invalid argument to --scale" << std::endl;
-          exit(1);
+        auto tmp = std::string(optarg);
+        if (tmp == "packet") {
+          opts.mode = ProcessMode::PACKET;
         }
-        opts.scale.width = std::stoi(parts[0]);
-        opts.scale.height = std::stoi(parts[1]);
-        opts.scale.cropWidth = CropWidth::CENTER;
-        opts.scale.cropHeight = CropHeight::CENTER;
+        if (tmp == "lrit") {
+          opts.mode = ProcessMode::LRIT;
+        }
       }
       break;
-    case 0x1003: // --format
-      opts.format = optarg;
-      break;
-    case 0x1004: // --start
-      if (!parseTime(optarg, &opts.start)) {
-        std::cerr << "Invalid argument to --start" << std::endl;
-        exit(1);
-      }
-      opts.intervalSet = true;
-      break;
-    case 0x1005: // --stop
-      if (!parseTime(optarg, &opts.stop)) {
-        std::cerr << "Invalid argument to --stop" << std::endl;
-        exit(1);
-      }
-      opts.intervalSet = true;
+    case 0x1337:
+      usage(argc, argv);
       break;
     default:
       std::cerr << "Invalid option" << std::endl;
@@ -97,57 +79,21 @@ Options parseOptions(int argc, char** argv) {
     }
   }
 
-  // Gather file names from arguments (globs *.lrit in directories).
-  std::vector<std::string> paths;
-  for (int i = optind; i < argc; i++) {
-    struct stat st;
-    auto rv = stat(argv[i], &st);
-    if (rv < 0) {
-      perror("stat");
-      exit(1);
-    }
-    if (S_ISDIR(st.st_mode)) {
-      Dir dir(argv[i]);
-      auto result = dir.matchFiles("*.lrit*");
-      paths.insert(paths.end(), result.begin(), result.end());
-    } else {
-      paths.push_back(argv[i]);
-    }
+  // Require configuration to be specified
+  if (opts.config.empty()) {
+    fprintf(stderr, "%s: no configuration file specified\n", argv[0]);
+    fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
+    exit(1);
   }
 
-  if (paths.empty()) {
-    std::cerr << "No files to process..." << std::endl;
-    exit(0);
+  // Require process mode to be specified
+  if (opts.mode == ProcessMode::UNDEFINED) {
+    fprintf(stderr, "%s: no mode specified\n", argv[0]);
+    fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
+    exit(1);
   }
 
-  // Process and filter files
-  for (unsigned i = 0; i < paths.size(); i++) {
-    auto f = lrit::File(paths[i]);
-    auto ph = f.getHeader<lrit::PrimaryHeader>();
-    if (i == 0) {
-      opts.fileType = ph.fileType;
-    } else {
-      // Verify all files have the same fundamental type
-      if (ph.fileType != opts.fileType) {
-        std::cerr << "Cannot handle mixed LRIT file types..." << std::endl;
-        exit(1);
-      }
-    }
-
-    if (f.hasHeader<lrit::TimeStampHeader>()) {
-      auto ts = f.getHeader<lrit::TimeStampHeader>().getUnix();
-      if (ts.tv_sec < opts.start || ts.tv_sec >= opts.stop) {
-        continue;
-      }
-    } else {
-      // No time stamp header but time restrictions configured
-      if (opts.intervalSet) {
-        continue;
-      }
-    }
-
-    opts.files.push_back(std::move(f));
-  }
-
+  argc -= optind;
+  argv = &argv[optind];
   return opts;
 }

@@ -1,5 +1,10 @@
 #include "util.h"
 
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#include <algorithm>
+#include <cassert>
 #include <cstring>
 
 namespace {
@@ -52,4 +57,50 @@ bool parseTime(const std::string& in, struct timespec* ts) {
   ts->tv_sec = t;
   ts->tv_nsec = tv_nsec;
   return true;
+}
+
+void mkdirp(const std::string& path) {
+  size_t pos = 0;
+
+  for (;; pos++) {
+    pos = path.find('/', pos);
+    if (pos == 0) {
+      continue;
+    }
+    auto sub = path.substr(0, pos);
+    auto rv = mkdir(sub.c_str(), S_IRWXU);
+    if (rv == -1 && errno != EEXIST) {
+      perror("mkdir");
+      assert(rv == 0);
+    }
+    if (pos == std::string::npos) {
+      break;
+    }
+  }
+}
+
+std::string toLower(const std::string& in) {
+  std::string out;
+  out.resize(in.size());
+  std::transform(in.begin(), in.end(), out.begin(), ::tolower);
+  return out;
+}
+
+std::string toUpper(const std::string& in) {
+  std::string out;
+  out.resize(in.size());
+  std::transform(in.begin(), in.end(), out.begin(), ::toupper);
+  return out;
+}
+
+size_t findLast(const std::string& in, char c) {
+  auto pos = in.find('_');
+  while (pos != std::string::npos) {
+    auto npos = in.find(c, pos + 1);
+    if (npos == std::string::npos) {
+      break;
+    }
+    pos = npos;
+  }
+  return pos;
 }

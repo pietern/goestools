@@ -23,7 +23,7 @@ const int DCSFileNameHeader::CODE = 132;
 // Unix time starts counting on January 1, 1970.
 constexpr auto ccsdsToUnixDaysOffset = 4383;
 
-struct timespec TimeStampHeader::getUnix() {
+struct timespec TimeStampHeader::getUnix() const {
   struct timespec ts{0, 0};
   uint16_t days = __builtin_bswap16(*reinterpret_cast<const uint16_t*>(&ccsds[1]));
   uint32_t millis = __builtin_bswap32(*reinterpret_cast<const uint32_t*>(&ccsds[3]));
@@ -33,6 +33,28 @@ struct timespec TimeStampHeader::getUnix() {
     ts.tv_nsec = (millis % 1000) * 1000 * 1000;
   }
   return ts;
+}
+
+std::string TimeStampHeader::getTimeShort() const {
+  std::array<char, 128> tsbuf;
+  auto ts = getUnix();
+  auto len = strftime(
+    tsbuf.data(),
+    tsbuf.size(),
+    "%Y%m%d-%H%M%S",
+    gmtime(&ts.tv_sec));
+  return std::string(tsbuf.data(), len);
+}
+
+std::string TimeStampHeader::getTimeLong() const {
+  std::array<char, 128> tsbuf;
+  auto ts = getUnix();
+  auto len = strftime(
+    tsbuf.data(),
+    tsbuf.size(),
+    "%Y-%m-%d %H:%M:%S",
+    gmtime(&ts.tv_sec));
+  return std::string(tsbuf.data(), len);
 }
 
 std::map<int, int> getHeaderMap(const Buffer& b) {

@@ -1,136 +1,14 @@
 #include "image.h"
 
-#include <memory>
+#include <cassert>
 
-#include "lib/util.h"
-
-namespace {
-
-// GOES 13 and 15 use identical region identification.
-Image::Region getGOESLRITRegion(const lrit::NOAALRITHeader& h) {
-  Image::Region region;
-  if (h.productSubID % 10 == 1) {
-    region.nameShort = "FD";
-    region.nameLong = "Full Disk";
-  } else if (h.productSubID % 10 == 2) {
-    region.nameShort = "NH";
-    region.nameLong = "Northern Hemisphere";
-  } else if (h.productSubID % 10 == 3) {
-    region.nameShort = "SH";
-    region.nameLong = "Southern Hemisphere";
-  } else if (h.productSubID % 10 == 4) {
-    region.nameShort = "US";
-    region.nameLong = "United States";
-  } else {
-    std::array<char, 32> buf;
-    size_t len;
-    auto num = (h.productSubID % 10) - 5;
-    len = snprintf(buf.data(), buf.size(), "SI%02d", num);
-    region.nameShort = std::string(buf.data(), len);
-    len = snprintf(buf.data(), buf.size(), "Special Interest %d", num);
-    region.nameLong = std::string(buf.data(), len);
-  }
-  return region;
-}
-
-// GOES 13 and 15 use identical channel identification.
-Image::Channel getGOESLRITChannel(const lrit::NOAALRITHeader& h) {
-  Image::Channel channel;
-  if (h.productSubID <= 10) {
-    channel.nameShort = "IR";
-    channel.nameLong = "Infrared";
-  } else if (h.productSubID <= 20) {
-    channel.nameShort = "VS";
-    channel.nameLong = "Visible";
-  } else {
-    channel.nameShort = "WV";
-    channel.nameLong = "Water Vapor";
-  }
-  return channel;
-}
-
-} // namespace
-
-std::unique_ptr<Image> Image::createFromFile(lrit::File file) {
-  auto nl = file.getHeader<lrit::NOAALRITHeader>();
-  switch (nl.productID) {
-  case 13:
-    return std::unique_ptr<Image>(new ImageGOES13(std::move(file)));
-  case 15:
-    return std::unique_ptr<Image>(new ImageGOES15(std::move(file)));
-  case 16:
-    return std::unique_ptr<Image>(new ImageGOES16(std::move(file)));
-  case 43:
-    return std::unique_ptr<Image>(new ImageHimawari8(std::move(file)));
-  case 3:
-    return std::unique_ptr<Image>(new ImageHimawari8(std::move(file)));
-  case 4:
-    return std::unique_ptr<Image>(new ImageMeteosat(std::move(file)));
-  case 6:
-    return std::unique_ptr<Image>(new ImageNWS(std::move(file)));
-  }
-
-  assert(false && "Unhandled productID");
-}
-
-Image::Image(lrit::File file) : file_(file) {
-  is_ = file_.getHeader<lrit::ImageStructureHeader>();
-  nl_ = file_.getHeader<lrit::NOAALRITHeader>();
-}
-
-std::string Image::getSatellite() const {
-  assert(false);
-}
-
-Image::Region Image::getRegion() const {
-  assert(false);
-}
-
-Image::Channel Image::getChannel() const {
-  assert(false);
-}
-
-std::string Image::getBasename() const {
-  return
-    getSatellite() + "_" +
-    getRegionShort() + "_" +
-    getChannelShort() + "_" +
-    getTimeShort();
-}
-
-struct timespec Image::getTimeStamp() const {
-  return file_.getHeader<lrit::TimeStampHeader>().getUnix();
-}
-
-std::string Image::getTimeShort() const {
-  std::array<char, 128> tsbuf;
-  auto ts = getTimeStamp();
-  auto len = strftime(
-    tsbuf.data(),
-    tsbuf.size(),
-    "%Y%m%d-%H%M%S",
-    gmtime(&ts.tv_sec));
-  return std::string(tsbuf.data(), len);
-}
-
-std::string Image::getTimeLong() const {
-  std::array<char, 128> tsbuf;
-  auto ts = getTimeStamp();
-  auto len = strftime(
-    tsbuf.data(),
-    tsbuf.size(),
-    "%Y-%m-%d %H:%M:%S",
-    gmtime(&ts.tv_sec));
-  return std::string(tsbuf.data(), len);
-}
-
-cv::Mat Image::getRawImage() const {
-  cv::Mat raw(is_.lines, is_.columns, CV_8UC1);
-  auto ifs = file_.getData();
-
-  if (is_.bitsPerPixel == 1) {
-    auto ph = file_.getHeader<lrit::PrimaryHeader>();
-
+std::unique_ptr<Image> Image::createFromFile(
+    std::shared_ptr<const lrit::File> f) {
+  auto ph = f->getHeader<lrit::PrimaryHeader>();
+  auto ish = f->getHeader<lrit::ImageStructureHeader>();
+  auto ifs = f->getData();
+  cv::Mat raw(ish.lines, ish.columns, CV_8UC1);
+  if (ish.bitsPerPixel == 1) {
     // Number of pixels
     unsigned long n = (raw.size().width * raw.size().height);
     assert(ph.dataLength == n);
@@ -153,248 +31,200 @@ cv::Mat Image::getRawImage() const {
         byte <<= 1;
       }
     }
-  } else if (is_.bitsPerPixel == 8) {
+  } else if (ish.bitsPerPixel == 8) {
     ifs->read((char*)raw.data, raw.size().width * raw.size().height);
     assert(ifs);
   } else {
-    std::cerr << "bitsPerPixel == " << is_.bitsPerPixel << std::endl;
-    assert(false);
-  }
-  return raw;
-}
-
-std::string ImageGOES13::getSatellite() const {
-  return "GOES13";
-}
-
-Image::Region ImageGOES13::getRegion() const {
-  return getGOESLRITRegion(this->nl_);
-}
-
-Image::Channel ImageGOES13::getChannel() const {
-  return getGOESLRITChannel(this->nl_);
-}
-
-std::string ImageGOES15::getSatellite() const {
-  return "GOES15";
-}
-
-Image::Region ImageGOES15::getRegion() const {
-  return getGOESLRITRegion(this->nl_);
-}
-
-Image::Channel ImageGOES15::getChannel() const {
-  return getGOESLRITChannel(this->nl_);
-}
-
-ImageGOES16::ImageGOES16(lrit::File file) : Image(file) {
-  auto text = getFile().getHeader<lrit::AncillaryTextHeader>().text;
-  auto pairs = split(text, ';');
-  for (const auto& pair : pairs) {
-    auto elements = split(pair, '=');
-    assert(elements.size() == 2);
-    auto key = trimRight(elements[0]);
-    auto value = trimLeft(elements[1]);
-
-    if (key == "Time of frame start") {
-      auto ok = parseTime(value, &frameStart_);
-      assert(ok);
-      continue;
-    }
-
-    if (key == "Satellite") {
-      satellite_ = value;
-      continue;
-    }
-
-    if (key == "Instrument") {
-      instrument_ = value;
-      continue;
-    }
-
-    if (key == "Channel") {
-      std::array<char, 32> buf;
-      size_t len;
-      auto num = std::stoi(value);
-      assert(num >= 1 && num <= 16);
-      len = snprintf(buf.data(), buf.size(), "CH%02d", num);
-      channel_.nameShort = std::string(buf.data(), len);
-      len = snprintf(buf.data(), buf.size(), "Channel %d", num);
-      channel_.nameLong = std::string(buf.data(), len);
-      continue;
-    }
-
-    if (key == "Imaging Mode") {
-      imagingMode_ = value;
-      continue;
-    }
-
-    if (key == "Region") {
-      // Ignore; this needs to be derived from the file name
-      // because the mesoscale sector is not included here.
-      continue;
-    }
-
-    if (key == "Resolution") {
-      resolution_ = value;
-      continue;
-    }
-
-    if (key == "Segmented") {
-      segmented_ = (value == "yes");
-      continue;
-    }
-
-    std::cerr << "Unhandled key in ancillary text: " << key << std::endl;
+    std::cerr << "bitsPerPixel == " << ish.bitsPerPixel << std::endl;
     assert(false);
   }
 
-  // Tell apart the two mesoscale sectors
-  {
-    auto fileName = getFile().getHeader<lrit::AnnotationHeader>().text;
-    auto parts = split(fileName, '-');
-    assert(parts.size() >= 4);
-    if (parts[2] == "CMIPF") {
-      region_.nameLong = "Full Disk";
-      region_.nameShort = "FD";
-    } else if (parts[2] == "CMIPM1") {
-      region_.nameLong = "Mesoscale 1";
-      region_.nameShort = "M1";
-    } else if (parts[2] == "CMIPM2") {
-      region_.nameLong = "Mesoscale 2";
-      region_.nameShort = "M2";
+  return std::make_unique<Image>(raw, Area());
+}
+
+std::unique_ptr<Image> Image::createFromFiles(
+    std::vector<std::shared_ptr<const lrit::File> > fs) {
+  auto f = fs.front();
+
+  // Sort images by their segment number
+  std::sort(
+    fs.begin(),
+    fs.end(),
+    [](const auto& a, const auto& b) -> bool {
+      auto sa = a->template getHeader<lrit::SegmentIdentificationHeader>();
+      auto sb = b->template getHeader<lrit::SegmentIdentificationHeader>();
+      return sa.segmentNumber < sb.segmentNumber;
+    });
+
+  // NOAA LRIT header is identical across segments
+  auto nl = fs.front()->getHeader<lrit::NOAALRITHeader>();
+
+  // Compute geometry of area shown by this image
+  Area area;
+  for (unsigned i = 0; i < fs.size(); i++) {
+    auto& f = fs[i];
+    auto is = f->getHeader<lrit::ImageStructureHeader>();
+    auto in = f->getHeader<lrit::ImageNavigationHeader>();
+    auto si = f->getHeader<lrit::SegmentIdentificationHeader>();
+
+    // Compute relative area for this segment
+    Area tmp;
+    tmp.minColumn = -in.columnOffset;
+    tmp.maxColumn = -in.columnOffset + is.columns;
+    tmp.minLine = -in.lineOffset;
+    tmp.maxLine = -in.lineOffset + is.lines;
+
+    // For Himawari-8, the offset accounting is done differently
+    if (nl.productID == 43) {
+      auto lineOffset = -in.lineOffset + si.segmentStartLine;
+      tmp.minLine = lineOffset;
+      tmp.maxLine = lineOffset + is.lines;
+    }
+
+    // Update
+    if (i == 0) {
+      area = tmp;
     } else {
-      std::cerr << "Unable to derive region from: " << parts[2] << std::endl;
-      assert(false);
+      area = area.getUnion(tmp);
+    }
+  }
+
+  cv::Mat raw(area.height(), area.width(), CV_8UC1);
+  for (const auto& f : fs) {
+    auto ish = f->getHeader<lrit::ImageStructureHeader>();
+    auto sih = f->getHeader<lrit::SegmentIdentificationHeader>();
+
+    char* chunk = (char*) raw.data + (sih.segmentStartLine * area.width());
+    auto ifs = f->getData();
+    ifs->read(chunk, ish.lines * ish.columns);
+    assert(*ifs);
+  }
+
+  auto image = std::make_unique<Image>(raw, area);
+  if (f->hasHeader<lrit::ImageNavigationHeader>()) {
+    auto in = f->getHeader<lrit::ImageNavigationHeader>();
+    image->columnScaling_ = in.columnScaling;
+    image->lineScaling_ = in.lineScaling;
+  }
+
+  return image;
+}
+
+std::unique_ptr<Image> Image::generateFalseColor(
+    std::unique_ptr<Image> i0,
+    std::unique_ptr<Image> i1,
+    cv::Mat lut) {
+  auto img0 = i0->getRawImage();
+  auto img1 = i1->getRawImage();
+  uint8_t* data0 = img0.data;
+  uint8_t* data1 = img1.data;
+  auto rows = img0.rows;
+  auto cols = img0.cols;
+
+  cv::Mat raw(rows, cols, CV_8UC3);
+  uint8_t* ptr = (uint8_t*) raw.data;
+  for (auto y = 0; y < rows; y++) {
+    for (auto x = 0; x < cols; x++) {
+      auto luty = data0[y * cols + x];
+      auto lutx = data1[y * cols + x];
+      ptr[(y * cols + x) * 3 + 0] = lut.data[(luty * 256 + lutx) * 3 + 0];
+      ptr[(y * cols + x) * 3 + 1] = lut.data[(luty * 256 + lutx) * 3 + 1];
+      ptr[(y * cols + x) * 3 + 2] = lut.data[(luty * 256 + lutx) * 3 + 2];
+    }
+  }
+
+  return std::make_unique<Image>(raw, i0->area_);
+}
+
+Image::Image(cv::Mat m, const Area& area)
+    : m_(m),
+      area_(area),
+      columnScaling_(1),
+      lineScaling_(1) {
+}
+
+void Image::fillSides() {
+  // Fill the contour with black pixels (left side)
+  for (auto y = 0; y < m_.rows; y++) {
+    uint8_t* data = (uint8_t*) m_.data + y * m_.cols;
+    for (auto x = 0; x < m_.cols; x++) {
+      if (data[x] == 0xff) {
+        data[x] = 0x00;
+      } else {
+        break;
+      }
+    }
+    for (auto x = m_.cols - 1; x >= 0; x--) {
+      if (data[x] == 0xff) {
+        data[x] = 0x00;
+      } else {
+        break;
+      }
     }
   }
 }
 
-std::string ImageGOES16::getSatellite() const {
-  return "GOES16";
+void Image::remap(const cv::Mat& img) {
+  uint8_t* map = (uint8_t*) img.data;
+  for (auto y = 0; y < m_.rows; y++) {
+    uint8_t* data = (uint8_t*) m_.data + y * m_.cols;
+    for (auto x = 0; x < m_.cols; x++) {
+      data[x] = map[data[x]];
+    }
+  }
 }
 
-Image::Region ImageGOES16::getRegion() const {
-  return region_;
+cv::Mat Image::getRawImage() const {
+  return m_;
 }
 
-Image::Channel ImageGOES16::getChannel() const {
-  return channel_;
+cv::Mat Image::getRawImage(const Area& roi) const {
+  cv::Mat raw = getRawImage();
+  int x = roi.minColumn - area_.minColumn;
+  int y = roi.minLine - area_.minLine;
+  int w = roi.maxColumn - roi.minColumn;
+  int h = roi.maxLine - roi.minLine;
+  assert(x >= 0);
+  assert(y >= 0);
+  assert(w > 0 && (w - x) <= area_.width());
+  assert(h > 0 && (h - y) <= area_.height());
+  cv::Rect crop(x, y, w, h);
+  return raw(crop);
 }
 
-// Every GOES 16 ABI image has an ancillary text field
-// that contains the exact time that the frame scan started.
-struct timespec ImageGOES16::getTimeStamp() const {
-  return frameStart_;
-}
-
-std::string ImageHimawari8::getSatellite() const {
-  return "Himawari8";
-}
-
-Image::Region ImageHimawari8::getRegion() const {
-  Region region;
-  if (nl_.productSubID % 2 == 1) {
-    region.nameShort = "FD";
-    region.nameLong = "Full Disk";
+// Scale columns/lines per scaling factor in ImageNavigationHeader
+cv::Size Image::scaleSize(cv::Size s, bool shrink) const {
+  float f = ((float) columnScaling_ / (float) lineScaling_);
+  if (f < 1.0) {
+    if (shrink) {
+      s.height = ceilf(s.height * f);
+    } else {
+      s.width = ceilf(s.width / f);
+    }
   } else {
-    assert(false);
+    if (shrink) {
+      s.width = ceilf(s.width / f);
+    } else {
+      s.height = ceilf(s.height * f);
+    }
   }
-  return region;
+  return s;
 }
 
-Image::Channel ImageHimawari8::getChannel() const {
-  Image::Channel channel;
-  if (nl_.productSubID == 1) {
-    channel.nameShort = "VS";
-    channel.nameLong = "Visible";
-  } else if (nl_.productSubID == 3) {
-    channel.nameShort = "IR";
-    channel.nameLong = "Infrared";
-  } else if (nl_.productSubID == 7) {
-    channel.nameShort = "WV";
-    channel.nameLong = "Water Vapor";
-  } else {
-    assert(false);
-  }
-  return channel;
+cv::Mat Image::getScaledImage(bool shrink) const {
+  cv::Mat raw = getRawImage();
+  cv::Mat out(scaleSize(cv::Size(raw.cols, raw.rows), shrink), CV_8UC1);
+  cv::resize(raw, out, out.size());
+  return std::move(out);
 }
 
-// Himawari 8 doesn't have a valid time stamp header
-struct timespec ImageHimawari8::getTimeStamp() const {
-  // Example annotation: IMG_DK01VIS_201712162250_003.lrit
-  auto ah = file_.getHeader<lrit::AnnotationHeader>();
-  std::stringstream ss(ah.text);
-  std::string tmp;
-  assert(std::getline(ss, tmp, '_'));
-  assert(std::getline(ss, tmp, '_'));
-  assert(std::getline(ss, tmp, '_'));
-
-  // Third substring represents time stamp
-  struct timespec ts{0, 0};
-  struct tm tm{0};
-  tm.tm_year = std::stoi(tmp.substr(0, 4)) - 1900;
-  tm.tm_mon = std::stoi(tmp.substr(4, 2)) - 1;
-  tm.tm_mday = std::stoi(tmp.substr(6, 2));
-  tm.tm_hour = std::stoi(tmp.substr(8, 2));
-  tm.tm_min = std::stoi(tmp.substr(10, 2));
-  ts.tv_sec = timegm(&tm);
-  ts.tv_nsec = 0;
-
-  return ts;
+cv::Mat Image::getScaledImage(const Area& roi, bool shrink) const {
+  cv::Mat raw = getRawImage(roi);
+  cv::Mat out(scaleSize(cv::Size(raw.cols, raw.rows), shrink), CV_8UC1);
+  cv::resize(raw, out, out.size());
+  return std::move(out);
 }
 
-std::string ImageMeteosat::getSatellite() const {
-  return "Meteosat";
-}
-
-Image::Region ImageMeteosat::getRegion() const {
-  Image::Region region;
-  if (nl_.productSubID % 2 == 1) {
-    region.nameShort = "FD";
-    region.nameLong = "Full Disk";
-  } else {
-    assert(false);
-  }
-  return region;
-}
-
-Image::Channel ImageMeteosat::getChannel() const {
-  Image::Channel channel;
-  if (nl_.productSubID <= 2) {
-    channel.nameShort = "IR";
-    channel.nameLong = "Infrared";
-  } else if (nl_.productSubID <= 4) {
-    channel.nameShort = "VS";
-    channel.nameLong = "Visible";
- } else {
-    channel.nameShort = "WV";
-    channel.nameLong = "Water Vapor";
-  }
-  return channel;
-}
-
-std::string ImageNWS::getBasename() const {
-  size_t pos;
-
-  auto text = file_.getHeader<lrit::AnnotationHeader>().text;
-
-  // Use annotation without the "dat327221257926.lrit" suffix
-  pos = text.find("dat");
-  if (pos != std::string::npos) {
-    text = text.substr(0, pos);
-  }
-
-  // Remove .lrit suffix
-  pos = text.find(".lrit");
-  if (pos != std::string::npos) {
-    text = text.substr(0, pos);
-  }
-
-  // Add time if available
-  if (file_.hasHeader<lrit::TimeStampHeader>()) {
-    text += "_" + getTimeShort();
-  }
-
-  return text;
+void Image::save(const std::string& path) const {
+  cv::imwrite(path, m_);
 }

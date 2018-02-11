@@ -1,12 +1,13 @@
 #pragma once
 
 #include <algorithm>
+#include <ostream>
 
 struct Area {
-  int minColumn;
-  int maxColumn;
-  int minLine;
-  int maxLine;
+  int minColumn = 0;
+  int maxColumn = 0;
+  int minLine = 0;
+  int maxLine = 0;
 
   int width() const {
     return maxColumn - minColumn;
@@ -14,6 +15,10 @@ struct Area {
 
   int height() const {
     return maxLine - minLine;
+  }
+
+  bool empty() const {
+    return width() == 0 && height() == 0;
   }
 
   Area getIntersection(const Area& other) const {
@@ -34,3 +39,5 @@ struct Area {
     return result;
   }
 };
+
+std::ostream& operator<<(std::ostream& os, const Area& area);

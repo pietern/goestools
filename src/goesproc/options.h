@@ -1,42 +1,20 @@
 #pragma once
 
-#include <time.h>
-
 #include <string>
 #include <vector>
 
-#include "lrit/file.h"
-
-enum class CropHeight {
-  TOP,
-  CENTER,
-  BOTTOM,
-};
-
-enum class CropWidth {
-  LEFT,
-  CENTER,
-  RIGHT,
+enum class ProcessMode {
+  UNDEFINED,
+  PACKET,
+  LRIT,
 };
 
 struct Options {
-  std::vector<std::string> channels;
-  std::vector<lrit::File> files;
-  int fileType;
-  bool shrink;
-  std::string format;
+  // Path to configuration file
+  std::string config;
 
-  // Process files stamped between [start, stop)
-  time_t start;
-  time_t stop;
-  bool intervalSet;
-
-  struct {
-    int width;
-    int height;
-    CropWidth cropWidth = CropWidth::CENTER;
-    CropHeight cropHeight = CropHeight::CENTER;
-  } scale;
+  // What to process (stream of VCDU packets or LRIT files)
+  ProcessMode mode;
 };
 
-Options parseOptions(int argc, char** argv);
+Options parseOptions(int& argc, char**& argv);
