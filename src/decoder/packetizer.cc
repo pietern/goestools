@@ -34,7 +34,7 @@ bool Packetizer::read()  {
   return true;
 }
 
-bool Packetizer::nextPacket(std::array<uint8_t, 892>& out, struct timespec* ts) {
+bool Packetizer::nextPacket(std::array<uint8_t, 892>& out, Details* details) {
   int rv;
 
   for (;;) {
@@ -120,6 +120,11 @@ bool Packetizer::nextPacket(std::array<uint8_t, 892>& out, struct timespec* ts) 
     auto bits = encodedFramePreludeBits + encodedFrameBits;
     viterbi_.decodeSoft(&buf_[0], bits , packet.data());
 
+    // Re-code packet to compute number of Viterbi corrected bits
+    if (details) {
+      details->viterbiBits = viterbi_.compareSoft(&buf_[0], packet.data(), packet.size());
+    }
+
     // Move tail bits of read buffer to beginning.
     // This includes a new prelude, which is equal to the
     // last bits of the current frame.
@@ -172,8 +177,8 @@ bool Packetizer::nextPacket(std::array<uint8_t, 892>& out, struct timespec* ts) 
     }
 
     // Log corrections
-    if (rv > 0) {
-      std::cerr << "RS corrected " << rv << " bytes" << std::endl;
+    if (details) {
+      details->reedSolomonBytes = rv;
     }
 
     // We have a packet!
@@ -182,10 +187,11 @@ bool Packetizer::nextPacket(std::array<uint8_t, 892>& out, struct timespec* ts) 
   }
 
   // Include relative time of packet from start of packetizer.
-  if (ts != nullptr) {
+  if (details != nullptr) {
     auto pos = symbolPos_ - (encodedFrameBits + encodedSyncWordBits);
-    ts->tv_nsec = (1000000000 * (pos % symbolRate_)) / symbolRate_;
-    ts->tv_sec = pos / symbolRate_;
+    details->symbolPos = pos;
+    details->relativeTime.tv_nsec = (1000000000 * (pos % symbolRate_)) / symbolRate_;
+    details->relativeTime.tv_sec = pos / symbolRate_;
   }
 
   return true;

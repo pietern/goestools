@@ -27,9 +27,23 @@ class Packetizer {
   static constexpr auto framePreludeBytes = framePreludeBits / 8;
 
 public:
+  struct Details {
+    // Cursor in symbol stream (can be used to detect drops)
+    int64_t symbolPos;
+
+    // Number of Viterbi corrected bits
+    int viterbiBits;
+
+    // Number of Reed-Solmon corrected bytes
+    int reedSolomonBytes;
+
+    // Relative time of packet from start of packetizer
+    struct timespec relativeTime;
+  };
+
   explicit Packetizer(std::shared_ptr<Reader> reader);
 
-  bool nextPacket(std::array<uint8_t, 892>& out, struct timespec* ts);
+  bool nextPacket(std::array<uint8_t, 892>& out, Details* details);
 
 protected:
   bool read();
