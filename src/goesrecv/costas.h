@@ -1,10 +1,17 @@
 #pragma once
 
+#include <memory>
+
+#include "sample_publisher.h"
 #include "types.h"
 
 class Costas {
 public:
   explicit Costas();
+
+  void setSamplePublisher(std::unique_ptr<SamplePublisher> samplePublisher) {
+    samplePublisher_ = std::move(samplePublisher);
+  }
 
   // Returns frequency in radians per sample.
   float getFrequency() const {
@@ -20,4 +27,6 @@ protected:
   float freq_;
   float alpha_;
   float beta_;
+
+  std::unique_ptr<SamplePublisher> samplePublisher_;
 };

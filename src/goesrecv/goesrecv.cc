@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include "config.h"
 #include "decoder.h"
 #include "demodulator.h"
 #include "options.h"
@@ -16,25 +17,27 @@ static void signalHandler(int signum) {
 
 int main(int argc, char** argv) {
   auto opts = parseOptions(argc, argv);
+  auto config = Config::load(opts.config);
 
   // Convert string option to enum
   Demodulator::Type downlinkType;
-  if (opts.downlinkType == "lrit") {
+  if (config.demodulator.downlinkType == "lrit") {
     downlinkType = Demodulator::LRIT;
-  } else if (opts.downlinkType == "hrit") {
+  } else if (config.demodulator.downlinkType == "hrit") {
     downlinkType = Demodulator::HRIT;
   } else {
-    std::cerr << "Invalid downlink type: " << opts.downlinkType << std::endl;
+    std::cerr
+      << "Invalid downlink type: "
+      << config.demodulator.downlinkType
+      << std::endl;
     exit(1);
   }
 
   Demodulator demod(downlinkType);
-  if (!demod.configureSource(opts.device)) {
-    std::cerr << "Invalid device: " << opts.device << std::endl;
-    exit(1);
-  }
+  demod.initialize(config);
 
   Decoder decode(demod.getSoftBitsQueue());
+  decode.initialize(config);
 
   // Install signal handler
   struct sigaction sa;

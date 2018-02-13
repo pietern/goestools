@@ -30,49 +30,47 @@ Demodulator::Demodulator(Demodulator::Type t) {
   costasQueue_ = std::make_shared<Queue<Samples> >(2);
   clockRecoveryQueue_ = std::make_shared<Queue<Samples> >(2);
   softBitsQueue_ = std::make_shared<Queue<std::vector<int8_t> > >(2);
-
-  // Initialize publishers
-  sourcePublisher_ = Publisher::create("tcp://0.0.0.0:5003");
-  sourceQueue_->attach(std::move(sourcePublisher_));
-  clockRecoveryPublisher_ = Publisher::create("tcp://0.0.0.0:5002");
-  clockRecoveryQueue_->attach(std::move(clockRecoveryPublisher_));
-  softBitsPublisher_ = Publisher::create("tcp://0.0.0.0:5001");
-  softBitsQueue_->attach(std::move(softBitsPublisher_));
 }
 
-bool Demodulator::configureSource(const std::string& source) {
+void Demodulator::initialize(Config& config) {
+  const auto& source = config.demodulator.source;
   if (source == "airspy") {
     sampleRate_ = 3000000;
     airspy_ = Airspy::open();
     airspy_->setCenterFrequency(freq_);
     airspy_->setSampleRate(sampleRate_);
     airspy_->setGain(18);
-    return true;
-  }
-
-  if (source == "rtlsdr") {
+  } else if (source == "rtlsdr") {
     sampleRate_ = 2400000;
     rtlsdr_ = RTLSDR::open();
     rtlsdr_->setCenterFrequency(freq_);
     rtlsdr_->setSampleRate(sampleRate_);
     rtlsdr_->setTunerGain(30);
-    return true;
+  } else {
+    assert(false);
   }
 
-  return false;
-}
-
-void Demodulator::start() {
   auto sr1 = sampleRate_;
   auto sr2 = sampleRate_ / decimationFactor_;
   auto dc = decimationFactor_;
 
   agc_ = std::make_unique<AGC>();
-  rrc_ = std::make_unique<RRC>(dc, sr1, symbolRate_);
-  costas_ = std::make_unique<Costas>();
-  clockRecovery_ = std::make_unique<ClockRecovery>(sr2, symbolRate_);
-  quantization_ = std::make_unique<Quantize>();
+  agc_->setSamplePublisher(std::move(config.agc.samplePublisher));
 
+  rrc_ = std::make_unique<RRC>(dc, sr1, symbolRate_);
+  rrc_->setSamplePublisher(std::move(config.rrc.samplePublisher));
+
+  costas_ = std::make_unique<Costas>();
+  costas_->setSamplePublisher(std::move(config.costas.samplePublisher));
+
+  clockRecovery_ = std::make_unique<ClockRecovery>(sr2, symbolRate_);
+  clockRecovery_->setSamplePublisher(std::move(config.clockRecovery.samplePublisher));
+
+  quantization_ = std::make_unique<Quantize>();
+  quantization_->setSoftBitPublisher(std::move(config.quantization.softBitPublisher));
+}
+
+void Demodulator::start() {
   thread_ = std::thread([&] {
       while (!sourceQueue_->closed()) {
         agc_->work(sourceQueue_, agcQueue_);

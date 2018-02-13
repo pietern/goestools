@@ -94,7 +94,14 @@ void Costas::work(
     }
   }
 
-  // Return buffers
+  // Return input buffer
   qin->pushRead(std::move(input));
+
+  // Publish output if applicable
+  if (samplePublisher_) {
+    samplePublisher_->publish(*output);
+  }
+
+  // Return output buffer
   qout->pushWrite(std::move(output));
 }

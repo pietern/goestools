@@ -78,7 +78,14 @@ void AGC::work(
     gain_ += alpha_ * (0.5 - sqrtf(x2[0]));
   }
 
-  // Return buffers
+  // Return input buffer
   qin->pushRead(std::move(input));
+
+  // Publish output if applicable
+  if (samplePublisher_) {
+    samplePublisher_->publish(*output);
+  }
+
+  // Return output buffer
   qout->pushWrite(std::move(output));
 }

@@ -261,6 +261,11 @@ void ClockRecovery::work(
   // everything after it to the beginning of the sample buffer.
   tmp_.erase(tmp_.begin(), tmp_.begin() + i);
 
-  // Return write buffer
+  // Publish output if applicable
+  if (samplePublisher_) {
+    samplePublisher_->publish(*output);
+  }
+
+  // Return output buffer
   qout->pushWrite(std::move(output));
 }

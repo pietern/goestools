@@ -67,10 +67,6 @@ void Airspy::setGain(int gain) {
   assert(rv >= 0);
 }
 
-void Airspy::setPublisher(std::unique_ptr<Publisher> publisher) {
-  publisher_ = std::move(publisher);
-}
-
 static int airspy_callback(airspy_transfer* transfer) {
   auto airspy = reinterpret_cast<Airspy*>(transfer->ctx);
   airspy->handle(transfer);
@@ -109,8 +105,8 @@ void Airspy::handle(const airspy_transfer* transfer) {
   memcpy(out->data(), transfer->samples, nsamples * sizeof(std::complex<float>));
 
   // Publish output if applicable
-  if (publisher_) {
-    publisher_->publish(*out);
+  if (samplePublisher_) {
+    samplePublisher_->publish(*out);
   }
 
   queue_->pushWrite(std::move(out));

@@ -1,17 +1,28 @@
 #include "options.h"
 
 #include <getopt.h>
+#include <stdlib.h>
 
 #include <iostream>
+
+void usage(int argc, char** argv) {
+  fprintf(stderr, "Usage: %s [OPTIONS]\n", argv[0]);
+  fprintf(stderr, "Demodulate and decode signal into packet stream.\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "Options:\n");
+  fprintf(stderr, "  -c, --config PATH          Path to configuration file\n");
+  fprintf(stderr, "      --help                 Show this help\n");
+  fprintf(stderr, "\n");
+  exit(0);
+}
 
 Options parseOptions(int argc, char** argv) {
   Options opts;
 
   while (1) {
     static struct option longOpts[] = {
-      {"device", required_argument, 0, 'd'},
-      {"lrit", no_argument, 0, 0x1001},
-      {"hrit", no_argument, 0, 0x1002},
+      {"config", required_argument, 0, 'c'},
+      {"help", no_argument, 0, 0x1337},
     };
 
     auto c = getopt_long(argc, argv, "d:", longOpts, nullptr);
@@ -20,14 +31,13 @@ Options parseOptions(int argc, char** argv) {
     }
 
     switch (c) {
-    case 'd':
-      opts.device = optarg;
+    case 0:
       break;
-    case 0x1001:
-      opts.downlinkType = "lrit";
+    case 'c':
+      opts.config = optarg;
       break;
-    case 0x1002:
-      opts.downlinkType = "hrit";
+    case 0x1337:
+      usage(argc, argv);
       break;
     default:
       std::cerr << "Invalid option" << std::endl;
@@ -35,9 +45,8 @@ Options parseOptions(int argc, char** argv) {
     }
   }
 
-  // Ensure downlink type is specified
-  if (opts.downlinkType.empty()) {
-    std::cerr << "Please specify either --lrit or --hrit" << std::endl;
+  if (opts.config.empty()) {
+    std::cerr << "Please specify configuration file" << std::endl;
     exit(1);
   }
 

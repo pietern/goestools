@@ -25,7 +25,14 @@ void Quantize::work(
     routput.push_back(v);
   }
 
-  // Return buffers
+  // Return input buffer
   qin->pushRead(std::move(input));
+
+  // Publish output if applicable
+  if (softBitPublisher_) {
+    softBitPublisher_->publish(*output);
+  }
+
+  // Return output buffer
   qout->pushWrite(std::move(output));
 }

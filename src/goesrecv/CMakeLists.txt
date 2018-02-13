@@ -1,4 +1,9 @@
-add_library(publisher publisher.cc)
+add_library(publisher
+  packet_publisher.cc
+  publisher.cc
+  sample_publisher.cc
+  soft_bit_publisher.cc
+  )
 target_link_libraries(publisher nanomsg)
 
 find_library(AIRSPY_LIBRARY
@@ -22,23 +27,23 @@ add_library(rtlsdr_source rtlsdr_source.cc)
 target_link_libraries(rtlsdr_source ${RTLSDR_LIBRARY} publisher stdc++)
 
 add_library(agc agc.cc)
-target_link_libraries(agc m stdc++)
+target_link_libraries(agc publisher m stdc++)
 
 add_library(rrc rrc.cc)
-target_link_libraries(rrc stdc++)
+target_link_libraries(rrc publisher stdc++)
 
 add_library(costas costas.cc)
-target_link_libraries(costas stdc++)
+target_link_libraries(costas publisher stdc++)
 
 add_library(clock_recovery clock_recovery.cc)
-target_link_libraries(clock_recovery stdc++)
+target_link_libraries(clock_recovery publisher stdc++)
 
 add_library(quantize quantize.cc)
-target_link_libraries(quantize stdc++)
+target_link_libraries(quantize publisher stdc++)
 
-add_executable(goesrecv goesrecv.cc options.cc decoder.cc demodulator.cc)
+add_executable(goesrecv goesrecv.cc config.cc options.cc decoder.cc demodulator.cc)
 target_include_directories(goesrecv PRIVATE ${PROJECT_SOURCE_DIR}/src)
-target_link_libraries(goesrecv packetizer pthread publisher)
+target_link_libraries(goesrecv packetizer pthread)
 target_link_libraries(goesrecv airspy_source)
 target_link_libraries(goesrecv rtlsdr_source)
 target_link_libraries(goesrecv agc)
@@ -48,7 +53,7 @@ target_link_libraries(goesrecv clock_recovery)
 target_link_libraries(goesrecv quantize)
 
 add_executable(benchmark benchmark.cc)
-target_link_libraries(benchmark pthread publisher)
+target_link_libraries(benchmark pthread)
 target_link_libraries(benchmark agc)
 target_link_libraries(benchmark rrc)
 target_link_libraries(benchmark costas)

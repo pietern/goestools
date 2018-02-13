@@ -1,10 +1,17 @@
 #pragma once
 
+#include <memory>
+
+#include "sample_publisher.h"
 #include "types.h"
 
 class ClockRecovery {
 public:
   explicit ClockRecovery(uint32_t sampleRate, uint32_t symbolRate);
+
+  void setSamplePublisher(std::unique_ptr<SamplePublisher> samplePublisher) {
+    samplePublisher_ = std::move(samplePublisher);
+  }
 
   // Returns number of samples per symbol.
   float getOmega() const {
@@ -34,4 +41,6 @@ protected:
   std::complex<float> c2t_;
 
   Samples tmp_;
+
+  std::unique_ptr<SamplePublisher> samplePublisher_;
 };

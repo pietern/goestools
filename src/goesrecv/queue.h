@@ -6,8 +6,6 @@
 #include <mutex>
 #include <condition_variable>
 
-#include "publisher.h"
-
 template <class T>
 class Queue {
 public:
@@ -31,10 +29,6 @@ public:
     std::unique_lock<std::mutex> lock(m_);
     closed_ = true;
     cv_.notify_one();
-  }
-
-  void attach(std::unique_ptr<Publisher> publisher) {
-    publisher_ = std::move(publisher);
   }
 
   // popForWrite returns existing item to write to
@@ -64,11 +58,6 @@ public:
   void pushWrite(std::unique_ptr<T> v) {
     std::unique_lock<std::mutex> lock(m_);
     assert(!closed_);
-
-    // Publish if configured to do so
-    if (publisher_) {
-      publisher_->publish(*v);
-    }
 
     read_.push_back(std::move(v));
     cv_.notify_one();
@@ -110,7 +99,4 @@ protected:
 
   std::deque<std::unique_ptr<T> > write_;
   std::deque<std::unique_ptr<T> > read_;
-
-  // Publish everything written to this queue here
-  std::unique_ptr<Publisher> publisher_;
 };

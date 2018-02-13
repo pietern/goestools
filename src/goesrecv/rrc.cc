@@ -262,6 +262,11 @@ void RRC::work(
   tmp_.erase(tmp_.begin(), tmp_.end() - NTAPS);
   assert(tmp_.size() == NTAPS);
 
-  // Return buffers
+  // Publish output if applicable
+  if (samplePublisher_) {
+    samplePublisher_->publish(*output);
+  }
+
+  // Return output buffer
   qout->pushWrite(std::move(output));
 }

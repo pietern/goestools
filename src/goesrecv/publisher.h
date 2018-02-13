@@ -6,18 +6,17 @@
 
 class Publisher {
 public:
+  static int bind(const char* url);
+
   static std::unique_ptr<Publisher> create(const char* url);
 
   explicit Publisher(int fd);
+  virtual ~Publisher();
+
+  void setSendBuffer(int size);
 
   bool hasSubscribers();
 
-  void publish(const std::vector<std::complex<float> >& samples);
-  void publish(const std::vector<int8_t>& samples);
-  void publish(const std::array<uint8_t, 892>& packet);
-
 protected:
   int fd_;
-
-  std::vector<std::complex<int8_t> > tmp_;
 };

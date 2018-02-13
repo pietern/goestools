@@ -3,11 +3,7 @@
 #include <string>
 
 struct Options {
-  // LRIT or HRIT
-  std::string downlinkType;
-
-  // Airspy or RTLSDR
-  std::string device;
+  std::string config;
 };
 
 Options parseOptions(int argc, char** argv);

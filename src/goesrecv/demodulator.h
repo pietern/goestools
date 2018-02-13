@@ -3,6 +3,7 @@
 #include "agc.h"
 #include "airspy_source.h"
 #include "clock_recovery.h"
+#include "config.h"
 #include "costas.h"
 #include "publisher.h"
 #include "quantize.h"
@@ -19,11 +20,11 @@ public:
 
   explicit Demodulator(Type t);
 
+  void initialize(Config& config);
+
   std::shared_ptr<Queue<std::vector<int8_t> > > getSoftBitsQueue() {
     return softBitsQueue_;
   }
-
-  bool configureSource(const std::string& source);
 
   void start();
   void stop();
@@ -54,9 +55,4 @@ protected:
   std::shared_ptr<Queue<Samples> > costasQueue_;
   std::shared_ptr<Queue<Samples> > clockRecoveryQueue_;
   std::shared_ptr<Queue<std::vector<int8_t> > > softBitsQueue_;
-
-  // Publishers (so queues can be monitored externally)
-  std::unique_ptr<Publisher> sourcePublisher_;
-  std::unique_ptr<Publisher> clockRecoveryPublisher_;
-  std::unique_ptr<Publisher> softBitsPublisher_;
 };

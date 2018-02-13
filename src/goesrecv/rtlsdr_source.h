@@ -8,7 +8,7 @@
 
 #include <rtl-sdr.h>
 
-#include "publisher.h"
+#include "sample_publisher.h"
 #include "types.h"
 
 class RTLSDR {
@@ -25,7 +25,10 @@ public:
   void setCenterFrequency(uint32_t freq);
   void setSampleRate(uint32_t rate);
   void setTunerGain(int gain);
-  void setPublisher(std::unique_ptr<Publisher> publisher);
+
+  void setSamplePublisher(std::unique_ptr<SamplePublisher> samplePublisher) {
+    samplePublisher_ = std::move(samplePublisher);
+  }
 
   void start(const std::shared_ptr<Queue<Samples> >& queue);
   void stop();
@@ -41,5 +44,5 @@ protected:
   std::shared_ptr<Queue<Samples> > queue_;
 
   // Optional publisher for samples
-  std::unique_ptr<Publisher> publisher_;
+  std::unique_ptr<SamplePublisher> samplePublisher_;
 };
