@@ -116,6 +116,24 @@ std::unique_ptr<Image> Image::generateFalseColor(
     cv::Mat lut) {
   auto img0 = i0->getRawImage();
   auto img1 = i1->getRawImage();
+
+  // Dimensions may not be equal if we're working with mesoscale
+  // images (GOES-R series). Use the larger of the two images directly
+  // and resize the smaller of the two to make their dimensions match.
+  if (img0.size() != img1.size()) {
+    auto s0 = img0.rows * img0.cols;
+    auto s1 = img1.rows * img1.cols;
+    if (s0 < s1) {
+      cv::Mat tmp(img1.size(), CV_8UC1);
+      cv::resize(img0, tmp, tmp.size());
+      img0 = tmp;
+    } else {
+      cv::Mat tmp(img0.size(), CV_8UC1);
+      cv::resize(img1, tmp, tmp.size());
+      img1 = tmp;
+    }
+  }
+
   uint8_t* data0 = img0.data;
   uint8_t* data1 = img1.data;
   auto rows = img0.rows;
