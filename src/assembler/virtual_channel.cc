@@ -113,11 +113,6 @@ void VirtualChannel::process(
     std::vector<std::unique_ptr<SessionPDU>>& out) {
   auto apid = tpdu->apid();
 
-  // Ignore stuff on VC 0
-  if (id_ == 0) {
-    return;
-  }
-
   // Ignore fill packets
   if (apid == 2047) {
     return;
