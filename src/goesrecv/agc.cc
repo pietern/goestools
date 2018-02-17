@@ -3,7 +3,9 @@
 #include <cassert>
 #include <cmath>
 
+#ifdef __ARM_NEON__
 #include <arm_neon.h>
+#endif
 
 AGC::AGC() {
   alpha_ = 1e-4f;
@@ -11,51 +13,14 @@ AGC::AGC() {
   acc_ = 1e0f;
 }
 
+#ifdef __ARM_NEON__
+
 void AGC::work(
-    const std::shared_ptr<Queue<Samples> >& qin,
-    const std::shared_ptr<Queue<Samples> >& qout) {
-  auto input = qin->popForRead();
-  if (!input) {
-    qout->close();
-    return;
-  }
-
-  auto output = qout->popForWrite();
-  auto nsamples = input->size();
-  output->resize(nsamples);
-
-  // Below should work generically with libsimdpp, but results in
-  // a SIGBUS on a Raspberry Pi. I think simdpp::load_splat is the
-  // culprit. Further investigation needed.
-  //
-  // // Input/output cursors
-  // std::complex<float>* fi = input->data();
-  // std::complex<float>* fo = output->data();
-  //
-  // // Process 4 samples at a time
-  // for (size_t i = 0; i < nsamples; i += 4) {
-  //   // Load 4x I/Q
-  //   simdpp::float32<4> vali;
-  //   simdpp::float32<4> valq;
-  //   simdpp::load_packed2(vali, valq, &fi[i]);
-  //
-  //   // Apply gain
-  //   simdpp::float32<4> gain = simdpp::load_splat(&gain_);
-  //   vali = vali * gain;
-  //   valq = valq * gain;
-  //
-  //   // Write to output
-  //   simdpp::store_packed2(&fo[i], vali, valq);
-  //
-  //   // Compute signal magnitude
-  //   simdpp::float32<4> mag = simdpp::sqrt((vali * vali) + (valq * valq));
-  //
-  //   // Update gain (with average magnitude of these 4 samples)
-  //   gain_ += alpha_ * (0.5 - (simdpp::reduce_add(mag) / 4.0f));
-  // }
-
-  float* fi = (float*) input->data();
-  float* fo = (float*) output->data();
+    size_t nsamples,
+    std::complex<float>* ci,
+    std::complex<float>* co) {
+  float* fi = (float*) ci;
+  float* fo = (float*) co;
 
   // Process 4 samples at a time.
   for (size_t i = 0; i < nsamples; i += 4) {
@@ -77,6 +42,47 @@ void AGC::work(
     // Use only the first sample and ignore the others.
     gain_ += alpha_ * (0.5 - sqrtf(x2[0]));
   }
+}
+
+#else
+
+void AGC::work(
+    size_t nsamples,
+    std::complex<float>* ci,
+    std::complex<float>* co) {
+  // Process 4 samples at a time.
+  for (size_t i = 0; i < nsamples; i += 4) {
+    // Apply gain
+    co[i+0] = ci[i+0] * gain_;
+    co[i+1] = ci[i+1] * gain_;
+    co[i+2] = ci[i+2] * gain_;
+    co[i+3] = ci[i+3] * gain_;
+
+    // Update gain.
+    // Use only the first sample and ignore the others.
+    gain_ += alpha_ * (0.5 - abs(co[i]));
+  }
+}
+
+#endif
+
+void AGC::work(
+    const std::shared_ptr<Queue<Samples> >& qin,
+    const std::shared_ptr<Queue<Samples> >& qout) {
+  auto input = qin->popForRead();
+  if (!input) {
+    qout->close();
+    return;
+  }
+
+  auto output = qout->popForWrite();
+  auto nsamples = input->size();
+  output->resize(nsamples);
+
+  // Do actual work
+  auto ci = input->data();
+  auto co = output->data();
+  work(nsamples, ci, co);
 
   // Return input buffer
   qin->pushRead(std::move(input));

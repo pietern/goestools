@@ -3,7 +3,9 @@
 #include <cassert>
 #include <cmath>
 
+#ifdef __ARM_NEON__
 #include "./neon/neon_mathfun.h"
+#endif
 
 #define M_2PI (2 * M_PI)
 
@@ -16,26 +18,12 @@ Costas::Costas() {
   beta_ = (4 * bw * bw) / (1.0 + 2.0 * damp * bw + bw * bw);
 }
 
+#ifdef __ARM_NEON__
+
 void Costas::work(
-    const std::shared_ptr<Queue<Samples> >& qin,
-    const std::shared_ptr<Queue<Samples> >& qout) {
-  auto input = qin->popForRead();
-  if (!input) {
-    qout->close();
-    return;
-  }
-
-  auto output = qout->popForWrite();
-  auto nsamples = input->size();
-  output->resize(nsamples);
-
-  // Assume multiple of 4 number of samples
-  assert((nsamples % 4) == 0);
-
-  // Input/output cursors
-  std::complex<float>* fi = input->data();
-  std::complex<float>* fo = output->data();
-
+    size_t nsamples,
+    std::complex<float>* fi,
+    std::complex<float>* fo) {
   // Needed for clipping in loop body
   float pos1_ = +1.0f;
   float neg1_ = -1.0f;
@@ -77,13 +65,14 @@ void Costas::work(
 
     // Phase detector is executed for all samples,
     // Clip resulting value to [-1.0f, 1.0f]
+    // Total error is average of 4 errors.
     float32x4_t err = vmulq_f32(f.val[0], f.val[1]);
     float32x4_t err_pos1 = vabsq_f32(vaddq_f32(err, pos1));
     float32x4_t err_neg1 = vabsq_f32(vaddq_f32(err, neg1));
     err = vmulq_f32(half, vsubq_f32(err_pos1, err_neg1));
+    float terr = (err[0] + err[1] + err[2] + err[3]) / 4.0f;
 
     // Update frequency and phase
-    float terr = (err[0] + err[1] + err[2] + err[3]) / 4.0f;
     freq_ += beta_ * terr;
     phase_ += alpha_ * terr + freq_;
 
@@ -93,6 +82,77 @@ void Costas::work(
       phase_ = (frac - (float)((int)frac)) * M_2PI;
     }
   }
+}
+
+#else
+
+void Costas::work(
+    size_t nsamples,
+    std::complex<float>* fi,
+    std::complex<float>* fo) {
+  for (size_t i = 0; i < nsamples; i += 4) {
+    float phase[4] = {
+      -(phase_ + 0 * freq_),
+      -(phase_ + 1 * freq_),
+      -(phase_ + 2 * freq_),
+      -(phase_ + 3 * freq_),
+    };
+
+    // Compute sin/cos for phase offset
+    std::complex<float> sincos[4];
+    for (size_t j = 0; j < 4; j++) {
+      sincos[j].real(cosf(phase[j]));
+      sincos[j].imag(sinf(phase[j]));
+    }
+
+    // Complex multiplication
+    for (size_t j = 0; j < 4; j++) {
+      fo[i + j] = fi[i + j] * sincos[j];
+    }
+
+    // Phase detector is executed for all samples,
+    // Clip resulting value to [-1.0f, 1.0f].
+    // Total error is average of 4 errors.
+    float terr = 0.0f;
+    for (size_t j = 0; j < 4; j++) {
+      float err = fo[i + j].real() * fo[i + j].imag();
+      terr += (0.5f * (fabsf(err + 1.0f) - fabsf(err - 1.0f))) / 4.0f;
+    }
+
+    // Update frequency and phase
+    freq_ += beta_ * terr;
+    phase_ += alpha_ * terr + freq_;
+
+    // Wrap phase if needed
+    if (phase_ > M_2PI || phase_ < -M_2PI) {
+      float frac = phase_ * (1.0 / M_2PI);
+      phase_ = (frac - (float)((int)frac)) * M_2PI;
+    }
+  }
+}
+
+#endif
+
+void Costas::work(
+    const std::shared_ptr<Queue<Samples> >& qin,
+    const std::shared_ptr<Queue<Samples> >& qout) {
+  auto input = qin->popForRead();
+  if (!input) {
+    qout->close();
+    return;
+  }
+
+  auto output = qout->popForWrite();
+  auto nsamples = input->size();
+  output->resize(nsamples);
+
+  // Assume multiple of 4 number of samples
+  assert((nsamples % 4) == 0);
+
+  // Do actual work
+  std::complex<float>* fi = input->data();
+  std::complex<float>* fo = output->data();
+  work(nsamples, fi, fo);
 
   // Return input buffer
   qin->pushRead(std::move(input));

@@ -35,6 +35,11 @@ public:
   void handle(unsigned char* buf, uint32_t len);
 
 protected:
+  void process(
+      size_t nsamples,
+      unsigned char* buf,
+      std::complex<float>* fo);
+
   rtlsdr_dev_t* dev_;
 
   std::vector<int> tunerGains_;

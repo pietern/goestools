@@ -18,6 +18,11 @@ public:
       const std::shared_ptr<Queue<Samples> >& qout);
 
 protected:
+  void work(
+      size_t nsamples,
+      std::complex<float>* fi,
+      std::complex<float>* fo);
+
   float gain_;
   float alpha_;
   float acc_;

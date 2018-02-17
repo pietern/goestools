@@ -7,7 +7,9 @@
 #include <cmath>
 #include <iostream>
 
+#ifdef __ARM_NEON__
 #include <arm_neon.h>
+#endif
 
 std::unique_ptr<RTLSDR> RTLSDR::open(uint32_t index) {
   rtlsdr_dev_t* dev = nullptr;
@@ -99,38 +101,12 @@ void RTLSDR::stop() {
   queue_.reset();
 }
 
-void RTLSDR::handle(unsigned char* buf, uint32_t len) {
-  uint32_t nsamples = len / 2;
+#ifdef __ARM_NEON__
 
-  // Expect multiple of 4
-  assert((nsamples & 0x3) == 0);
-
-  // Grab buffer from queue
-  auto out = queue_->popForWrite();
-  out->resize(nsamples);
-
-  // // Number to subtract from samples for normalization
-  // // See http://cgit.osmocom.org/gr-osmosdr/tree/lib/rtl/rtl_source_c.cc#n176
-  // simdpp::float32<4> norm = simdpp::splat(127.4f / 128.0f);
-  //
-  // // Iterate over samples in blocks of 4 (each sample has I and Q)
-  // for (uint32_t i = 0; i < (nsamples / 4); i++) {
-  //   simdpp::uint32<4> ui;
-  //   simdpp::uint32<4> uq;
-  //   simdpp::load_packed2(ui, uq, &buf[i * 8]);
-  //
-  //   // Convert to float32 and divide by 128
-  //   simdpp::float32<4> fi = simdpp::to_float32(ui) * (1.0f / 128.0f);
-  //   simdpp::float32<4> fq = simdpp::to_float32(ui) * (1.0f / 128.0f);
-  //
-  //   // Subtract to normalize to [-1.0, 1.0]
-  //   fi = fi - norm;
-  //   fq = fq - norm;
-  //
-  //   // Store in output
-  //   simdpp::store_packed2(&(out->data()[i * 4]), fi, fq);
-  // }
-
+void RTLSDR::process(
+    size_t nsamples,
+    unsigned char* buf,
+    std::complex<float>* fo) {
   // Number to subtract from samples for normalization
   // See http://cgit.osmocom.org/gr-osmosdr/tree/lib/rtl/rtl_source_c.cc#n176
   const float32_t norm_ = 127.4f / 128.0f;
@@ -160,8 +136,39 @@ void RTLSDR::handle(unsigned char* buf, uint32_t len) {
     fiq.val[1] = vsubq_f32(fq, norm);
 
     // Store in output
-    vst2q_f32((float*) (&out->data()[i * 4]), fiq);
+    vst2q_f32((float*) (&fo[i * 4]), fiq);
   }
+}
+
+#else
+
+void RTLSDR::process(
+    size_t nsamples,
+    unsigned char* buf,
+    std::complex<float>* fo) {
+  // Number to subtract from samples for normalization
+  // See http://cgit.osmocom.org/gr-osmosdr/tree/lib/rtl/rtl_source_c.cc#n176
+  const float norm = 127.4f / 128.0f;
+  for (uint32_t i = 0; i < nsamples; i++) {
+    fo[i].real((buf[i*2+0] / 128.0f) - norm);
+    fo[i].imag((buf[i*2+1] / 128.0f) - norm);
+  }
+}
+
+#endif
+
+void RTLSDR::handle(unsigned char* buf, uint32_t len) {
+  uint32_t nsamples = len / 2;
+
+  // Expect multiple of 4
+  assert((nsamples & 0x3) == 0);
+
+  // Grab buffer from queue
+  auto out = queue_->popForWrite();
+  out->resize(nsamples);
+
+  // Convert unsigned char to std::complex<float>
+  process(nsamples, buf, out->data());
 
   // Publish output if applicable
   if (samplePublisher_) {

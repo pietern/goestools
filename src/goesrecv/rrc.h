@@ -20,6 +20,11 @@ public:
       const std::shared_ptr<Queue<Samples> >& qout);
 
 protected:
+  void work(
+      size_t nsamples,
+      std::complex<float>* fi,
+      std::complex<float>* fo);
+
   int decimation_;
   std::array<float, NTAPS + 1> taps_;
 

@@ -3,7 +3,9 @@
 #include <cassert>
 #include <cstring>
 
+#ifdef __ARM_NEON__
 #include <arm_neon.h>
+#endif
 
 static float taps[][RRC::NTAPS] = {
   // Sample rate 3M, symbol rate 293883
@@ -174,59 +176,12 @@ RRC::RRC(int decimation, int sampleRate, int symbolRate) :
   tmp_.resize(NTAPS);
 }
 
+#ifdef __ARM_NEON__
+
 void RRC::work(
-    const std::shared_ptr<Queue<Samples> >& qin,
-    const std::shared_ptr<Queue<Samples> >& qout) {
-  auto input = qin->popForRead();
-  if (!input) {
-    qout->close();
-    return;
-  }
-
-  auto output = qout->popForWrite();
-  auto nsamples = input->size();
-  assert((nsamples % decimation_) == 0);
-  output->resize(nsamples / decimation_);
-  tmp_.insert(tmp_.end(), input->begin(), input->end());
-  assert(tmp_.size() == input->size() + NTAPS);
-
-  // Return read buffer (it has been copied into tmp_)
-  qin->pushRead(std::move(input));
-
-  // Input/output cursors
-  std::complex<float>* fi = tmp_.data();
-  std::complex<float>* fo = output->data();
-
-  // Below should work generically with libsimdpp, but fmadd
-  // seems to be missing for NEON.
-  //
-  // // Load taps
-  // simdpp::float32<4> taps[(NTAPS + 1) / 4];
-  // for (size_t i = 0; i < (NTAPS + 1); i += 4) {
-  //   taps[i / 4] = simdpp::load(&taps_[i]);
-  // }
-  //
-  // for (size_t i = 0; i < nsamples; i += decimation_) {
-  //   simdpp::float32<4> acci = simdpp::splat(0.0f);
-  //   simdpp::float32<4> accq = simdpp::splat(0.0f);
-  //
-  //   // This can be unrolled
-  //   for (size_t j = 0; j < ((NTAPS + 1) / 4); j++) {
-  //     simdpp::float32<4> vali;
-  //     simdpp::float32<4> valq;
-  //     simdpp::load_packed2(vali, valq, &fi[j * 4]);
-  //     acci = simdpp::fmadd(vali, taps[j], acci);
-  //     accq = simdpp::fmadd(valq, taps[j], accq);
-  //   }
-  //
-  //   fo[i].real(simdpp::reduce_add(acci));
-  //   fo[i].imag(simdpp::reduce_add(accq));
-  //
-  //   // Advance input/output cursors
-  //   fi += decimation_;
-  //   fo += decimation_;
-  // }
-
+    size_t nsamples,
+    std::complex<float>* fi,
+    std::complex<float>* fo) {
   // Load taps
   float32x4_t taps[(NTAPS + 1) / 4];
   for (size_t i = 0; i < (NTAPS + 1); i += 4) {
@@ -257,6 +212,51 @@ void RRC::work(
     fi += decimation_;
     fo += 1;
   }
+}
+
+#else
+
+void RRC::work(
+    size_t nsamples,
+    std::complex<float>* fi,
+    std::complex<float>* fo) {
+  for (size_t i = 0; i < (nsamples / decimation_); i++) {
+    *fo = 0.0f;
+    for (size_t j = 0; j < (NTAPS + 1); j++) {
+      *fo += fi[j] * taps_[j];
+    }
+
+    // Advance input/output cursors
+    fi += decimation_;
+    fo += 1;
+  }
+}
+
+#endif
+
+void RRC::work(
+    const std::shared_ptr<Queue<Samples> >& qin,
+    const std::shared_ptr<Queue<Samples> >& qout) {
+  auto input = qin->popForRead();
+  if (!input) {
+    qout->close();
+    return;
+  }
+
+  auto output = qout->popForWrite();
+  auto nsamples = input->size();
+  assert((nsamples % decimation_) == 0);
+  output->resize(nsamples / decimation_);
+  tmp_.insert(tmp_.end(), input->begin(), input->end());
+  assert(tmp_.size() == input->size() + NTAPS);
+
+  // Return read buffer (it has been copied into tmp_)
+  qin->pushRead(std::move(input));
+
+  // Do actual work
+  std::complex<float>* fi = tmp_.data();
+  std::complex<float>* fo = output->data();
+  work(nsamples, fi, fo);
 
   // Keep final NTAPS samples around
   tmp_.erase(tmp_.begin(), tmp_.end() - NTAPS);
