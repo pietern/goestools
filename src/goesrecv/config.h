@@ -18,6 +18,19 @@ struct Config {
 
   Demodulator demodulator;
 
+  struct Nanomsg {
+    // Address to connect to
+    std::string connect;
+
+    // Optional receive buffer size
+    size_t receiveBuffer;
+
+    // Required sample rate of stream
+    uint32_t sampleRate;
+  };
+
+  Nanomsg nanomsg;
+
   struct Source {
     std::unique_ptr<SamplePublisher> samplePublisher;
   };

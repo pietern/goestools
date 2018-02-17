@@ -88,6 +88,37 @@ void loadDemodulator(Config::Demodulator& out, const toml::Value& v) {
   }
 }
 
+void loadNanomsgSource(Config::Nanomsg& out, const toml::Value& v) {
+  const auto& table = v.as<toml::Table>();
+  for (const auto& it : table) {
+    const auto& key = it.first;
+    const auto& value = it.second;
+
+    if (key == "connect") {
+      out.connect = value.as<std::string>();
+      continue;
+    }
+
+    if (key == "receive_buffer") {
+      out.receiveBuffer = value.as<int>();
+      continue;
+    }
+
+    if (key == "sample_rate") {
+      out.sampleRate = value.as<int>();
+      continue;
+    }
+
+    throwInvalidKey(key);
+  }
+
+  if (out.sampleRate == 0) {
+    std::stringstream ss;
+    ss << "Key not set: sample_rate";
+    throw std::invalid_argument(ss.str());
+  }
+}
+
 void loadSource(Config::Source& out, const toml::Value& v) {
   const auto& table = v.as<toml::Table>();
   for (const auto& it : table) {
@@ -210,6 +241,11 @@ Config Config::load(const std::string& file) {
 
     if (key == "demodulator") {
       loadDemodulator(out.demodulator, value);
+      continue;
+    }
+
+    if (key == "nanomsg") {
+      loadNanomsgSource(out.nanomsg, value);
       continue;
     }
 

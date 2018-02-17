@@ -23,6 +23,9 @@ endif()
 add_library(airspy_source airspy_source.cc)
 target_link_libraries(airspy_source ${AIRSPY_LIBRARY} publisher stdc++)
 
+add_library(nanomsg_source nanomsg_source.cc)
+target_link_libraries(nanomsg_source nanomsg publisher stdc++)
+
 add_library(rtlsdr_source rtlsdr_source.cc)
 target_link_libraries(rtlsdr_source ${RTLSDR_LIBRARY} publisher stdc++)
 
@@ -45,6 +48,7 @@ add_executable(goesrecv goesrecv.cc config.cc options.cc decoder.cc demodulator.
 target_include_directories(goesrecv PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_link_libraries(goesrecv packetizer pthread)
 target_link_libraries(goesrecv airspy_source)
+target_link_libraries(goesrecv nanomsg_source)
 target_link_libraries(goesrecv rtlsdr_source)
 target_link_libraries(goesrecv agc)
 target_link_libraries(goesrecv rrc)

@@ -48,6 +48,10 @@ void Demodulator::initialize(Config& config) {
     rtlsdr_->setSampleRate(sampleRate_);
     rtlsdr_->setTunerGain(30);
     rtlsdr_->setSamplePublisher(std::move(config.source.samplePublisher));
+  } else if (source == "nanomsg") {
+    sampleRate_ = config.nanomsg.sampleRate;
+    nanomsg_ = Nanomsg::open(config);
+    nanomsg_->setSamplePublisher(std::move(config.source.samplePublisher));
   } else {
     assert(false);
   }
@@ -97,6 +101,9 @@ void Demodulator::start() {
   if (rtlsdr_) {
     rtlsdr_->start(sourceQueue_);
   }
+  if (nanomsg_) {
+    nanomsg_->start(sourceQueue_);
+  }
 }
 
 void Demodulator::stop() {
@@ -105,6 +112,9 @@ void Demodulator::stop() {
   }
   if (rtlsdr_) {
     rtlsdr_->stop();
+  }
+  if (nanomsg_) {
+    nanomsg_->stop();
   }
 
   thread_.join();

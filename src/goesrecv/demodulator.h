@@ -5,6 +5,7 @@
 #include "clock_recovery.h"
 #include "config.h"
 #include "costas.h"
+#include "nanomsg_source.h"
 #include "publisher.h"
 #include "quantize.h"
 #include "rrc.h"
@@ -40,6 +41,7 @@ protected:
   // Sources (only one is used)
   std::unique_ptr<Airspy> airspy_;
   std::unique_ptr<RTLSDR> rtlsdr_;
+  std::unique_ptr<Nanomsg> nanomsg_;
 
   // DSP blocks
   std::unique_ptr<AGC> agc_;
