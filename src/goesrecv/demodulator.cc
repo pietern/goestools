@@ -40,12 +40,14 @@ void Demodulator::initialize(Config& config) {
     airspy_->setCenterFrequency(freq_);
     airspy_->setSampleRate(sampleRate_);
     airspy_->setGain(18);
+    airspy_->setSamplePublisher(std::move(config.source.samplePublisher));
   } else if (source == "rtlsdr") {
     sampleRate_ = 2400000;
     rtlsdr_ = RTLSDR::open();
     rtlsdr_->setCenterFrequency(freq_);
     rtlsdr_->setSampleRate(sampleRate_);
     rtlsdr_->setTunerGain(30);
+    rtlsdr_->setSamplePublisher(std::move(config.source.samplePublisher));
   } else {
     assert(false);
   }
