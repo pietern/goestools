@@ -87,7 +87,10 @@ bool Packetizer::nextPacket(std::array<uint8_t, 892>& out, Details* details) {
       for (;;) {
         // Find position in buffer with maximum correlation with sync word
         pos = correlate(&buf_[skip], len_ - skip, &max, &syncType_);
-        if (pos == 0) {
+
+        // If the current position is the one with the best correlation OR
+        // the position exactly one frame away, assume we're OK.
+        if (pos == 0 || pos == encodedFrameBits) {
           break;
         }
 
