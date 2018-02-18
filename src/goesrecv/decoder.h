@@ -20,7 +20,10 @@ public:
   void stop();
 
 protected:
+  void publishStats(decoder::Packetizer::Details details);
+
   std::unique_ptr<decoder::Packetizer> packetizer_;
   std::unique_ptr<PacketPublisher> packetPublisher_;
+  std::unique_ptr<StatsPublisher> statsPublisher_;
   std::thread thread_;
 };

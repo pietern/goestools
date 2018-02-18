@@ -13,6 +13,10 @@ public:
     samplePublisher_ = std::move(samplePublisher);
   }
 
+  float getGain() const {
+    return gain_;
+  }
+
   void work(
       const std::shared_ptr<Queue<Samples> >& qin,
       const std::shared_ptr<Queue<Samples> >& qout);

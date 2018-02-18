@@ -6,6 +6,7 @@
 #include "packet_publisher.h"
 #include "sample_publisher.h"
 #include "soft_bit_publisher.h"
+#include "stats_publisher.h"
 
 struct Config {
   struct Demodulator {
@@ -14,6 +15,9 @@ struct Config {
 
     // String "airspy" or "rtlsdr"
     std::string source;
+
+    // Demodulator statistics (gain, frequency correction, etc.)
+    std::unique_ptr<StatsPublisher> statsPublisher;
   };
 
   Demodulator demodulator;
@@ -69,6 +73,9 @@ struct Config {
 
   struct Decoder {
     std::unique_ptr<PacketPublisher> packetPublisher;
+
+    // Decoder statistics (Viterbi, Reed-Solomon, etc.)
+    std::unique_ptr<StatsPublisher> statsPublisher;
   };
 
   Decoder decoder;

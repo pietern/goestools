@@ -68,6 +68,24 @@ std::unique_ptr<PacketPublisher> createPacketPublisher(const toml::Value& v) {
   return p;
 }
 
+std::unique_ptr<StatsPublisher> createStatsPublisher(const toml::Value& v) {
+  auto bind = v.find("bind");
+  if (!bind) {
+    throw std::invalid_argument("Expected publisher section to have \"bind\" key");
+  }
+
+  // Only need bind value to create publisher
+  auto p = StatsPublisher::create(bind->as<std::string>());
+
+  // Optional send buffer size
+  auto sendBuffer = v.find("send_buffer");
+  if (sendBuffer) {
+    p->setSendBuffer(sendBuffer->as<int>());
+  }
+
+  return p;
+}
+
 void loadDemodulator(Config::Demodulator& out, const toml::Value& v) {
   const auto& table = v.as<toml::Table>();
   for (const auto& it : table) {
@@ -81,6 +99,11 @@ void loadDemodulator(Config::Demodulator& out, const toml::Value& v) {
 
     if (key == "source") {
       out.source = value.as<std::string>();
+      continue;
+    }
+
+    if (key == "stats_publisher") {
+      out.statsPublisher = createStatsPublisher(value);
       continue;
     }
 
@@ -217,6 +240,11 @@ void loadDecoder(Config::Decoder& out, const toml::Value& v) {
 
     if (key == "packet_publisher") {
       out.packetPublisher = createPacketPublisher(value);
+      continue;
+    }
+
+    if (key == "stats_publisher") {
+      out.statsPublisher = createStatsPublisher(value);
       continue;
     }
 

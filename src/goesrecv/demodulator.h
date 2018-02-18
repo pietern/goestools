@@ -31,11 +31,14 @@ public:
   void stop();
 
 protected:
+  void publishStats();
+
   uint32_t freq_;
   uint32_t symbolRate_;
   uint32_t sampleRate_;
   uint32_t decimationFactor_;
 
+  std::unique_ptr<StatsPublisher> statsPublisher_;
   std::thread thread_;
 
   // Sources (only one is used)

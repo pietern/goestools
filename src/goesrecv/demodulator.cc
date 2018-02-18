@@ -56,6 +56,8 @@ void Demodulator::initialize(Config& config) {
     assert(false);
   }
 
+  statsPublisher_ = std::move(config.demodulator.statsPublisher);
+
   auto sr1 = sampleRate_;
   auto sr2 = sampleRate_ / decimationFactor_;
   auto dc = decimationFactor_;
@@ -76,6 +78,26 @@ void Demodulator::initialize(Config& config) {
   quantization_->setSoftBitPublisher(std::move(config.quantization.softBitPublisher));
 }
 
+void Demodulator::publishStats() {
+  if (!statsPublisher_) {
+    return;
+  }
+
+  const auto gain = agc_->getGain();
+  const auto frequency = (sampleRate_ * costas_->getFrequency()) / (2 * M_PI);
+  const auto omega = clockRecovery_->getOmega();
+
+  std::stringstream ss;
+  ss.precision(10);
+  ss << std::scientific;
+  ss << "{";
+  ss << "\"gain\": " << gain << ",";
+  ss << "\"frequency\": " << frequency << ",";
+  ss << "\"omega\": " << omega;
+  ss << "}\n";
+  statsPublisher_->publish(ss.str());
+}
+
 void Demodulator::start() {
   thread_ = std::thread([&] {
       while (!sourceQueue_->closed()) {
@@ -84,6 +106,7 @@ void Demodulator::start() {
         costas_->work(rrcQueue_, costasQueue_);
         clockRecovery_->work(costasQueue_, clockRecoveryQueue_);
         quantization_->work(clockRecoveryQueue_, softBitsQueue_);
+        publishStats();
       }
 
       // Close queues to signal downstream consumers of termination

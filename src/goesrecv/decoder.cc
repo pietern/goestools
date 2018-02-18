@@ -71,13 +71,29 @@ Decoder::Decoder(std::shared_ptr<Queue<std::vector<int8_t> > > queue) {
 
 void Decoder::initialize(Config& config) {
   packetPublisher_ = std::move(config.decoder.packetPublisher);
+  statsPublisher_ = std::move(config.decoder.statsPublisher);
+}
+
+void Decoder::publishStats(decoder::Packetizer::Details details) {
+  if (!statsPublisher_) {
+    return;
+  }
+
+  std::stringstream ss;
+  ss << "{";
+  ss << "\"viterbi_errors\": " << details.viterbiBits << ",";
+  ss << "\"reed_solomon_errors\": " << details.reedSolomonBytes;
+  ss << "}\n";
+  statsPublisher_->publish(ss.str());
 }
 
 void Decoder::start() {
   thread_ = std::thread([&] {
       std::array<uint8_t, 892> buf;
-      while (packetizer_->nextPacket(buf, nullptr)) {
+      decoder::Packetizer::Details details;
+      while (packetizer_->nextPacket(buf, &details)) {
         packetPublisher_->publish(buf);
+        publishStats(details);
       }
     });
   pthread_setname_np(thread_.native_handle(), "decoder");

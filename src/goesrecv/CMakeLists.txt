@@ -3,6 +3,7 @@ add_library(publisher
   publisher.cc
   sample_publisher.cc
   soft_bit_publisher.cc
+  stats_publisher.cc
   )
 target_link_libraries(publisher nanomsg)
 
