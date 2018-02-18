@@ -5,7 +5,7 @@
 
 class StatsPublisher : public Publisher {
 public:
-  static std::unique_ptr<StatsPublisher> create(const std::string& url);
+  static std::unique_ptr<StatsPublisher> create(const std::string& endpoint);
 
   explicit StatsPublisher(int fd);
   virtual ~StatsPublisher();

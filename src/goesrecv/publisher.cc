@@ -7,7 +7,7 @@
 #include <nanomsg/nn.h>
 #include <nanomsg/pubsub.h>
 
-int Publisher::bind(const char* url) {
+int Publisher::bind(const std::vector<std::string>& endpoints) {
   auto fd = nn_socket(AF_SP, NN_PUB);
   if (fd < 0) {
     std::stringstream ss;
@@ -15,20 +15,22 @@ int Publisher::bind(const char* url) {
     throw std::runtime_error(ss.str());
   }
 
-  auto rv = nn_bind(fd, url);
-  if (rv < 0) {
-    nn_close(fd);
-    std::stringstream ss;
-    ss << "nn_bind: " << nn_strerror(nn_errno());
-    ss << " (" << url << ")";
-    throw std::runtime_error(ss.str());
+  for (const auto& endpoint : endpoints) {
+    auto rv = nn_bind(fd, endpoint.c_str());
+    if (rv < 0) {
+      nn_close(fd);
+      std::stringstream ss;
+      ss << "nn_bind: " << nn_strerror(nn_errno());
+      ss << " (" << endpoint << ")";
+      throw std::runtime_error(ss.str());
+    }
   }
 
   return fd;
 }
 
-std::unique_ptr<Publisher> Publisher::create(const char* url) {
-  auto fd = Publisher::bind(url);
+std::unique_ptr<Publisher> Publisher::create(const std::string& endpoint) {
+  auto fd = Publisher::bind(endpoint);
   return std::make_unique<Publisher>(fd);
 }
 

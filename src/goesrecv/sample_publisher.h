@@ -5,7 +5,7 @@
 
 class SamplePublisher : public Publisher {
 public:
-  static std::unique_ptr<SamplePublisher> create(const std::string& url);
+  static std::unique_ptr<SamplePublisher> create(const std::string& endpoint);
 
   explicit SamplePublisher(int fd);
   virtual ~SamplePublisher();

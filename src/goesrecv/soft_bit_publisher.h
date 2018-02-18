@@ -4,7 +4,7 @@
 
 class SoftBitPublisher : public Publisher {
 public:
-  static std::unique_ptr<SoftBitPublisher> create(const std::string& url);
+  static std::unique_ptr<SoftBitPublisher> create(const std::string& endpoint);
 
   explicit SoftBitPublisher(int fd);
   virtual ~SoftBitPublisher();

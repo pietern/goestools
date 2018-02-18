@@ -5,8 +5,8 @@
 #include <nanomsg/nn.h>
 #include <nanomsg/pubsub.h>
 
-std::unique_ptr<SoftBitPublisher> SoftBitPublisher::create(const std::string& url) {
-  auto fd = Publisher::bind(url.c_str());
+std::unique_ptr<SoftBitPublisher> SoftBitPublisher::create(const std::string& endpoint) {
+  auto fd = Publisher::bind(endpoint);
   return std::make_unique<SoftBitPublisher>(fd);
 }
 

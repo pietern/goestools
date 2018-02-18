@@ -6,9 +6,14 @@
 
 class Publisher {
 public:
-  static int bind(const char* url);
+  static int bind(const std::vector<std::string>& endpoints);
 
-  static std::unique_ptr<Publisher> create(const char* url);
+  static int bind(const std::string& endpoint) {
+    std::vector<std::string> endpoints = { endpoint };
+    return bind(endpoints);
+  }
+
+  static std::unique_ptr<Publisher> create(const std::string& endpoint);
 
   explicit Publisher(int fd);
   virtual ~Publisher();
