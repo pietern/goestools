@@ -65,7 +65,7 @@ public:
 
       fileName_ = timeToFileName(t);
       fileTime_ = t;
-      of_.open(fileName_, std::ofstream::out);
+      of_.open(fileName_, std::ofstream::out | std::ofstream::app);
       assert(of_.good());
 
       std::cout
