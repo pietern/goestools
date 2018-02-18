@@ -25,7 +25,7 @@ Options parseOptions(int argc, char** argv) {
       {"help", no_argument, 0, 0x1337},
     };
 
-    auto c = getopt_long(argc, argv, "d:", longOpts, nullptr);
+    auto c = getopt_long(argc, argv, "c:", longOpts, nullptr);
     if (c == -1) {
       break;
     }
