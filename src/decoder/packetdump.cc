@@ -98,13 +98,22 @@ int main(int argc, char** argv) {
   auto reader = std::make_shared<FileReader>(0);
   auto writer = std::make_shared<FileWriter>(".");
   decoder::Packetizer p(reader);
+  decoder::Packetizer::Details details;
   std::array<uint8_t, 892> buf;
   for (;;) {
-    auto ok = p.nextPacket(buf, nullptr);
+    auto ok = p.nextPacket(buf, &details);
     if (!ok) {
       break;
     }
 
-    writer->write(buf, reader->lastRead());
+    if (details.reedSolomonBytes > 0) {
+      std::cerr << "RS corrected " << details.reedSolomonBytes << " bytes" << std::endl;
+    } else if (details.reedSolomonBytes < 0) {
+      std::cerr << "RS unable to correct packet; dropping!" << std::endl;
+    }
+
+    if (details.ok) {
+      writer->write(buf, reader->lastRead());
+    }
   }
 }

@@ -81,8 +81,10 @@ void Decoder::publishStats(decoder::Packetizer::Details details) {
 
   std::stringstream ss;
   ss << "{";
+  ss << "\"skipped_symbols\": " << details.skippedSymbols << ",";
   ss << "\"viterbi_errors\": " << details.viterbiBits << ",";
-  ss << "\"reed_solomon_errors\": " << details.reedSolomonBytes;
+  ss << "\"reed_solomon_errors\": " << details.reedSolomonBytes << ",";
+  ss << "\"ok\": " << details.ok;
   ss << "}\n";
   statsPublisher_->publish(ss.str());
 }
@@ -92,7 +94,9 @@ void Decoder::start() {
       std::array<uint8_t, 892> buf;
       decoder::Packetizer::Details details;
       while (packetizer_->nextPacket(buf, &details)) {
-        packetPublisher_->publish(buf);
+        if (details.ok) {
+          packetPublisher_->publish(buf);
+        }
         publishStats(details);
       }
     });

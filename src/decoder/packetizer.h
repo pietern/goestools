@@ -31,11 +31,18 @@ public:
     // Cursor in symbol stream (can be used to detect drops)
     int64_t symbolPos;
 
+    // Number of symbols skipped to get to this packet
+    int64_t skippedSymbols;
+
     // Number of Viterbi corrected bits
     int viterbiBits;
 
-    // Number of Reed-Solmon corrected bytes
+    // Number of Reed-Solomon corrected bytes
+    // This is -1 if the packet was not correctable
     int reedSolomonBytes;
+
+    // If this call yielded a valid packet
+    bool ok;
 
     // Relative time of packet from start of packetizer
     struct timespec relativeTime;

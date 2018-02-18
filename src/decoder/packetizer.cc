@@ -37,6 +37,11 @@ bool Packetizer::read()  {
 bool Packetizer::nextPacket(std::array<uint8_t, 892>& out, Details* details) {
   int rv;
 
+  // Initialize accumulation fields
+  if (details) {
+    details->skippedSymbols = 0;
+  }
+
   for (;;) {
     auto ok = read();
     if (!ok) {
@@ -82,13 +87,13 @@ bool Packetizer::nextPacket(std::array<uint8_t, 892>& out, Details* details) {
       for (;;) {
         // Find position in buffer with maximum correlation with sync word
         pos = correlate(&buf_[skip], len_ - skip, &max, &syncType_);
-        std::cerr
-          << "Maximum correlation of " << max
-          << " for " << correlationTypeToString(syncType_)
-          << " at index " << pos
-          << std::endl;
         if (pos == 0) {
           break;
+        }
+
+        // Keep track of the number of skipped symbols
+        if (details) {
+          details->skippedSymbols += pos;
         }
 
         // Skip over chunk that didn't qualify and try again,
@@ -170,19 +175,18 @@ bool Packetizer::nextPacket(std::array<uint8_t, 892>& out, Details* details) {
 
     // Reed-Solomon
     rv = reedSolomon_.run(&packet[0], len, &out[0]);
-    if (rv == -1) {
-      lock_ = false;
-      std::cerr << "RS unable to correct packet; dropping!" << std::endl;
-      continue;
-    }
 
     // Log corrections
+    // This is -1 if it was not correctable
     if (details) {
       details->reedSolomonBytes = rv;
     }
 
-    // We have a packet!
-    lock_ = true;
+    // We have a lock if this packet was correctable
+    lock_ = (rv >= 0);
+    if (details) {
+      details->ok = lock_;
+    }
     break;
   }
 
