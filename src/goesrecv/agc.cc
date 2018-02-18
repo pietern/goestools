@@ -10,7 +10,6 @@
 AGC::AGC() {
   alpha_ = 1e-4f;
   gain_ = 1e0f;
-  acc_ = 1e0f;
 }
 
 #ifdef __ARM_NEON__

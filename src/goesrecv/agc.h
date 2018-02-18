@@ -29,7 +29,6 @@ protected:
 
   float gain_;
   float alpha_;
-  float acc_;
 
   std::unique_ptr<SamplePublisher> samplePublisher_;
 };
