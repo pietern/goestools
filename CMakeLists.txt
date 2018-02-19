@@ -28,6 +28,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC -O3 -pedantic -Wall")
 
 add_subdirectory(vendor/libcorrect)
 add_subdirectory(vendor/libaec)
+add_subdirectory(vendor/json11)
 
 # Build nanomsg
 option(NN_STATIC_LIB "Build nanomsg as static library." ON)

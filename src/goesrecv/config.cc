@@ -68,22 +68,22 @@ std::unique_ptr<PacketPublisher> createPacketPublisher(const toml::Value& v) {
   return p;
 }
 
-std::unique_ptr<StatsPublisher> createStatsPublisher(const toml::Value& v) {
+Config::StatsPublisher createStatsPublisher(const toml::Value& v) {
   auto bind = v.find("bind");
   if (!bind) {
     throw std::invalid_argument("Expected publisher section to have \"bind\" key");
   }
 
-  // Only need bind value to create publisher
-  auto p = StatsPublisher::create(bind->as<std::string>());
+  Config::StatsPublisher out;
+  out.bind.push_back(bind->as<std::string>());
 
   // Optional send buffer size
   auto sendBuffer = v.find("send_buffer");
   if (sendBuffer) {
-    p->setSendBuffer(sendBuffer->as<int>());
+    out.sendBuffer = sendBuffer->as<int>();
   }
 
-  return p;
+  return out;
 }
 
 void loadDemodulator(Config::Demodulator& out, const toml::Value& v) {
@@ -314,6 +314,13 @@ Config Config::load(const std::string& file) {
 
     throwInvalidKey(key);
   }
+
+  const auto demodulatorStatsEndpoint = "inproc://demodulator_stats";
+  const auto decoderStatsEndpoint = "inproc://decoder_stats";
+
+  // Add inproc endpoints for the stats publishers
+  out.demodulator.statsPublisher.bind.push_back(demodulatorStatsEndpoint);
+  out.decoder.statsPublisher.bind.push_back(decoderStatsEndpoint);
 
   return out;
 }

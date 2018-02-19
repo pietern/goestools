@@ -5,8 +5,9 @@
 #include <nanomsg/nn.h>
 #include <nanomsg/pubsub.h>
 
-std::unique_ptr<StatsPublisher> StatsPublisher::create(const std::string& endpoint) {
-  auto fd = Publisher::bind(endpoint);
+std::unique_ptr<StatsPublisher> StatsPublisher::create(
+    const std::vector<std::string>& endpoints) {
+  auto fd = Publisher::bind(endpoints);
   return std::make_unique<StatsPublisher>(fd);
 }
 

@@ -6,9 +6,17 @@
 #include "packet_publisher.h"
 #include "sample_publisher.h"
 #include "soft_bit_publisher.h"
-#include "stats_publisher.h"
 
 struct Config {
+  struct StatsPublisher {
+    // Addresses to bind to. This is a vector because we always add an
+    // inproc:// endpoint for the in-process monitoring code.
+    std::vector<std::string> bind;
+
+    // Optional send buffer size
+    size_t sendBuffer = 0;
+  };
+
   struct Demodulator {
     // LRIT or HRIT
     std::string downlinkType;
@@ -17,7 +25,7 @@ struct Config {
     std::string source;
 
     // Demodulator statistics (gain, frequency correction, etc.)
-    std::unique_ptr<StatsPublisher> statsPublisher;
+    StatsPublisher statsPublisher;
   };
 
   Demodulator demodulator;
@@ -75,7 +83,7 @@ struct Config {
     std::unique_ptr<PacketPublisher> packetPublisher;
 
     // Decoder statistics (Viterbi, Reed-Solomon, etc.)
-    std::unique_ptr<StatsPublisher> statsPublisher;
+    StatsPublisher statsPublisher;
   };
 
   Decoder decoder;

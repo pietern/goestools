@@ -9,6 +9,7 @@
 #include "config.h"
 #include "packet_publisher.h"
 #include "queue.h"
+#include "stats_publisher.h"
 
 class Decoder {
 public:

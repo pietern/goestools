@@ -56,7 +56,10 @@ void Demodulator::initialize(Config& config) {
     assert(false);
   }
 
-  statsPublisher_ = std::move(config.demodulator.statsPublisher);
+  statsPublisher_ = StatsPublisher::create(config.demodulator.statsPublisher.bind);
+  if (config.demodulator.statsPublisher.sendBuffer > 0) {
+    statsPublisher_->setSendBuffer(config.demodulator.statsPublisher.sendBuffer);
+  }
 
   auto sr1 = sampleRate_;
   auto sr2 = sampleRate_ / decimationFactor_;

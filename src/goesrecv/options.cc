@@ -11,6 +11,8 @@ void usage(int argc, char** argv) {
   fprintf(stderr, "\n");
   fprintf(stderr, "Options:\n");
   fprintf(stderr, "  -c, --config PATH          Path to configuration file\n");
+  fprintf(stderr, "  -v, --verbose              Periodically show statistics\n");
+  fprintf(stderr, "  -i, --interval SEC         Interval for --verbose\n");
   fprintf(stderr, "      --help                 Show this help\n");
   fprintf(stderr, "\n");
   exit(0);
@@ -22,10 +24,12 @@ Options parseOptions(int argc, char** argv) {
   while (1) {
     static struct option longOpts[] = {
       {"config", required_argument, 0, 'c'},
+      {"verbose", no_argument, 0, 'v'},
+      {"interval", required_argument, 0, 'i'},
       {"help", no_argument, 0, 0x1337},
     };
 
-    auto c = getopt_long(argc, argv, "c:", longOpts, nullptr);
+    auto c = getopt_long(argc, argv, "c:vi:", longOpts, nullptr);
     if (c == -1) {
       break;
     }
@@ -35,6 +39,12 @@ Options parseOptions(int argc, char** argv) {
       break;
     case 'c':
       opts.config = optarg;
+      break;
+    case 'v':
+      opts.verbose = true;
+      break;
+    case 'i':
+      opts.interval = std::chrono::seconds(atoi(optarg));
       break;
     case 0x1337:
       usage(argc, argv);
@@ -48,6 +58,10 @@ Options parseOptions(int argc, char** argv) {
   if (opts.config.empty()) {
     std::cerr << "Please specify configuration file" << std::endl;
     exit(1);
+  }
+
+  if (opts.verbose && opts.interval.count() == 0) {
+    opts.interval = std::chrono::seconds(1);
   }
 
   return opts;

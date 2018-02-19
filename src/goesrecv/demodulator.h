@@ -10,6 +10,7 @@
 #include "quantize.h"
 #include "rrc.h"
 #include "rtlsdr_source.h"
+#include "stats_publisher.h"
 #include "types.h"
 
 class Demodulator {

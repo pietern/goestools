@@ -71,7 +71,10 @@ Decoder::Decoder(std::shared_ptr<Queue<std::vector<int8_t> > > queue) {
 
 void Decoder::initialize(Config& config) {
   packetPublisher_ = std::move(config.decoder.packetPublisher);
-  statsPublisher_ = std::move(config.decoder.statsPublisher);
+  statsPublisher_ = StatsPublisher::create(config.decoder.statsPublisher.bind);
+  if (config.demodulator.statsPublisher.sendBuffer > 0) {
+    statsPublisher_->setSendBuffer(config.decoder.statsPublisher.sendBuffer);
+  }
 }
 
 void Decoder::publishStats(decoder::Packetizer::Details details) {
