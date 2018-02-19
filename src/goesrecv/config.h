@@ -27,10 +27,10 @@ struct Config {
     std::string connect;
 
     // Optional receive buffer size
-    size_t receiveBuffer;
+    size_t receiveBuffer = 0;
 
     // Required sample rate of stream
-    uint32_t sampleRate;
+    uint32_t sampleRate = 0;
   };
 
   Nanomsg nanomsg;
