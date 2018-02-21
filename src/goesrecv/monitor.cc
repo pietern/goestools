@@ -135,6 +135,9 @@ void Monitor::loop() {
       }
 
       process(std::string(buf, rv));
+
+      // Processed message; free nanomsg buffer
+      nn_freemsg(buf);
     }
   }
 }
