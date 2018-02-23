@@ -40,10 +40,8 @@ int main(int argc, char** argv) {
   Decoder decode(demod.getSoftBitsQueue());
   decode.initialize(config);
 
-  Monitor monitor(opts.interval);
-  if (opts.verbose) {
-    monitor.initialize(config);
-  }
+  Monitor monitor(opts.verbose, opts.interval);
+  monitor.initialize(config);
 
   // Install signal handler
   struct sigaction sa;
@@ -55,9 +53,7 @@ int main(int argc, char** argv) {
 
   demod.start();
   decode.start();
-  if (opts.verbose) {
-    monitor.start();
-  }
+  monitor.start();
 
   while (!sigint) {
     pause();
@@ -65,9 +61,7 @@ int main(int argc, char** argv) {
 
   demod.stop();
   decode.stop();
-  if (opts.verbose) {
-    monitor.stop();
-  }
+  monitor.stop();
 
   return 0;
 }

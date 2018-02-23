@@ -61,9 +61,10 @@ T avg(const std::vector<T>& vs) {
 
 } // namespace
 
-Monitor::Monitor(std::chrono::seconds interval)
-    : stop_(false) {
-  interval_ = std::chrono::duration_cast<std::chrono::milliseconds>(interval);
+Monitor::Monitor(bool verbose, std::chrono::seconds interval)
+    : verbose_(verbose),
+      interval_(std::chrono::duration_cast<std::chrono::milliseconds>(interval)),
+      stop_(false) {
 }
 
 Monitor::~Monitor() {
@@ -111,7 +112,11 @@ void Monitor::loop() {
     auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(
       std::chrono::steady_clock::now() - start);
     if (delta >= interval_) {
-      print();
+      Stats tmp;
+      std::swap(tmp, stats_);
+      if (verbose_) {
+        print(tmp);
+      }
       start += interval_;
       continue;
     }
@@ -193,7 +198,7 @@ void Monitor::process(const std::string& json) {
   }
 }
 
-void Monitor::print() {
+void Monitor::print(const Stats& stats) {
   auto sec = std::chrono::duration_cast<std::chrono::seconds>(interval_).count();
 
   // Upper bound of 60 packets per second (HRIT)
@@ -210,27 +215,26 @@ void Monitor::print() {
      << " [monitor] ";
   ss << "gain: "
      << std::setprecision(2) << std::setw(5)
-     << avg(stats_.gain) << ", ";
+     << avg(stats.gain) << ", ";
   ss << "freq: "
      << std::setprecision(1) << std::setw(7)
-     << avg(stats_.frequency) << ", ";
+     << avg(stats.frequency) << ", ";
   ss << "omega: "
      << std::setprecision(3) << std::setw(5)
-     << avg(stats_.omega) << ", ";
+     << avg(stats.omega) << ", ";
   ss << "vit(avg): "
      << std::setw(4)
-     << avg(stats_.viterbiErrors) << ", ";
+     << avg(stats.viterbiErrors) << ", ";
   ss << "rs(sum): "
      << std::setw(4)
-     << sum(stats_.reedSolomonErrors) << ", ";
+     << sum(stats.reedSolomonErrors) << ", ";
   ss << "packets: "
      << std::setw(packetWidth)
-     << stats_.totalGood << ", ";
+     << stats.totalGood << ", ";
   ss << "drops: "
      << std::setw(packetWidth)
-     << stats_.totalBad;
+     << stats.totalBad;
   std::cout << ss.str() << std::endl;
-  stats_ = Stats();
 }
 
 void Monitor::start() {

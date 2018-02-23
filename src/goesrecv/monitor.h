@@ -8,7 +8,7 @@
 
 class Monitor {
 public:
-  explicit Monitor(std::chrono::seconds interval);
+  explicit Monitor(bool verbose, std::chrono::seconds interval);
   ~Monitor();
 
   void initialize(Config& config);
@@ -34,9 +34,11 @@ protected:
 
   void loop();
   void process(const std::string& json);
-  void print();
+  void print(const Stats& stats);
 
-  std::chrono::milliseconds interval_;
+  const bool verbose_;
+  const std::chrono::milliseconds interval_;
+
   int demodulatorFd_;
   int decoderFd_;
 
