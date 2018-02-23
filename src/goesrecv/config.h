@@ -88,5 +88,12 @@ struct Config {
 
   Decoder decoder;
 
+  struct Monitor {
+    // Address to send UDP statsd packets to (e.g. localhost:8125)
+    std::string statsdAddress;
+  };
+
+  Monitor monitor;
+
   static Config load(const std::string& file);
 };

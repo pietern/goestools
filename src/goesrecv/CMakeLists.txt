@@ -45,7 +45,7 @@ target_link_libraries(clock_recovery publisher stdc++)
 add_library(quantize quantize.cc)
 target_link_libraries(quantize publisher stdc++)
 
-add_executable(goesrecv goesrecv.cc config.cc options.cc decoder.cc demodulator.cc monitor.cc)
+add_executable(goesrecv goesrecv.cc config.cc options.cc decoder.cc demodulator.cc monitor.cc datagram_socket.cc)
 target_include_directories(goesrecv PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_link_libraries(goesrecv json11)
 target_link_libraries(goesrecv packetizer pthread)

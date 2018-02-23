@@ -2,9 +2,11 @@
 
 #include <atomic>
 #include <chrono>
+#include <memory>
 #include <thread>
 
 #include "config.h"
+#include "datagram_socket.h"
 
 class Monitor {
 public:
@@ -41,6 +43,7 @@ protected:
 
   int demodulatorFd_;
   int decoderFd_;
+  std::unique_ptr<DatagramSocket> statsd_;
 
   std::atomic<bool> stop_;
   std::thread thread_;

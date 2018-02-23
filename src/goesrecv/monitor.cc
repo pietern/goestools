@@ -98,6 +98,12 @@ void Monitor::initialize(Config& config) {
     throw std::runtime_error("no decoder stats endpoint");
   }
   decoderFd_ = connect(decoderEndpoint);
+
+  // Create statsd socket if one is configured
+  const auto& statsdAddress = config.monitor.statsdAddress;
+  if (!statsdAddress.empty()) {
+    statsd_ = std::make_unique<DatagramSocket>(statsdAddress);
+  }
 }
 
 void Monitor::loop() {
@@ -154,27 +160,34 @@ void Monitor::process(const std::string& json) {
     throw new std::runtime_error(error);
   }
 
+  // Accumulate statsd compatible payload
+  std::stringstream statsd;
+
   for (const auto& it : data.object_items()) {
     const auto& key = it.first;
     const auto& value = it.second;
 
     if (key == "gain") {
       stats_.gain.push_back(value.number_value());
+      statsd << key << ":" << value.number_value() << "|g" << std::endl;
       continue;
     }
 
     if (key == "frequency") {
       stats_.frequency.push_back(value.number_value());
+      statsd << key << ":" << value.number_value() << "|g" << std::endl;
       continue;
     }
 
     if (key == "omega") {
       stats_.omega.push_back(value.number_value());
+      statsd << key << ":" << value.number_value() << "|g" << std::endl;
       continue;
     }
 
     if (key == "viterbi_errors") {
       stats_.viterbiErrors.push_back(value.int_value());
+      statsd << key << ":" << value.int_value() << "|h" << std::endl;
       continue;
     }
 
@@ -182,6 +195,7 @@ void Monitor::process(const std::string& json) {
       const auto& v = value.int_value();
       if (v >= 0) {
         stats_.reedSolomonErrors.push_back(v);
+        statsd << key << ":" << v << "|h" << std::endl;
       }
       continue;
     }
@@ -190,11 +204,17 @@ void Monitor::process(const std::string& json) {
       const auto& ok = value.int_value();
       if (ok == 0) {
         stats_.totalBad++;
+        statsd << "bad_packets:" << value.int_value() << "|h" << std::endl;
       } else {
         stats_.totalGood++;
+        statsd << "good_packets:" << value.int_value() << "|h" << std::endl;
       }
       continue;
     }
+  }
+
+  if (statsd_) {
+    statsd_->send(statsd.str());
   }
 }
 

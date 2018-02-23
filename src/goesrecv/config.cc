@@ -252,6 +252,21 @@ void loadDecoder(Config::Decoder& out, const toml::Value& v) {
   }
 }
 
+void loadMonitor(Config::Monitor& out, const toml::Value& v) {
+  const auto& table = v.as<toml::Table>();
+  for (const auto& it : table) {
+    const auto& key = it.first;
+    const auto& value = it.second;
+
+    if (key == "statsd_address") {
+      out.statsdAddress = value.as<std::string>();
+      continue;
+    }
+
+    throwInvalidKey(key);
+  }
+}
+
 } // namespace
 
 Config Config::load(const std::string& file) {
@@ -309,6 +324,11 @@ Config Config::load(const std::string& file) {
 
     if (key == "decoder") {
       loadDecoder(out.decoder, value);
+      continue;
+    }
+
+    if (key == "monitor") {
+      loadMonitor(out.monitor, value);
       continue;
     }
 
