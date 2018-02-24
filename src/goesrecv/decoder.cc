@@ -97,7 +97,7 @@ void Decoder::start() {
       std::array<uint8_t, 892> buf;
       decoder::Packetizer::Details details;
       while (packetizer_->nextPacket(buf, &details)) {
-        if (details.ok) {
+        if (details.ok && packetPublisher_) {
           packetPublisher_->publish(buf);
         }
         publishStats(details);
