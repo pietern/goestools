@@ -10,7 +10,7 @@
 
 class Monitor {
 public:
-  explicit Monitor(bool verbose, std::chrono::seconds interval);
+  explicit Monitor(bool verbose, std::chrono::milliseconds interval);
   ~Monitor();
 
   void initialize(Config& config);

@@ -61,9 +61,9 @@ T avg(const std::vector<T>& vs) {
 
 } // namespace
 
-Monitor::Monitor(bool verbose, std::chrono::seconds interval)
+Monitor::Monitor(bool verbose, std::chrono::milliseconds interval)
     : verbose_(verbose),
-      interval_(std::chrono::duration_cast<std::chrono::milliseconds>(interval)),
+      interval_(interval),
       stop_(false) {
 }
 

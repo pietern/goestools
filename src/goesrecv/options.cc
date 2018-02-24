@@ -44,7 +44,7 @@ Options parseOptions(int argc, char** argv) {
       opts.verbose = true;
       break;
     case 'i':
-      opts.interval = std::chrono::seconds(atoi(optarg));
+      opts.interval = std::chrono::milliseconds((int) (1000 * atof(optarg)));
       break;
     case 0x1337:
       usage(argc, argv);
