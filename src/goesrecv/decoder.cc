@@ -4,6 +4,8 @@
 
 #include <cstring>
 
+#include "lib/util.h"
+
 namespace {
 
 // QueueReader bridges the queue that produces the soft bits
@@ -82,8 +84,11 @@ void Decoder::publishStats(decoder::Packetizer::Details details) {
     return;
   }
 
+  const auto timestamp = stringTime();
+
   std::stringstream ss;
   ss << "{";
+  ss << "\"timestamp\": \"" << timestamp << "\",";
   ss << "\"skipped_symbols\": " << details.skippedSymbols << ",";
   ss << "\"viterbi_errors\": " << details.viterbiBits << ",";
   ss << "\"reed_solomon_errors\": " << details.reedSolomonBytes << ",";

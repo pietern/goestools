@@ -2,6 +2,8 @@
 
 #include <pthread.h>
 
+#include "lib/util.h"
+
 Demodulator::Demodulator(Demodulator::Type t) {
   switch (t) {
   case LRIT:
@@ -86,6 +88,7 @@ void Demodulator::publishStats() {
     return;
   }
 
+  const auto timestamp = stringTime();
   const auto gain = agc_->getGain();
   const auto frequency = (sampleRate_ * costas_->getFrequency()) / (2 * M_PI);
   const auto omega = clockRecovery_->getOmega();
@@ -94,6 +97,7 @@ void Demodulator::publishStats() {
   ss.precision(10);
   ss << std::scientific;
   ss << "{";
+  ss << "\"timestamp\": \"" << timestamp << "\",";
   ss << "\"gain\": " << gain << ",";
   ss << "\"frequency\": " << frequency << ",";
   ss << "\"omega\": " << omega;

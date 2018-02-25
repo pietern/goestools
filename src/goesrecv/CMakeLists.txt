@@ -47,6 +47,7 @@ target_link_libraries(quantize publisher stdc++)
 
 add_executable(goesrecv goesrecv.cc config.cc options.cc decoder.cc demodulator.cc monitor.cc datagram_socket.cc)
 target_include_directories(goesrecv PRIVATE ${PROJECT_SOURCE_DIR}/src)
+target_link_libraries(goesrecv util)
 target_link_libraries(goesrecv json11)
 target_link_libraries(goesrecv packetizer pthread)
 target_link_libraries(goesrecv airspy_source)
