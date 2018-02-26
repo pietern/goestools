@@ -53,6 +53,12 @@ struct Config {
   Source source;
 
   struct AGC {
+    // Minimum gain
+    float min = 1e-6f;
+
+    // Maximum gain
+    float max = 1e+6f;
+
     std::unique_ptr<SamplePublisher> samplePublisher;
   };
 

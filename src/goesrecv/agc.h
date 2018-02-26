@@ -9,6 +9,14 @@ class AGC {
 public:
   explicit AGC();
 
+  void setMin(float min) {
+    min_ = min;
+  }
+
+  void setMax(float max) {
+    max_ = max;
+  }
+
   void setSamplePublisher(std::unique_ptr<SamplePublisher> samplePublisher) {
     samplePublisher_ = std::move(samplePublisher);
   }
@@ -27,6 +35,8 @@ protected:
       std::complex<float>* fi,
       std::complex<float>* fo);
 
+  float min_;
+  float max_;
   float gain_;
   float alpha_;
 

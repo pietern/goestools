@@ -65,6 +65,8 @@ void Demodulator::initialize(Config& config) {
   const auto sr2 = sampleRate_ / dc;
 
   agc_ = std::make_unique<AGC>();
+  agc_->setMin(config.agc.min);
+  agc_->setMax(config.agc.max);
   agc_->setSamplePublisher(std::move(config.agc.samplePublisher));
 
   rrc_ = std::make_unique<RRC>(dc, sr1, symbolRate_);

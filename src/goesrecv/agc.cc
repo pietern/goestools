@@ -8,6 +8,8 @@
 #endif
 
 AGC::AGC() {
+  min_ = 1e-6f;
+  max_ = 1e+6f;
   alpha_ = 1e-4f;
   gain_ = 1e0f;
 }
@@ -21,12 +23,15 @@ void AGC::work(
   float* fi = (float*) ci;
   float* fo = (float*) co;
 
+  float32x4_t min = vld1q_dup_f32(&min_);
+  float32x4_t max = vld1q_dup_f32(&max_);
+  float32x4_t gain = vld1q_dup_f32(&gain_);
+
   // Process 4 samples at a time.
   for (size_t i = 0; i < nsamples; i += 4) {
     float32x4x2_t f = vld2q_f32(&fi[2*i]);
 
     // Apply gain.
-    float32x4_t gain = vld1q_dup_f32(&gain_);
     f.val[0] = vmulq_f32(f.val[0], gain);
     f.val[1] = vmulq_f32(f.val[1], gain);
     vst2q_f32(&fo[2*i], f);
@@ -39,8 +44,14 @@ void AGC::work(
 
     // Update gain.
     // Use only the first sample and ignore the others.
-    gain_ += alpha_ * (0.5 - sqrtf(x2[0]));
+    float32x4_t delta = vdupq_n_f32(alpha_ * (0.5 - sqrtf(x2[0])));
+    gain = vaddq_f32(gain, delta);
+    gain = vmaxq_f32(gain, min);
+    gain = vminq_f32(gain, max);
   }
+
+  // Write back to instance variable
+  gain_ = gain[0];
 }
 
 #else
@@ -60,6 +71,8 @@ void AGC::work(
     // Update gain.
     // Use only the first sample and ignore the others.
     gain_ += alpha_ * (0.5 - abs(co[i]));
+    gain_ = std::max(gain_, min_);
+    gain_ = std::min(gain_, max_);
   }
 }
 

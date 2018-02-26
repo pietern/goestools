@@ -168,6 +168,16 @@ void loadAGC(Config::AGC& out, const toml::Value& v) {
     const auto& key = it.first;
     const auto& value = it.second;
 
+    if (key == "min") {
+      out.min = (float) value.as<double>();
+      continue;
+    }
+
+    if (key == "max") {
+      out.max = (float) value.as<double>();
+      continue;
+    }
+
     if (key == "sample_publisher") {
       out.samplePublisher = createSamplePublisher(value);
       continue;
