@@ -8,4 +8,4 @@ add_library(assembler
   transport_pdu.cc
   virtual_channel.cc
   )
-target_link_libraries(assembler aec sz stdc++)
+target_link_libraries(assembler lrit aec sz stdc++)
