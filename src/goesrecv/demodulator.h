@@ -37,7 +37,6 @@ protected:
   uint32_t freq_;
   uint32_t symbolRate_;
   uint32_t sampleRate_;
-  uint32_t decimationFactor_;
 
   std::unique_ptr<StatsPublisher> statsPublisher_;
   std::thread thread_;

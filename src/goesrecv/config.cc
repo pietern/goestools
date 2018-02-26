@@ -107,6 +107,11 @@ void loadDemodulator(Config::Demodulator& out, const toml::Value& v) {
       continue;
     }
 
+    if (key == "decimation") {
+      out.decimation = value.as<int>();
+      continue;
+    }
+
     throwInvalidKey(key);
   }
 }

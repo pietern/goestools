@@ -26,6 +26,9 @@ struct Config {
 
     // Demodulator statistics (gain, frequency correction, etc.)
     StatsPublisher statsPublisher;
+
+    // Signal decimation (applied at FIR stage)
+    int decimation = 1;
   };
 
   Demodulator demodulator;

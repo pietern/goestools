@@ -21,9 +21,6 @@ Demodulator::Demodulator(Demodulator::Type t) {
   // Sample rate depends on source
   sampleRate_ = 0;
 
-  // Decimation depends on sample rate
-  decimationFactor_ = 1;
-
   // Initialize queues
   // It is possible to attach publishers before starting the demodulator
   sourceQueue_ = std::make_shared<Queue<Samples> >(4);
@@ -63,9 +60,9 @@ void Demodulator::initialize(Config& config) {
     statsPublisher_->setSendBuffer(config.demodulator.statsPublisher.sendBuffer);
   }
 
-  auto sr1 = sampleRate_;
-  auto sr2 = sampleRate_ / decimationFactor_;
-  auto dc = decimationFactor_;
+  const auto dc = config.demodulator.decimation;
+  const auto sr1 = sampleRate_;
+  const auto sr2 = sampleRate_ / dc;
 
   agc_ = std::make_unique<AGC>();
   agc_->setSamplePublisher(std::move(config.agc.samplePublisher));
