@@ -1,6 +1,7 @@
 #include "sample_publisher.h"
 
 #include <cassert>
+#include <cmath>
 
 #include <nanomsg/nn.h>
 #include <nanomsg/pubsub.h>
@@ -26,8 +27,16 @@ void SamplePublisher::publish(const Samples& samples) {
   // Otherwise it is impossible to stream 3M complex samples/second from a RPi.
   tmp_.resize(samples.size());
   for (size_t i = 0; i < samples.size(); i++) {
-    tmp_[i].real(samples[i].real() * 127);
-    tmp_[i].imag(samples[i].imag() * 127);
+    auto si = samples[i].real() * 127;
+    auto sq = samples[i].imag() * 127;
+
+    // Clamp
+    si = (0.5f * (fabsf(si + 127.0f) - fabsf(si - 127.0f)));
+    sq = (0.5f * (fabsf(sq + 127.0f) - fabsf(sq - 127.0f)));
+
+    // Convert to int8_t
+    tmp_[i].real((int8_t) si);
+    tmp_[i].imag((int8_t) sq);
   }
 
   auto rv = nn_send(fd_, tmp_.data(), tmp_.size() * sizeof(tmp_[0]), 0);
