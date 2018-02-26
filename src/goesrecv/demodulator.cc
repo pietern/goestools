@@ -25,8 +25,8 @@ Demodulator::Demodulator(Demodulator::Type t) {
   // It is possible to attach publishers before starting the demodulator
   sourceQueue_ = std::make_shared<Queue<Samples> >(4);
   agcQueue_ = std::make_shared<Queue<Samples> >(2);
-  rrcQueue_ = std::make_shared<Queue<Samples> >(2);
   costasQueue_ = std::make_shared<Queue<Samples> >(2);
+  rrcQueue_ = std::make_shared<Queue<Samples> >(2);
   clockRecoveryQueue_ = std::make_shared<Queue<Samples> >(2);
   softBitsQueue_ = std::make_shared<Queue<std::vector<int8_t> > >(2);
 }
@@ -69,11 +69,11 @@ void Demodulator::initialize(Config& config) {
   agc_->setMax(config.agc.max);
   agc_->setSamplePublisher(std::move(config.agc.samplePublisher));
 
-  rrc_ = std::make_unique<RRC>(dc, sr1, symbolRate_);
-  rrc_->setSamplePublisher(std::move(config.rrc.samplePublisher));
-
   costas_ = std::make_unique<Costas>();
   costas_->setSamplePublisher(std::move(config.costas.samplePublisher));
+
+  rrc_ = std::make_unique<RRC>(dc, sr1, symbolRate_);
+  rrc_->setSamplePublisher(std::move(config.rrc.samplePublisher));
 
   clockRecovery_ = std::make_unique<ClockRecovery>(sr2, symbolRate_);
   clockRecovery_->setSamplePublisher(std::move(config.clockRecovery.samplePublisher));
@@ -108,17 +108,17 @@ void Demodulator::start() {
   thread_ = std::thread([&] {
       while (!sourceQueue_->closed()) {
         agc_->work(sourceQueue_, agcQueue_);
-        rrc_->work(agcQueue_, rrcQueue_);
-        costas_->work(rrcQueue_, costasQueue_);
-        clockRecovery_->work(costasQueue_, clockRecoveryQueue_);
+        costas_->work(agcQueue_, costasQueue_);
+        rrc_->work(costasQueue_, rrcQueue_);
+        clockRecovery_->work(rrcQueue_, clockRecoveryQueue_);
         quantization_->work(clockRecoveryQueue_, softBitsQueue_);
         publishStats();
       }
 
       // Close queues to signal downstream consumers of termination
       agcQueue_->close();
-      rrcQueue_->close();
       costasQueue_->close();
+      rrcQueue_->close();
       clockRecoveryQueue_->close();
       softBitsQueue_->close();
     });

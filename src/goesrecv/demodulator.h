@@ -48,16 +48,16 @@ protected:
 
   // DSP blocks
   std::unique_ptr<AGC> agc_;
-  std::unique_ptr<RRC> rrc_;
   std::unique_ptr<Costas> costas_;
+  std::unique_ptr<RRC> rrc_;
   std::unique_ptr<ClockRecovery> clockRecovery_;
   std::unique_ptr<Quantize> quantization_;
 
   // Queues
   std::shared_ptr<Queue<Samples> > sourceQueue_;
   std::shared_ptr<Queue<Samples> > agcQueue_;
-  std::shared_ptr<Queue<Samples> > rrcQueue_;
   std::shared_ptr<Queue<Samples> > costasQueue_;
+  std::shared_ptr<Queue<Samples> > rrcQueue_;
   std::shared_ptr<Queue<Samples> > clockRecoveryQueue_;
   std::shared_ptr<Queue<std::vector<int8_t> > > softBitsQueue_;
 };
