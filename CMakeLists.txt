@@ -72,8 +72,8 @@ if(${BUILD_GOESRECV})
   add_subdirectory(src/goesrecv)
 endif()
 
-if(${BUILD_GOESDEC})
-  add_subdirectory(src/goesdec)
+if(${BUILD_GOESLRIT})
+  add_subdirectory(src/goeslrit)
 endif()
 
 if(${BUILD_GOESPROC})
