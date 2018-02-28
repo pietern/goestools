@@ -5,14 +5,16 @@
 #include <unistd.h>
 
 #include <iostream>
+#include <sstream>
 
 #include "file.h"
 
 struct Options {
   bool extract = false;
+  bool verbose = false;
 };
 
-int dump(const std::string& name) {
+int dump(const Options& opts, const std::string& name) {
   auto file = lrit::File(name);
   std::cout << name << ":" << std::endl;
   for (const auto& it : file.getHeaderMap()) {
@@ -97,8 +99,18 @@ int dump(const std::string& name) {
     } else if (it.first == lrit::ImageDataFunctionHeader::CODE) {
       auto h = file.getHeader<lrit::ImageDataFunctionHeader>();
       std::cout << "Image data function (" << decltype(h)::CODE << "):" << std::endl;
-      std::cout << "  Data: "
-                << "(omitted, length: " << h.data.size() << ")" << std::endl;
+      std::cout << "  Data: ";
+      if (opts.verbose) {
+        const auto str = std::string((const char*) h.data.data(), h.data.size());
+        std::istringstream iss(str);
+        std::string line;
+        std::cout << std::endl;
+        while (std::getline(iss, line, '\n')) {
+          std::cout << "    " << line << std::endl;
+        }
+      } else {
+        std::cout << "(omitted, length: " << h.data.size() << ")" << std::endl;
+      }
     } else if (it.first == lrit::AnnotationHeader::CODE) {
       auto h = file.getHeader<lrit::AnnotationHeader>();
       std::cout << "Annotation (" << decltype(h)::CODE << "):" << std::endl;
@@ -175,7 +187,7 @@ int dump(const std::string& name) {
   return 0;
 }
 
-int extract(const std::string& name) {
+int extract(const Options&, const std::string& name) {
   auto file = lrit::File(name);
 
   // Streaming copy from file to standard out
@@ -208,10 +220,11 @@ int main(int argc, char** argv) {
   while (1) {
     static struct option longOpts[] = {
       {"extract", no_argument, 0, 'x'},
+      {"verbose", no_argument, 0, 'v'},
       {"help",    no_argument, 0, 0x1337},
     };
 
-    auto c = getopt_long(argc, argv, "x", longOpts, nullptr);
+    auto c = getopt_long(argc, argv, "xv", longOpts, nullptr);
     if (c == -1) {
       break;
     }
@@ -221,6 +234,9 @@ int main(int argc, char** argv) {
       break;
     case 'x':
       opts.extract = true;
+      break;
+    case 'v':
+      opts.verbose = true;
       break;
     case 0x1337:
       usage(argc, argv);
@@ -238,12 +254,12 @@ int main(int argc, char** argv) {
       exit(1);
     }
     if (opts.extract) {
-      rv = extract(argv[i]);
+      rv = extract(opts, argv[i]);
       if (rv != 0) {
         return rv;
       }
     } else {
-      rv = dump(argv[i]);
+      rv = dump(opts, argv[i]);
       if (rv != 0) {
         return rv;
       }
