@@ -3,7 +3,7 @@
 Tools to work with signals and files from GOES satellites.
 
 * **goesrecv**: Demodulate and decode signal into packet stream.
-* **goesdec**: Decode demodulated signal into LRIT files.
+* **goeslrit**: Assemble LRIT files from packet stream.
 * **goesproc**: Process LRIT files into plain files and images.
 
 I started writing this to learn about things involved in the GOES
@@ -46,25 +46,61 @@ As of February 2018 goesrecv only runs ARM processors with NEON
 extensions (such as the Raspberry Pi 3). Stay tuned for compilation
 instructions...
 
-### goesdec
+### goeslrit
 
-Takes as arguments any number of files with raw demodulated
-samples. These files are then sorted by their basename to ensure they
-are in chronological order even if they are stored at different paths.
-It then reads the files in order, as if they were concatenated, and
-decodes the samples into LRIT files. LRIT files are organized by their
-file type and origin.
+> If you're interested in post-processed data (images, text files)
+> then you can ignore `goeslrit` and only use `goesproc`.
 
-For example:
+This tool can be used to turn a stream of packets into LRIT files.
+LRIT files can then be used by goesproc (or other tools, such as to
+generate usable images and text files, or for debugging purposes.
+
+It can either read packets from files to process recorded data, or
+subscribe to `goesrecv` process to work with live data.
+
+To make it write LRIT files to disk, you have to specify the category
+of files you are interested in. Run `goeslrit --help` for a list of
+filtering options. To make it write **ALL** LRIT files it seems, run
+`goeslrit` with the `--all` option.
+
+#### Reading packets from files
+
+The files must be specified in chronological order because they are
+read in order. Packets for a single LRIT file can span multiple packet
+files, so if they are not specified in chronological order some LRIT
+files will be dropped. Specifying a file glob in bash expands to an
+alphabetically sorted list of file names that match the pattern.
+
+Example with files:
 
 ``` shell
+$ goeslrit --images /path/to/packets/packets-2018-02-28T*
+Reading: /path/to/packets/packets-2018-02-28T00:00:00Z.raw
+Writing: OR_ABI-L2-CMIPM1-M3C02_G16_s20180582358300_e20180582358358_c20180582358429.lrit (4004087 bytes)
+Writing: OR_ABI-L2-CMIPM2-M3C07_G16_s20180590000000_e20180590000071_c20180590000108.lrit (254551 bytes)
+...
+```
 
-$ src/goesdec/goesdec /tmp/signals/goes/demod-2017-09-02T00\:02\:38.raw
-Reading from: /tmp/signals/goes/demod-2017-09-02T00\:02\:38.raw
-Skipping 2555 bits (max. correlation of 64 at 2555)
-Saving ./out/dcs/DCSdat245070234789.lrit (8169 bytes)
-Saving ./out/dcs/DCSdat245070239823.lrit (8042 bytes)
-Saving ./out/dcs/DCSdat245070239842.lrit (7981 bytes)
+#### Reading packets from a publisher
+
+If `goesrecv` is running somewhere on your network, `goeslrit` can be
+configured to subscribe to its packet publisher to process live data.
+This is done with the `--subscribe` argument and it can take any valid
+nanomsg address. Often this will be a TCP address
+(`tcp://<ip>:<port>`, also see [nn_tcp(7)][nn_tcp]), but if you happen
+to run `goesrecv` on the same machine as `goeslrit` you can also use
+the IPC transport mechanism (`ipc://path/to/socket`, also see
+[nn_ipc(7)][nn_ipc]).
+
+[nn_tcp]: http://nanomsg.org/v1.1.2/nn_tcp.html
+[nn_ipc]: http://nanomsg.org/v1.1.2/nn_ipc.html
+
+Example with publisher:
+
+``` shell
+$ goeslrit --images --subscribe tcp://1.2.3.4:5005
+Writing: OR_ABI-L2-CMIPM1-M3C02_G16_s20180591958303_e20180591958360_c20180591958427.lrit (4004087 bytes)
+Writing: OR_ABI-L2-CMIPM2-M3C07_G16_s20180592000003_e20180592000073_c20180592000110.lrit (254551 bytes)
 ...
 ```
 
