@@ -53,6 +53,10 @@ std::string SessionPDU::getName() const {
     return "(missing header)";
   }
 
+  if (!hasHeader<lrit::AnnotationHeader>()) {
+    return "(missing annotation header)";
+  }
+
   auto ah = getHeader<lrit::AnnotationHeader>();
   return ah.text;
 }
