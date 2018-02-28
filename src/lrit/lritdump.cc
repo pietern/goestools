@@ -8,6 +8,10 @@
 
 #include "file.h"
 
+struct Options {
+  bool extract = false;
+};
+
 int dump(const std::string& name) {
   auto file = lrit::File(name);
   std::cout << name << ":" << std::endl;
@@ -171,19 +175,80 @@ int dump(const std::string& name) {
   return 0;
 }
 
+int extract(const std::string& name) {
+  auto file = lrit::File(name);
+
+  // Streaming copy from file to standard out
+  auto data = file.getData();
+  auto& ifs = *data;
+  auto& ofs = std::cout;
+  std::array<char, 8192> buf;
+  while (!ifs.eof()) {
+    ifs.read(buf.data(), buf.size());
+    ofs.write(buf.data(), ifs.gcount());
+  }
+
+  return 0;
+}
+
+void usage(int argc, char** argv) {
+  fprintf(stderr, "Usage: %s [OPTIONS] FILE\n", argv[0]);
+  fprintf(stderr, "Inspect LRIT files.\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "Options:\n");
+  fprintf(stderr, "  -x, --extract  Print data section of file\n");
+  fprintf(stderr, "      --help     Show this help\n");
+  fprintf(stderr, "\n");
+  exit(0);
+}
+
 int main(int argc, char** argv) {
-  int rv;
-  struct stat st;
-  for (auto i = 1; i < argc; i++) {
-    rv = stat(argv[i], &st);
+  Options opts;
+
+  while (1) {
+    static struct option longOpts[] = {
+      {"extract", no_argument, 0, 'x'},
+      {"help",    no_argument, 0, 0x1337},
+    };
+
+    auto c = getopt_long(argc, argv, "x", longOpts, nullptr);
+    if (c == -1) {
+      break;
+    }
+
+    switch (c) {
+    case 0:
+      break;
+    case 'x':
+      opts.extract = true;
+      break;
+    case 0x1337:
+      usage(argc, argv);
+      break;
+    default:
+      exit(1);
+    }
+  }
+
+  for (auto i = optind; i < argc; i++) {
+    struct stat st;
+    auto rv = stat(argv[i], &st);
     if (rv < 0) {
       fprintf(stderr, "%s: %s\n", argv[i], strerror(errno));
       exit(1);
     }
-    rv = dump(argv[i]);
-    if (rv != 0) {
-      return rv;
+    if (opts.extract) {
+      rv = extract(argv[i]);
+      if (rv != 0) {
+        return rv;
+      }
+    } else {
+      rv = dump(argv[i]);
+      if (rv != 0) {
+        return rv;
+      }
     }
   }
+
   return 0;
 }
