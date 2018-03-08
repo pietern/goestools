@@ -6,8 +6,11 @@
 
 #include "image.h"
 
-NWSImageHandler::NWSImageHandler(const Config::Handler& config)
-    : config_(config) {
+NWSImageHandler::NWSImageHandler(
+  const Config::Handler& config,
+  const std::shared_ptr<FileWriter>& fileWriter)
+  : config_(config),
+    fileWriter_(fileWriter) {
   // Ensure output directory exists
   mkdirp(config_.dir);
 }
@@ -28,14 +31,14 @@ void NWSImageHandler::handle(std::shared_ptr<const lrit::File> f) {
 
   // If this is a GIF we can write it directly
   if (nlh.noaaSpecificCompression == 5) {
-    auto buf = f->read();
-    std::ofstream of(config_.dir + "/" + filename + ".gif");
-    of.write(buf.data(), buf.size());
+    auto path = config_.dir + "/" + filename + ".gif";
+    fileWriter_->write(path, f->read());
     return;
   }
 
   auto image = Image::createFromFile(f);
-  image->save(config_.dir + "/" + filename + "." + config_.format);
+  auto path = config_.dir + "/" + filename + "." + config_.format;
+  fileWriter_->write(path, image->getRawImage());
   return;
 }
 

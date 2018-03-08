@@ -6,8 +6,11 @@
 
 #include "filename.h"
 
-GOESNImageHandler::GOESNImageHandler(const Config::Handler& config)
-    : config_(config) {
+GOESNImageHandler::GOESNImageHandler(
+  const Config::Handler& config,
+  const std::shared_ptr<FileWriter>& fileWriter)
+  : config_(config),
+    fileWriter_(fileWriter) {
   config_.region = toUpper(config_.region);
   for (auto& channel : config_.channels) {
     channel = toUpper(channel);
@@ -84,9 +87,8 @@ void GOESNImageHandler::handle(std::shared_ptr<const lrit::File> f) {
       raw = image->getScaledImage(config_.crop, false);
     }
 
-    filename = config_.dir + "/" + filename + "." + config_.format;
-    std::cerr << "Writing " << filename << std::endl;
-    cv::imwrite(filename, raw);
+    auto path = config_.dir + "/" + filename + "." + config_.format;
+    fileWriter_->write(path, raw);
 
     // Remove from handler cache
     map.erase(sih.imageIdentifier);

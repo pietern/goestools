@@ -3,6 +3,7 @@
 #include <unordered_map>
 
 #include "config.h"
+#include "file_writer.h"
 #include "handler.h"
 #include "image.h"
 
@@ -10,7 +11,9 @@
 // We can treat images from GOES-13 and GOES-15 equally.
 class GOESNImageHandler : public Handler {
 public:
-  explicit GOESNImageHandler(const Config::Handler& config);
+  explicit GOESNImageHandler(
+    const Config::Handler& config,
+    const std::shared_ptr<FileWriter>& fileWriter);
 
   virtual void handle(std::shared_ptr<const lrit::File> f);
 
@@ -20,6 +23,7 @@ protected:
   Image::Channel loadChannel(const lrit::NOAALRITHeader& h) const;
 
   Config::Handler config_;
+  std::shared_ptr<FileWriter> fileWriter_;
   uint16_t productID_;
 
   using SegmentVector = std::vector<std::shared_ptr<const lrit::File>>;

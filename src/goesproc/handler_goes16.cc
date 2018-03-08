@@ -4,8 +4,11 @@
 
 #include "lib/util.h"
 
-GOES16ImageHandler::GOES16ImageHandler(const Config::Handler& config)
-    : config_(config) {
+GOES16ImageHandler::GOES16ImageHandler(
+  const Config::Handler& config,
+  const std::shared_ptr<FileWriter>& fileWriter)
+  : config_(config),
+    fileWriter_(fileWriter) {
   config_.region = toUpper(config_.region);
   for (auto& channel : config_.channels) {
     channel = toUpper(channel);
@@ -86,8 +89,8 @@ void GOES16ImageHandler::handleImage(
     return;
   }
 
-  auto filename = getBasename(f);
-  image->save(config_.dir + "/" + filename + "." + config_.format);
+  auto path = config_.dir + "/" + getBasename(f) + "." + config_.format;
+  fileWriter_->write(path, image->getRawImage());
 }
 
 void GOES16ImageHandler::handleImageForFalseColor(
@@ -109,8 +112,8 @@ void GOES16ImageHandler::handleImageForFalseColor(
   }
 
   auto image = Image::generateFalseColor(std::move(i0), std::move(i1), config_.lut);
-  auto filename = getBasename(f);
-  image->save(config_.dir + "/" + filename + "." + config_.format);
+  auto path = config_.dir + "/" + getBasename(f) + "." + config_.format;
+  fileWriter_->write(path, image->getRawImage());
 }
 
 GOES16ImageHandler::Details GOES16ImageHandler::loadDetails(const lrit::File& f) {

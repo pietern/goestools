@@ -15,6 +15,7 @@ void usage(int argc, char** argv) {
   fprintf(stderr, "  -c, --config PATH          Path to configuration file\n");
   fprintf(stderr, "  -m, --mode [packet|lrit]   Process stream of VCDU packets\n");
   fprintf(stderr, "                             or pre-assembled LRIT files\n");
+  fprintf(stderr, "  -f  --force                Overwrite existing output files\n");
   fprintf(stderr, "      --help                 Show this help\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "If mode is set to packet, goesproc reads VCDU packets from the\n");
@@ -45,10 +46,11 @@ Options parseOptions(int& argc, char**& argv) {
     static struct option longOpts[] = {
       {"config", required_argument, 0, 'c'},
       {"mode", required_argument, 0, 'm'},
+      {"force", no_argument, 0, 'f'},
       {"help", no_argument, 0, 0x1337},
     };
     int i;
-    int c = getopt_long(argc, argv, "c:m:", longOpts, &i);
+    int c = getopt_long(argc, argv, "c:m:f", longOpts, &i);
     if (c == -1) {
       break;
     }
@@ -69,6 +71,9 @@ Options parseOptions(int& argc, char**& argv) {
           opts.mode = ProcessMode::LRIT;
         }
       }
+      break;
+    case 'f':
+      opts.force = true;
       break;
     case 0x1337:
       usage(argc, argv);

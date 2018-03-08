@@ -28,6 +28,12 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
+  // Handlers share a file writer instance
+  auto fileWriter = std::make_shared<FileWriter>();
+  if (opts.force) {
+    fileWriter->setForce(true);
+  }
+
   // Construct list of file handlers
   std::vector<std::unique_ptr<Handler> > handlers;
   for (const auto& handler: config.handlers) {
@@ -35,23 +41,23 @@ int main(int argc, char** argv) {
       if (handler.product == "goes16") {
         handlers.push_back(
           std::unique_ptr<Handler>(
-            new GOES16ImageHandler(handler)));
+            new GOES16ImageHandler(handler, fileWriter)));
       } else if (handler.product == "nws") {
         handlers.push_back(
           std::unique_ptr<Handler>(
-            new NWSImageHandler(handler)));
+            new NWSImageHandler(handler, fileWriter)));
       } else if (handler.product == "himawari8") {
         handlers.push_back(
           std::unique_ptr<Handler>(
-            new Himawari8ImageHandler(handler)));
+            new Himawari8ImageHandler(handler, fileWriter)));
       } else if (handler.product == "goes13") {
         handlers.push_back(
           std::unique_ptr<Handler>(
-            new GOESNImageHandler(handler)));
+            new GOESNImageHandler(handler, fileWriter)));
       } else if (handler.product == "goes15") {
         handlers.push_back(
           std::unique_ptr<Handler>(
-            new GOESNImageHandler(handler)));
+            new GOESNImageHandler(handler, fileWriter)));
       } else {
         std::cerr << "Invalid image handler product: " << handler.product << std::endl;
         exit(1);

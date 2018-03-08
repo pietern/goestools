@@ -4,8 +4,11 @@
 
 #include "lib/util.h"
 
-Himawari8ImageHandler::Himawari8ImageHandler(const Config::Handler& config)
-    : config_(config) {
+Himawari8ImageHandler::Himawari8ImageHandler(
+  const Config::Handler& config,
+  const std::shared_ptr<FileWriter>& fileWriter)
+  : config_(config),
+    fileWriter_(fileWriter) {
   config_.region = toUpper(config_.region);
   for (auto& channel : config_.channels) {
     channel = toUpper(channel);
@@ -62,7 +65,8 @@ void Himawari8ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   vector.push_back(f);
   if (vector.size() == sih.maxSegment) {
     auto image = Image::createFromFiles(vector);
-    image->save(config_.dir + "/" + imageIdentifier + "." + config_.format);
+    auto path = config_.dir + "/" + imageIdentifier + "." + config_.format;
+    fileWriter_->write(path, image->getRawImage());
 
     // Remove from handler cache
     segments_.erase(imageIdentifier);
