@@ -27,9 +27,9 @@ NanomsgReader::NanomsgReader(const std::string& addr) {
   }
 
   // Fix receive buffer size to "plenty".
-  // HRIT packet stream is 50KB/sec so this gives us 20 seconds
+  // HRIT packet stream is 50KB/sec so this gives us 5+ minutes
   // before the buffer is full and nanomsg starts dropping messages.
-  int size = 1024 * 1024;
+  int size = 16 * 1024 * 1024;
   rv = nn_setsockopt(fd, NN_SOL_SOCKET, NN_SNDBUF, &size, sizeof(size));
   if (rv < 0) {
     nn_close(fd);
