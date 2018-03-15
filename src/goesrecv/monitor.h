@@ -28,8 +28,8 @@ protected:
     // Decoder stats
     std::vector<int> viterbiErrors;
     std::vector<int> reedSolomonErrors;
-    int totalGood = 0;
-    int totalBad = 0;
+    int totalOK = 0;
+    int totalDropped = 0;
   };
 
   Stats stats_;

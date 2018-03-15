@@ -202,12 +202,12 @@ void Monitor::process(const std::string& json) {
 
     if (key == "ok") {
       const auto& ok = value.int_value();
-      if (ok == 0) {
-        stats_.totalBad++;
-        statsd << "bad_packets:" << value.int_value() << "|h" << std::endl;
+      if (ok != 0) {
+        stats_.totalOK++;
+        statsd << "packets_ok:1|c" << std::endl;
       } else {
-        stats_.totalGood++;
-        statsd << "good_packets:" << value.int_value() << "|h" << std::endl;
+        stats_.totalDropped++;
+        statsd << "packets_dropped:1|c" << std::endl;
       }
       continue;
     }
@@ -250,10 +250,10 @@ void Monitor::print(const Stats& stats) {
      << sum(stats.reedSolomonErrors) << ", ";
   ss << "packets: "
      << std::setw(packetWidth)
-     << stats.totalGood << ", ";
+     << stats.totalOK << ", ";
   ss << "drops: "
      << std::setw(packetWidth)
-     << stats.totalBad;
+     << stats.totalDropped;
   std::cout << ss.str() << std::endl;
 }
 
