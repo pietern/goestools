@@ -14,6 +14,26 @@ public:
   membuf(const uint8_t* p, size_t l) {
     setg((char*)p, (char*)p, (char*)p + l);
   }
+
+  pos_type seekpos(
+      pos_type sp,
+      std::ios_base::openmode which) override {
+    return seekoff(sp - pos_type(off_type(0)), std::ios_base::beg, which);
+  }
+
+  pos_type seekoff(
+      off_type off,
+      std::ios_base::seekdir dir,
+      std::ios_base::openmode which = std::ios_base::in) override {
+    if (dir == std::ios_base::cur) {
+      gbump(off);
+    } else if (dir == std::ios_base::end) {
+      setg(eback(), egptr() + off, egptr());
+    } else if (dir == std::ios_base::beg) {
+      setg(eback(), eback() + off, egptr());
+    }
+    return gptr() - eback();
+  }
 };
 
 class memstream : public std::istream {
@@ -26,6 +46,52 @@ public:
 
 private:
   membuf buf_;
+};
+
+class offsetfilebuf : public std::filebuf {
+public:
+  void mark() {
+    offset_ = seekoff(0, std::ios_base::cur);
+  }
+
+  pos_type seekpos(
+      pos_type sp,
+      std::ios_base::openmode which) override {
+    return seekoff(sp - pos_type(off_type(0)), std::ios_base::beg, which);
+  }
+
+  pos_type seekoff(
+      off_type off,
+      std::ios_base::seekdir dir,
+      std::ios_base::openmode which = std::ios_base::in) override {
+    pos_type pos = 0;
+    if (dir == std::ios_base::cur) {
+      pos = std::filebuf::seekoff(off, dir, which);
+    } else if (dir == std::ios_base::end) {
+      pos = std::filebuf::seekoff(off, dir, which);
+    } else if (dir == std::ios_base::beg) {
+      pos = std::filebuf::seekoff(off + offset_, dir, which);
+    }
+    return pos - offset_;
+  }
+
+private:
+  off_type offset_ = 0;
+};
+
+class offsetifstream : public std::istream {
+public:
+  offsetifstream(const std::string& path)
+    : std::istream(&buf_) {
+    buf_.open(path, std::ios::in);
+  }
+
+  void mark() {
+    buf_.mark();
+  }
+
+private:
+  offsetfilebuf buf_;
 };
 
 } // namespace
@@ -81,7 +147,7 @@ std::string File::getTime() const {
 }
 
 std::unique_ptr<std::istream> File::getDataFromFile() const {
-  auto ifs = std::make_unique<std::ifstream>(file_.c_str());
+  auto ifs = std::make_unique<offsetifstream>(file_);
   assert(*ifs);
   ifs->seekg(ph_.totalHeaderLength);
   assert(*ifs);
@@ -106,6 +172,10 @@ std::unique_ptr<std::istream> File::getDataFromFile() const {
       assert(*ifs);
     }
   }
+
+  // Current position is the start of the data section,
+  // and the 0-offset for other code that uses it.
+  ifs->mark();
 
   return std::unique_ptr<std::istream>(ifs.release());
 }
