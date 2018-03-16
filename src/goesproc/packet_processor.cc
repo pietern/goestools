@@ -33,13 +33,6 @@ void PacketProcessor::run(int argc, char** argv) {
 
       auto spdus = assembler_.process(buf);
       for (auto& spdu : spdus) {
-        auto type = spdu->getHeader<lrit::PrimaryHeader>().fileType;
-
-        // Only deal with images for now
-        if (type != 0) {
-          continue;
-        }
-
         auto file = std::make_shared<lrit::File>(spdu->get());
         for (auto& handler : handlers_) {
           handler->handle(file);

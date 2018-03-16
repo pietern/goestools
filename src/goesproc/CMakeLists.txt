@@ -3,6 +3,7 @@ add_executable(goesproc ${GOESPROC_SRCS})
 add_sanitizers(goesproc)
 target_link_libraries(goesproc lrit util assembler)
 target_link_libraries(goesproc opencv_core opencv_highgui opencv_imgproc)
+target_link_libraries(goesproc z)
 
 find_package(PkgConfig)
 pkg_check_modules(OPENCV REQUIRED opencv)

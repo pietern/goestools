@@ -19,7 +19,11 @@ bool loadHandlers(const toml::Value& v, Config& out) {
 
     Config::Handler h;
     h.type = th->get<std::string>("type");
-    h.product = th->get<std::string>("product");
+
+    auto product = th->find("product");
+    if (product) {
+      h.product = product->as<std::string>();
+    }
 
     auto region = th->find("region");
     if (region) {

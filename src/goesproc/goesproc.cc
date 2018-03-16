@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "config.h"
+#include "handler_emwin.h"
 #include "handler_goes16.h"
 #include "handler_goesn.h"
 #include "handler_himawari8.h"
@@ -62,6 +63,10 @@ int main(int argc, char** argv) {
         std::cerr << "Invalid image handler product: " << handler.product << std::endl;
         exit(1);
       }
+    } else if (handler.type == "emwin") {
+      handlers.push_back(
+        std::unique_ptr<Handler>(
+          new EMWINHandler(handler, fileWriter)));
     } else if (handler.type == "dcs") {
       // TODO
     } else if (handler.type == "text") {
