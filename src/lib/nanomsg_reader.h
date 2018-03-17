@@ -2,9 +2,9 @@
 
 #include <string>
 
-#include "reader.h"
+#include "packet_reader.h"
 
-class NanomsgReader : public Reader {
+class NanomsgReader : public PacketReader {
 public:
   NanomsgReader(const std::string& uri);
   virtual ~NanomsgReader();

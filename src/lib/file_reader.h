@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 
-#include "reader.h"
+#include "packet_reader.h"
 
-class FileReader : public Reader {
+class FileReader : public PacketReader {
 public:
   FileReader(const std::vector<std::string>& files);
   virtual ~FileReader();

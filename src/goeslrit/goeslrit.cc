@@ -9,8 +9,8 @@
 
 #include "assembler/assembler.h"
 
-#include "file_reader.h"
-#include "nanomsg_reader.h"
+#include "lib/file_reader.h"
+#include "lib/nanomsg_reader.h"
 #include "options.h"
 
 bool filter(const Options& opts, std::unique_ptr<assembler::SessionPDU>& spdu) {
@@ -63,8 +63,8 @@ std::string filename(std::unique_ptr<assembler::SessionPDU>& spdu) {
 int main(int argc, char** argv) {
   auto opts = parseOptions(argc, argv);
 
-  // Create reader depending on options
-  std::unique_ptr<Reader> reader;
+  // Create packet reader depending on options
+  std::unique_ptr<PacketReader> reader;
   if (!opts.nanomsg.empty()) {
     reader = std::make_unique<NanomsgReader>(opts.nanomsg);
   } else if (!opts.files.empty()) {
