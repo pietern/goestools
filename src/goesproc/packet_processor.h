@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "assembler/assembler.h"
+#include "lib/packet_reader.h"
 
 #include "handler.h"
 
@@ -19,7 +20,7 @@ class PacketProcessor {
 public:
   explicit PacketProcessor(std::vector<std::unique_ptr<Handler> > handlers);
 
-  void run(int argc, char** argv);
+  void run(std::unique_ptr<PacketReader>& reader);
 
 protected:
   std::vector<std::unique_ptr<Handler> > handlers_;

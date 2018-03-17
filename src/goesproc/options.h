@@ -18,6 +18,12 @@ struct Options {
 
   // Overwrite existing output files
   bool force = false;
+
+  // Address of publisher to subscribe to (only relevant in packet mode)
+  std::string subscribe;
+
+  // Paths specified as final argument(s)
+  std::vector<std::string> paths;
 };
 
 Options parseOptions(int& argc, char**& argv);

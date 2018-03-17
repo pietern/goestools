@@ -15,12 +15,14 @@ void usage(int argc, char** argv) {
   fprintf(stderr, "  -c, --config PATH          Path to configuration file\n");
   fprintf(stderr, "  -m, --mode [packet|lrit]   Process stream of VCDU packets\n");
   fprintf(stderr, "                             or pre-assembled LRIT files\n");
+  fprintf(stderr, "      --subscribe ADDR       Address of nanomsg publisher\n");
   fprintf(stderr, "  -f  --force                Overwrite existing output files\n");
   fprintf(stderr, "      --help                 Show this help\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "If mode is set to packet, goesproc reads VCDU packets from the\n");
-  fprintf(stderr, "specified path(s). To process real time data you can setup a pipe from\n");
-  fprintf(stderr, "the decoder into goesproc (e.g. use /dev/stdin as path argument).\n");
+  fprintf(stderr, "specified path(s). To process real time data you can either setup a pipe\n");
+  fprintf(stderr, "from the decoder into goesproc (e.g. use /dev/stdin as path argument),\n");
+  fprintf(stderr, "or use --subscribe to consume packets directly from goesrecv.\n");
   fprintf(stderr, "To process recorded data you can specify a list of files that contain\n");
   fprintf(stderr, "VCDU packets in chronological order.\n");
   fprintf(stderr, "\n");
@@ -46,6 +48,7 @@ Options parseOptions(int& argc, char**& argv) {
     static struct option longOpts[] = {
       {"config", required_argument, 0, 'c'},
       {"mode", required_argument, 0, 'm'},
+      {"subscribe", required_argument, 0, 0x1001},
       {"force", no_argument, 0, 'f'},
       {"help", no_argument, 0, 0x1337},
     };
@@ -72,6 +75,9 @@ Options parseOptions(int& argc, char**& argv) {
         }
       }
       break;
+    case 0x1001: // --subscribe
+      opts.subscribe = std::string(optarg);
+      break;
     case 'f':
       opts.force = true;
       break;
@@ -96,6 +102,20 @@ Options parseOptions(int& argc, char**& argv) {
     fprintf(stderr, "%s: no mode specified\n", argv[0]);
     fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
     exit(1);
+  }
+
+  // Collect paths
+  for (int i = optind; i < argc; i++) {
+    opts.paths.push_back(argv[i]);
+  }
+
+  // Sane default in packet mode
+  if (opts.mode == ProcessMode::PACKET) {
+    // Read from stdin if no paths were specified
+    if (opts.paths.empty()) {
+      // This only works on Linux...
+      opts.paths.push_back("/proc/self/fd/0");
+    }
   }
 
   argc -= optind;

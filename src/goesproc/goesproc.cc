@@ -6,6 +6,9 @@
 #include <string>
 #include <vector>
 
+#include "lib/file_reader.h"
+#include "lib/nanomsg_reader.h"
+
 #include "config.h"
 #include "handler_emwin.h"
 #include "handler_goes16.h"
@@ -79,7 +82,16 @@ int main(int argc, char** argv) {
 
   if (opts.mode == ProcessMode::PACKET) {
     PacketProcessor p(std::move(handlers));
-    p.run(argc, argv);
+    std::unique_ptr<PacketReader> reader;
+
+    // Either use subscriber or read packets from files
+    if (opts.subscribe.size() > 0) {
+      reader = std::make_unique<NanomsgReader>(opts.subscribe);
+    } else {
+      reader = std::make_unique<FileReader>(opts.paths);
+    }
+
+    p.run(reader);
   }
 
   if (opts.mode == ProcessMode::LRIT) {
