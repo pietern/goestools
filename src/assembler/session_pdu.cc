@@ -5,47 +5,12 @@
 
 namespace assembler {
 
-SessionPDU::SessionPDU(const TransportPDU& tpdu)
-  : remainingHeaderBytes_(0),
-    lastSequenceCount_(tpdu.sequenceCount()) {
-  // First 10 bytes of the first TP_PDU appears to be garbage.
-  // Last 2 bytes of every TP_PDU is a CRC.
-  auto ok = append(tpdu.data.begin() + 10, tpdu.data.begin() + tpdu.length() - 2);
-  assert(ok);
-}
-
-bool SessionPDU::canResumeFrom(const TransportPDU& tpdu) const {
-  // Can't skip packets if the header is not yet complete.
-  if (!hasCompleteHeader()) {
-    return false;
-  }
-
-  // Can't skip if this is not an image
-  if (ph_.fileType != 0) {
-    return false;
-  }
-
-  // Can't skip if we don't know how many pixels to fill in
-  if (!szParam_) {
-    return false;
-  }
-
-  // Can't skip if the transport PDU is not either a continuation
-  // segment, or the last segment for this session PDU.
-  auto seq = tpdu.sequenceFlag();
-  if (!(seq == 0 || seq == 2)) {
-    return false;
-  }
-
-  // Can't skip if we need to skip more lines than remaining
-  auto ish = getHeader<lrit::ImageStructureHeader>();
-  auto remaining = ish.lines - (int) (buf_.size() / szParam_->pixels_per_scanline);
-  auto skip = diffWithWrap<16384>(lastSequenceCount_, tpdu.sequenceCount()) - 1;
-  if (skip > remaining) {
-    return false;
-  }
-
-  return true;
+SessionPDU::SessionPDU(int vcid, int apid)
+  : vcid(vcid),
+    apid(apid),
+    remainingHeaderBytes_(0),
+    lastSequenceCount_(0),
+    linesDone_(0) {
 }
 
 std::string SessionPDU::getName() const {
@@ -61,44 +26,108 @@ std::string SessionPDU::getName() const {
   return ah.text;
 }
 
+void SessionPDU::skipLines(int skip) {
+  // Insert black line if there is no contents yet
+  auto columns = szParam_->pixels_per_scanline;
+  if (buf_.empty()) {
+    buf_.insert(buf_.end(), columns, 0);
+    linesDone_++;
+    skip--;
+  }
+
+  // Insert copies of the most recent line
+  for (auto i = 0; i < skip; i++) {
+    buf_.insert(buf_.end(), buf_.end() - columns, buf_.end());
+    linesDone_++;
+  }
+}
+
+bool SessionPDU::finish() {
+  // Can't finish if the header is not yet complete.
+  if (!hasCompleteHeader()) {
+    return false;
+  }
+
+  // Can't finish if this is not an image
+  if (ph_.fileType != 0) {
+    return false;
+  }
+
+  // Can't finish if we don't know how many pixels to fill in
+  if (!szParam_) {
+    return false;
+  }
+
+  // Skip remainder of image to finish session PDU
+  auto ish = getHeader<lrit::ImageStructureHeader>();
+  skipLines(ish.lines - linesDone_);
+  return true;
+}
+
 bool SessionPDU::append(const TransportPDU& tpdu) {
   auto sequenceCount = tpdu.sequenceCount();
-  auto skip = diffWithWrap<16384>(lastSequenceCount_, sequenceCount);
-  if (skip > 1) {
-    // We assume that virtual_channel.cc called the resumable function
-    // and it returned that it is OK to skip a number of lines.
-    assert(szParam_);
 
-    // Insert black line if there is no contents yet
-    auto columns = szParam_->pixels_per_scanline;
-    if (buf_.empty()) {
-      buf_.insert(buf_.end(), columns, 0);
-      skip--;
+  // First 10 bytes of the first TP_PDU appears to be garbage.
+  // Last 2 bytes of every TP_PDU is a CRC.
+  if (buf_.empty()) {
+    auto begin = tpdu.data.begin() + 10;
+    auto end = tpdu.data.begin() + tpdu.length() - 2;
+    lastSequenceCount_ = sequenceCount;
+    return append(begin, end);
+  }
+
+  // If one or more packets were skipped (dropped),
+  // then we must figure out if it is OK synthesize contents
+  // or if we must drop the entire session PDU.
+  // This is only the case if the LRIT header was already received
+  // and we're dealing with a line-by-line encoded image.
+  auto skip = diffWithWrap<16384>(lastSequenceCount_, sequenceCount) - 1;
+  if (skip > 0) {
+    // Can't skip if the header is not yet complete.
+    if (!hasCompleteHeader()) {
+      return false;
     }
 
-    // Insert copies of the most recent line
-    for (auto i = 0; i < skip; i++) {
-      buf_.insert(buf_.end(), buf_.end() - columns, buf_.end());
+    // Can't skip if this is not an image
+    if (ph_.fileType != 0) {
+      return false;
     }
+
+    // Can't skip if we don't know how many pixels to fill in
+    if (!szParam_) {
+      return false;
+    }
+
+    // Can't skip if we need to skip more lines than remaining
+    auto ish = getHeader<lrit::ImageStructureHeader>();
+    auto remaining = ish.lines - linesDone_;
+    if (skip > remaining) {
+      return false;
+    }
+
+    skipLines(skip);
   }
 
   lastSequenceCount_ = sequenceCount;
   return append(tpdu.data.begin(), tpdu.data.end() - 2);
 }
 
-void SessionPDU::completeHeader() {
+bool SessionPDU::completeHeader() {
   m_ = lrit::getHeaderMap(buf_);
+  if (m_.empty()) {
+    return false;
+  }
 
   // File type 0 is image data
   if (ph_.fileType != 0) {
-    return;
+    return true;
   }
 
   // Check compression flag.
   // If it is anything other than "1" we ignore it.
   auto ish = lrit::getHeader<lrit::ImageStructureHeader>(buf_, m_);
   if (ish.compression != 1) {
-    return;
+    return true;
   }
 
   // Quote from 5_LRIT_Mission-data.pdf (next to Figure 6)
@@ -123,6 +152,8 @@ void SessionPDU::completeHeader() {
     szParam_->pixels_per_scanline = ish.columns;
     szTmp_.resize(szParam_->pixels_per_scanline);
   }
+
+  return true;
 }
 
 bool SessionPDU::append(
@@ -151,7 +182,9 @@ bool SessionPDU::append(
     if (ph_.totalHeaderLength > buf_.size()) {
       return true;
     }
-    completeHeader();
+    if (!completeHeader()) {
+      return false;
+    }
   }
 
   // Copy data verbatim if decompression parameters not set
@@ -176,6 +209,7 @@ bool SessionPDU::append(
 
   // Copy from temporary
   buf_.insert(buf_.end(), szTmp_.begin(), szTmp_.begin() + outLen);
+  linesDone_++;
   return true;
 }
 

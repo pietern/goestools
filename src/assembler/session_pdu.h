@@ -33,14 +33,17 @@ int diffWithWrap(unsigned int a, unsigned int b) {
 
 class SessionPDU {
 public:
-  explicit SessionPDU(const TransportPDU& tpdu);
+  explicit SessionPDU(int vcid, int apid);
 
+  // Returns false if this T_PDU could not be added.
+  // This is the case if -- for example -- it contains a
+  // malformed header, or cannot be decompressed.
   bool append(const TransportPDU& tpdu);
 
-  // Whether or not we can skip a couple of packets for this session PDU.
-  // This is only the case if the LRIT header was already received
-  // and we're dealing with a line-by-line encoded image.
-  bool canResumeFrom(const TransportPDU& tpdu) const;
+  // Returns true if this session PDU could be finished
+  // without extra T_PDUs. This is only the case if it
+  // contains a line-by-line encoded image.
+  bool finish();
 
   std::string getName() const;
 
@@ -70,8 +73,11 @@ public:
     return m_;
   }
 
+  const int vcid;
+  const int apid;
+
 protected:
-  void completeHeader();
+  bool completeHeader();
 
   bool append(
     std::vector<uint8_t>::const_iterator begin,
@@ -87,6 +93,13 @@ protected:
 
   std::unique_ptr<SZ_com_t> szParam_;
   std::vector<uint8_t> szTmp_;
+
+private:
+  void skipLines(int skip);
+
+  // Number of lines that are present in the buffer.
+  // Only applicable for line-by-line encoded images.
+  uint32_t linesDone_;
 };
 
 } // namespace assembler

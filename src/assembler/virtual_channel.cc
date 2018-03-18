@@ -141,42 +141,18 @@ void VirtualChannel::process(
   //
   auto seq = tpdu->sequenceCount();
   if (apidSeq_.count(apid) > 0) {
-    auto skip = diffWithWrap<16384>(apidSeq_[apid], seq);
-    if (skip != 1) {
-      auto skipped = (skip - 1);
+    auto skip = diffWithWrap<16384>(apidSeq_[apid], seq) - 1;
+    if (skip > 0) {
       std::cerr
         << "VC "
         << id_
         << ": Detected TP_PDU drop"
-        << " (skipped " << skipped << " packet(s)"
+        << " (skipped " << skip << " packet(s)"
         << " on APID " << apid
         << "; prev: " << apidSeq_[apid]
         << ", packet: " << seq
         << ")"
         << std::endl;
-
-      // Figure out what to do with existing session PDU, if applicable
-      auto it = apidSessionPDU_.find(apid);
-      if (it != apidSessionPDU_.end()) {
-        auto& spdu = it->second;
-        if (!spdu->canResumeFrom(*tpdu)) {
-          // Can't resume accumulation with this TPDU (i.e. cannot skip packets)
-          std::cerr
-            << "VC "
-            << id_
-            << ": Dropping session PDU: "
-            << spdu->getName()
-            << std::endl;
-          apidSessionPDU_.erase(apid);
-        } else {
-          std::cerr
-            << "VC "
-            << id_
-            << ": Synthesizing skipped packets for session PDU: "
-            << spdu->getName()
-            << std::endl;
-        }
-      }
     }
   }
   apidSeq_[apid] = seq;
@@ -191,44 +167,65 @@ void VirtualChannel::process(
   //   file beginning in an earlier packet.
   auto flag = tpdu->sequenceFlag();
   if (flag == 3 || flag == 1) {
-    if (apidSessionPDU_.count(apid) > 0) {
-      if (true) {
+    auto it = apidSessionPDU_.find(apid);
+    if (it != apidSessionPDU_.end()) {
+      std::cerr
+        << "VC "
+        << id_
+        << ": New S_PDU for "
+        << apid
+        << ", but didn't finish previous one"
+        << std::endl;
+
+      // Try to finish pending S_PDU
+      auto& spdu = it->second;
+      if (spdu->finish()) {
         std::cerr
           << "VC "
           << id_
-          << ": New S_PDU for "
+          << ": Finished S_PDU for APID "
           << apid
-          << ", but didn't finish previous one"
+          << " (" << spdu->getName() << ")"
           << std::endl;
+        out.push_back(std::move(spdu));
       }
 
       // Erase pending S_PDU as it won't be finished now
       apidSessionPDU_.erase(apid);
     }
 
-    // Check if this S_PDU is contained in a single TP_PDU
-    if (flag == 3) {
-      auto spdu = std::make_unique<SessionPDU>(*tpdu);
-      if (spdu->size() == 0) {
-        std::cerr
-          << "VC "
-          << id_
-          << ": Zero length S_PDU for APID "
-          << apid
-          << std::endl;
-      } else {
-        out.push_back(std::move(spdu));
-      }
+    auto spdu = std::make_unique<SessionPDU>(id_, apid);
+    if (!spdu->append(*tpdu)) {
+      std::cerr
+        << "VC "
+        << id_
+        << ": Invalid first S_PDU for APID "
+        << apid
+        << std::endl;
     } else {
-      // Expecting subsequent TP_PDUs to fill this S_PDU
-      apidSessionPDU_.insert(
-        std::make_pair(apid, std::make_unique<SessionPDU>(*tpdu)));
+      // Check if this S_PDU is contained in a single TP_PDU
+      if (flag == 3) {
+        if (spdu->size() == 0) {
+          std::cerr
+            << "VC "
+            << id_
+            << ": Zero length S_PDU for APID "
+            << apid
+            << std::endl;
+        } else {
+          out.push_back(std::move(spdu));
+        }
+      } else {
+        // Expecting subsequent TP_PDUs to fill this S_PDU
+        apidSessionPDU_.insert(std::make_pair(apid, std::move(spdu)));
+      }
     }
   } else {
     assert(flag == 0 || flag == 2);
 
-    // Check that this is a valid continuation
-    if (apidSessionPDU_.count(apid) == 0) {
+    auto it = apidSessionPDU_.find(apid);
+    if (it == apidSessionPDU_.end()) {
+      // This is not a valid continuation
       if (false) {
         std::cerr
           << "VC "
@@ -238,8 +235,7 @@ void VirtualChannel::process(
           << std::endl;
       }
     } else {
-      // Append data from TP_PDU to temporary buffer
-      auto it = apidSessionPDU_.find(apid);
+      // Append data from TP_PDU to S_PDU
       auto& spdu = it->second;
       if (!spdu->append(*tpdu)) {
         std::cerr
@@ -248,10 +244,29 @@ void VirtualChannel::process(
           << ": Unable to append to S_PDU on APID "
           << apid
           << std::endl;
-      }
-      if (flag == 2) {
-        out.push_back(std::move(spdu));
+
+        // Unable to append; perhaps this continuation belongs
+        // to the next S_PDU on this APID and everything in between
+        // was dropped. Try to finish at least the previous S_PDU.
+        if (spdu->finish()) {
+          std::cerr
+            << "VC "
+            << id_
+            << ": Finished S_PDU for APID "
+            << apid
+            << " (" << spdu->getName() << ")"
+            << std::endl;
+          out.push_back(std::move(spdu));
+        }
+
+        // Erase S_PDU regardless if it was finished or not
         apidSessionPDU_.erase(apid);
+      } else {
+        // Successfully appended TP_PDU to S_PDU
+        if (flag == 2) {
+          out.push_back(std::move(spdu));
+          apidSessionPDU_.erase(apid);
+        }
       }
     }
   }

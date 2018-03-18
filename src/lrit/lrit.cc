@@ -75,6 +75,12 @@ std::map<int, int> getHeaderMap(const Buffer& b) {
   while (pos < totalHeaderLength) {
     headerType = b[pos];
     headerLength = (b[pos+1] << 8) | b[pos+2];
+
+    // Abort in case of invalid header length
+    if (headerLength == 0) {
+      return std::map<int, int>();
+    }
+
     m[headerType] = pos;
     pos += headerLength;
   }
