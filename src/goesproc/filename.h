@@ -8,6 +8,7 @@ struct FilenameBuilder {
   Image::Channel channel;
   struct timespec time;
   const AWIPS* awips;
+  std::string filename;
 
   std::string build(const std::string& pattern) const;
 };

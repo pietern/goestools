@@ -102,6 +102,9 @@ std::string FilenameBuilder::build(const std::string& pattern) const {
   // %t: Date and time (ISO 8601)
   replace(out, "%t", toISO8601(time));
 
+  // Replace {filename}
+  replace(out, "{filename}", filename);
+
   // Replace {time:FORMAT}
   replace(out, time);
 
