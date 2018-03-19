@@ -35,7 +35,11 @@ size_t TransportPDU::read(const uint8_t* buf, size_t len) {
 }
 
 bool TransportPDU::verifyCRC() {
-  return (::assembler::crc(&data[0], length() - 2) == this->crc());
+  if (length() >= 2) {
+    return (::assembler::crc(&data[0], length() - 2) == this->crc());
+  } else {
+    return false;
+  }
 }
 
 } // namespace assembler
