@@ -14,7 +14,8 @@
 #include "handler_goes16.h"
 #include "handler_goesn.h"
 #include "handler_himawari8.h"
-#include "handler_nws.h"
+#include "handler_nws_image.h"
+#include "handler_nws_text.h"
 #include "options.h"
 
 #include "lrit_processor.h"
@@ -73,7 +74,14 @@ int main(int argc, char** argv) {
     } else if (handler.type == "dcs") {
       // TODO
     } else if (handler.type == "text") {
-      // TODO
+      if (handler.product == "nws") {
+        handlers.push_back(
+          std::unique_ptr<Handler>(
+            new NWSTextHandler(handler, fileWriter)));
+      } else {
+        std::cerr << "Invalid text handler product: " << handler.product << std::endl;
+        exit(1);
+      }
     } else {
       std::cerr << "Invalid handler type: " << handler.type << std::endl;
       exit(1);

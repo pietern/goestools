@@ -1,4 +1,4 @@
-#include "handler_nws.h"
+#include "handler_nws_image.h"
 
 #include <cassert>
 

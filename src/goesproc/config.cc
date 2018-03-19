@@ -106,7 +106,15 @@ bool loadHandlers(const toml::Value& v, Config& out) {
 
     auto filename = th->find("filename");
     if (filename) {
-      h.filename = filename->as<std::string>();
+      // To keep this readable, it can be specified as a list.
+      // The resulting value is the concatenation of elements.
+      if (filename->is<toml::Array>()) {
+        for (const auto& str : filename->as<std::vector<std::string>>()) {
+          h.filename += str;
+        }
+      } else {
+        h.filename = filename->as<std::string>();
+      }
     }
 
     // Sanity check

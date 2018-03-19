@@ -4,6 +4,8 @@
 
 #include <fstream>
 
+#include "lib/util.h"
+
 FileWriter::FileWriter() {
   force_ = false;
 }
@@ -34,6 +36,12 @@ void FileWriter::write(const std::string& path, const std::vector<char>& data) {
 
 bool FileWriter::tryWrite(const std::string& path) {
   struct stat st;
+
+  auto rpos = path.rfind('/');
+  if (rpos != std::string::npos) {
+    mkdirp(path.substr(0, rpos));
+  }
+
   auto rv = stat(path.c_str(), &st);
   if (rv < 0 && errno == ENOENT) {
     return true;
