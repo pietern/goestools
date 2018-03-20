@@ -3,6 +3,7 @@
 #include <regex>
 
 #include "filename.h"
+#include "string.h"
 
 NWSTextHandler::NWSTextHandler(
   const Config::Handler& config,
@@ -78,10 +79,11 @@ void NWSTextHandler::handle(std::shared_ptr<const lrit::File> f) {
   }
 
   FilenameBuilder fb;
+  fb.dir = config_.dir;
+  fb.filename = removeSuffix(f->getHeader<lrit::AnnotationHeader>().text);
   fb.time = time;
   fb.awips = &awips;
-  auto filename = fb.build(config_.filename);
-  auto path = config_.dir + "/" + filename + ".txt";
+  auto path = fb.build(config_.filename, "txt");
   fileWriter_->write(path, f->read());
 }
 

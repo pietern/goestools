@@ -90,8 +90,22 @@ std::string toISO8601(struct timespec ts) {
 
 } // namespace
 
-std::string FilenameBuilder::build(const std::string& pattern) const {
+std::string FilenameBuilder::build(
+    const std::string& pattern,
+    const std::string extension) const {
   std::string out = pattern;
+
+  // Prefix directory if set
+  if (!dir.empty()) {
+    out = dir + "/" + out;
+  } else {
+    out = "./" + out;
+  }
+
+  // Append extension if set
+  if (!extension.empty()) {
+    out = out + "." + extension;
+  }
 
   // %r: Region
   replace(out, "%r", region.nameShort);

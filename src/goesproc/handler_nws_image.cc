@@ -2,6 +2,7 @@
 
 #include "filename.h"
 #include "image.h"
+#include "string.h"
 
 NWSImageHandler::NWSImageHandler(
   const Config::Handler& config,
@@ -34,44 +35,31 @@ void NWSImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   }
 
   FilenameBuilder fb;
-  fb.time = time;
+  fb.dir = config_.dir;
   fb.filename = getBasename(*f);
-  auto filename = fb.build(config_.filename);
-  auto path = config_.dir + "/" + filename;
+  fb.time = time;
 
   // If this is a GIF we can write it directly
   if (nlh.noaaSpecificCompression == 5) {
-    fileWriter_->write(path + ".gif", f->read());
+    auto path = fb.build(config_.filename, "gif");
+    fileWriter_->write(path, f->read());
     return;
   }
 
   auto image = Image::createFromFile(f);
-  fileWriter_->write(path + "." + config_.format, image->getRawImage());
+  auto path = fb.build(config_.filename, config_.format);
+  fileWriter_->write(path, image->getRawImage());
   return;
 }
 
 std::string NWSImageHandler::getBasename(const lrit::File& f) const {
-  size_t pos;
+  auto str = removeSuffix(f.getHeader<lrit::AnnotationHeader>().text);
 
-  auto text = f.getHeader<lrit::AnnotationHeader>().text;
-
-  // Use annotation without the "dat327221257926.lrit" suffix
-  pos = text.find("dat");
+  // Use annotation without the "dat327221257926" suffix
+  auto pos = str.find("dat");
   if (pos != std::string::npos) {
-    text = text.substr(0, pos);
+    str = str.substr(0, pos);
   }
 
-  // Remove .lrit suffix
-  pos = text.find(".lrit");
-  if (pos != std::string::npos) {
-    text = text.substr(0, pos);
-  }
-
-  // Add time if available
-  if (f.hasHeader<lrit::TimeStampHeader>()) {
-    auto tsh = f.getHeader<lrit::TimeStampHeader>();
-    text += "_" + tsh.getTimeShort();
-  }
-
-  return text;
+  return str;
 }

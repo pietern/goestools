@@ -39,7 +39,13 @@ bool loadHandlers(const toml::Value& v, Config& out) {
     if (dir) {
       h.dir = dir->as<std::string>();
     } else {
-      h.dir = ".";
+      // Fall back on "directory"
+      dir = th->find("directory");
+      if (dir) {
+        h.dir = dir->as<std::string>();
+      } else {
+        h.dir = ".";
+      }
     }
 
     auto format = th->find("format");
