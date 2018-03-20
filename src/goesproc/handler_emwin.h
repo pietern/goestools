@@ -13,6 +13,10 @@ public:
   virtual void handle(std::shared_ptr<const lrit::File> f);
 
 protected:
+  bool extractTimeStamp(
+      const lrit::File& f,
+      struct timespec& ts) const;
+
   Config::Handler config_;
   std::shared_ptr<FileWriter> fileWriter_;
 };
