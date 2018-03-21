@@ -5,6 +5,7 @@
 
 #include "config.h"
 #include "file_writer.h"
+#include "filename.h"
 #include "handler.h"
 #include "image.h"
 
@@ -22,28 +23,26 @@ protected:
   // of that header.
   struct Details {
     struct timespec frameStart;
+    Region region;
+    Channel channel;
     std::string satellite;
     std::string instrument;
-    Image::Channel channel;
     std::string imagingMode;
-    Image::Region region;
     std::string resolution;
     bool segmented;
   };
 
   void handleImage(
-    const lrit::File& f,
+    const FilenameBuilder& fb,
     std::unique_ptr<Image> image,
     GOES16ImageHandler::Details details);
 
   void handleImageForFalseColor(
-    const lrit::File& f,
+    const FilenameBuilder& fb,
     std::unique_ptr<Image> image,
     GOES16ImageHandler::Details details);
 
   Details loadDetails(const lrit::File& f);
-
-  std::string getBasename(const lrit::File& f) const;
 
   Config::Handler config_;
   std::shared_ptr<FileWriter> fileWriter_;

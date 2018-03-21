@@ -117,6 +117,11 @@ std::string FilenameBuilder::build(
     const std::string extension) const {
   std::string out = pattern;
 
+  // Default pattern to passing through the original filename
+  if (out.empty()) {
+    out = "{filename}";
+  }
+
   // Prefix directory if set
   if (!dir.empty()) {
     out = dir + "/" + out;

@@ -4,6 +4,8 @@
 
 #include "lib/util.h"
 
+#include "string.h"
+
 GOES16ImageHandler::GOES16ImageHandler(
   const Config::Handler& config,
   const std::shared_ptr<FileWriter>& fileWriter)
@@ -13,9 +15,6 @@ GOES16ImageHandler::GOES16ImageHandler(
   for (auto& channel : config_.channels) {
     channel = toUpper(channel);
   }
-
-  // Ensure output directory exists
-  mkdirp(config_.dir);
 }
 
 void GOES16ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
@@ -47,10 +46,19 @@ void GOES16ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
     }
   }
 
+  // Prepare filename builder. It is done here so we don't need to
+  // pass the shared_ptr to lrit::File around.
+  FilenameBuilder fb;
+  fb.dir = config_.dir;
+  fb.filename = removeSuffix(f->getHeader<lrit::AnnotationHeader>().text);
+  fb.time = details.frameStart;
+  fb.region = &details.region;
+  fb.channel = &details.channel;
+
   // If this is not a segmented image we can post process immediately
   if (!details.segmented) {
     auto image = Image::createFromFile(f);
-    handleImage(*f, std::move(image), details);
+    handleImage(fb, std::move(image), details);
     return;
   }
 
@@ -64,7 +72,7 @@ void GOES16ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
 
     // Fill sides with black only for GOES-16
     image->fillSides();
-    handleImage(*f, std::move(image), details);
+    handleImage(fb, std::move(image), details);
 
     // Remove from handler cache
     map.erase(sih.imageIdentifier);
@@ -73,7 +81,7 @@ void GOES16ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
 }
 
 void GOES16ImageHandler::handleImage(
-    const lrit::File& f,
+    const FilenameBuilder& fb,
     std::unique_ptr<Image> image,
     GOES16ImageHandler::Details details) {
   // Remap image values if configured for this channel
@@ -85,16 +93,16 @@ void GOES16ImageHandler::handleImage(
   // If this handler is configured to produce false color images,
   // we may need to wait for the other channel to come along.
   if (config_.lut.data) {
-    handleImageForFalseColor(f, std::move(image), details);
+    handleImageForFalseColor(fb, std::move(image), details);
     return;
   }
 
-  auto path = config_.dir + "/" + getBasename(f) + "." + config_.format;
+  auto path = fb.build(config_.filename, config_.format);
   fileWriter_->write(path, image->getRawImage());
 }
 
 void GOES16ImageHandler::handleImageForFalseColor(
-    const lrit::File& f,
+    const FilenameBuilder& fb,
     std::unique_ptr<Image> i1,
     GOES16ImageHandler::Details d1) {
   auto i0 = std::move(std::get<0>(tmp_));
@@ -112,7 +120,7 @@ void GOES16ImageHandler::handleImageForFalseColor(
   }
 
   auto image = Image::generateFalseColor(std::move(i0), std::move(i1), config_.lut);
-  auto path = config_.dir + "/" + getBasename(f) + "." + config_.format;
+  auto path = fb.build(config_.filename, config_.format);
   fileWriter_->write(path, image->getRawImage());
 }
 
@@ -201,18 +209,4 @@ GOES16ImageHandler::Details GOES16ImageHandler::loadDetails(const lrit::File& f)
   }
 
   return details;
-}
-
-std::string GOES16ImageHandler::getBasename(const lrit::File& f) const {
-  size_t pos;
-
-  auto text = f.getHeader<lrit::AnnotationHeader>().text;
-
-  // Remove .lrit suffix
-  pos = text.find(".lrit");
-  if (pos != std::string::npos) {
-    text = text.substr(0, pos);
-  }
-
-  return text;
 }
