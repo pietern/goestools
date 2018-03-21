@@ -57,28 +57,23 @@ include_directories(BEFORE SYSTEM ${PROJECT_SOURCE_DIR}/vendor/libaec/src)
 include_directories(BEFORE SYSTEM ${PROJECT_SOURCE_DIR}/vendor/tinytoml/include)
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
-option(BUILD_GOESRECV "Build goesrecv" OFF)
-option(BUILD_GOESDEC "Build goesdec" ON)
-option(BUILD_GOESPROC "Build goesproc" ON)
-
 add_subdirectory(src/lib)
 add_subdirectory(src/lrit)
 add_subdirectory(src/dcs)
 add_subdirectory(src/decoder)
 add_subdirectory(src/assembler)
 
-# Only compile goesrecv if target is Raspberry Pi.
-# It includes unguarded ARM NEON code. Assume the variable that is
-# tested below is set in the Raspberry Pi specific toolchain.cmake.
-# Configure CMake with -DBUILD_GOESRECV=ON to compile.
+option(BUILD_GOESRECV "Build goesrecv" ON)
 if(${BUILD_GOESRECV})
   add_subdirectory(src/goesrecv)
 endif()
 
+option(BUILD_GOESLRIT "Build goeslrit" ON)
 if(${BUILD_GOESLRIT})
   add_subdirectory(src/goeslrit)
 endif()
 
+option(BUILD_GOESPROC "Build goesproc" ON)
 if(${BUILD_GOESPROC})
   add_subdirectory(src/goesproc)
 endif()
