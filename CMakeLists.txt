@@ -54,7 +54,6 @@ execute_process(COMMAND
 include_directories(BEFORE SYSTEM ${PROJECT_BINARY_DIR}/include)
 include_directories(BEFORE SYSTEM ${PROJECT_SOURCE_DIR}/vendor/libcorrect/include)
 include_directories(BEFORE SYSTEM ${PROJECT_SOURCE_DIR}/vendor/libaec/src)
-include_directories(BEFORE SYSTEM ${PROJECT_SOURCE_DIR}/vendor/libsimdpp)
 include_directories(BEFORE SYSTEM ${PROJECT_SOURCE_DIR}/vendor/tinytoml/include)
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
