@@ -5,6 +5,30 @@
 #include "lib/util.h"
 
 #include "filename.h"
+#include "string.h"
+
+namespace {
+
+// The "Time of frame start" pair in the ancillary header uses
+// the day of the year instead of year/month/day.
+// This is not used elsewhere so the parsing code can stay local.
+bool goesnParseTime(const std::string& in, struct timespec* ts) {
+  const char* buf = in.c_str();
+  struct tm tm;
+
+  // For example: 2018/079/00:00:18
+  char* pos = strptime(buf, "%Y/%j/%H:%M:%S", &tm);
+  if (pos < (buf + in.size())) {
+    return false;
+  }
+
+  auto t = mktime(&tm);
+  ts->tv_sec = t;
+  ts->tv_nsec = 0;
+  return true;
+}
+
+} // namespace
 
 GOESNImageHandler::GOESNImageHandler(
   const Config::Handler& config,
@@ -23,9 +47,6 @@ GOESNImageHandler::GOESNImageHandler(
   } else {
     assert(false);
   }
-
-  // Ensure output directory exists
-  mkdirp(config_.dir);
 }
 
 void GOESNImageHandler::handle(std::shared_ptr<const lrit::File> f) {
@@ -57,28 +78,28 @@ void GOESNImageHandler::handle(std::shared_ptr<const lrit::File> f) {
     }
   }
 
+  // Assume all images are segmented
   if (!f->hasHeader<lrit::SegmentIdentificationHeader>()) {
-    assert("TODO");
+    return;
   }
 
-  assert(f->hasHeader<lrit::SegmentIdentificationHeader>());
   auto sih = f->getHeader<lrit::SegmentIdentificationHeader>();
   auto& map = segments_[channel.nameShort];
   auto& vector = map[sih.imageIdentifier];
   vector.push_back(f);
   if (vector.size() == sih.maxSegment) {
+    const auto& first = vector.front();
     auto image = Image::createFromFiles(vector);
-    auto filename = getBasename(*f);
+    auto text = first->getHeader<lrit::AnnotationHeader>().text;
+    auto filename = removeSuffix(text);
+    auto details = loadDetails(*first);
 
-    if (!config_.filename.empty()) {
-      auto tsh = vector.front()->getHeader<lrit::TimeStampHeader>();
-
-      FilenameBuilder fb;
-      fb.region = region;
-      fb.channel = channel;
-      fb.time = tsh.getUnix();
-      filename = fb.build(config_.filename);
-    }
+    FilenameBuilder fb;
+    fb.dir = config_.dir;
+    fb.filename = filename;
+    fb.time = details.frameStart;
+    fb.region = &region;
+    fb.channel = &channel;
 
     cv::Mat raw;
     if (config_.crop.empty()) {
@@ -87,7 +108,7 @@ void GOESNImageHandler::handle(std::shared_ptr<const lrit::File> f) {
       raw = image->getScaledImage(config_.crop, false);
     }
 
-    auto path = config_.dir + "/" + filename + "." + config_.format;
+    auto path = fb.build(config_.filename, config_.format);
     fileWriter_->write(path, raw);
 
     // Remove from handler cache
@@ -96,22 +117,35 @@ void GOESNImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   }
 }
 
-std::string GOESNImageHandler::getBasename(const lrit::File& f) const {
-  size_t pos;
+GOESNImageHandler::Details GOESNImageHandler::loadDetails(
+    const lrit::File& f) {
+  GOESNImageHandler::Details details;
 
-  auto text = f.getHeader<lrit::AnnotationHeader>().text;
+  auto text = f.getHeader<lrit::AncillaryTextHeader>().text;
+  auto pairs = split(text, ';');
+  for (const auto& pair : pairs) {
+    auto elements = split(pair, '=');
+    assert(elements.size() == 2);
+    auto key = trimRight(elements[0]);
+    auto value = trimLeft(elements[1]);
 
-  // Remove .lrit suffix
-  pos = text.find(".lrit");
-  if (pos != std::string::npos) {
-    text = text.substr(0, pos);
+    if (key == "Time of frame start") {
+      auto ok = goesnParseTime(value, &details.frameStart);
+      assert(ok);
+      continue;
+    }
+
+    if (key == "Satellite") {
+      details.satellite = value;
+      continue;
+    }
   }
 
-  return text;
+  return details;
 }
 
-Image::Region GOESNImageHandler::loadRegion(const lrit::NOAALRITHeader& h) const {
-  Image::Region region;
+Region GOESNImageHandler::loadRegion(const lrit::NOAALRITHeader& h) const {
+  Region region;
   if (h.productSubID % 10 == 1) {
     region.nameShort = "FD";
     region.nameLong = "Full Disk";
@@ -136,8 +170,8 @@ Image::Region GOESNImageHandler::loadRegion(const lrit::NOAALRITHeader& h) const
   return region;
 }
 
-Image::Channel GOESNImageHandler::loadChannel(const lrit::NOAALRITHeader& h) const {
-  Image::Channel channel;
+Channel GOESNImageHandler::loadChannel(const lrit::NOAALRITHeader& h) const {
+  Channel channel;
   if (h.productSubID <= 10) {
     channel.nameShort = "IR";
     channel.nameLong = "Infrared";

@@ -7,10 +7,10 @@ struct FilenameBuilder {
   std::string dir;
   std::string filename;
 
-  Image::Region region;
-  Image::Channel channel;
   struct timespec time;
   const AWIPS* awips;
+  Region* region;
+  Channel* channel;
 
   std::string build(
     const std::string& pattern,

@@ -6,6 +6,7 @@
 #include "file_writer.h"
 #include "handler.h"
 #include "image.h"
+#include "types.h"
 
 // Handler for GOES-N series.
 // We can treat images from GOES-13 and GOES-15 equally.
@@ -18,9 +19,16 @@ public:
   virtual void handle(std::shared_ptr<const lrit::File> f);
 
 protected:
-  std::string getBasename(const lrit::File& f) const;
-  Image::Region loadRegion(const lrit::NOAALRITHeader& h) const;
-  Image::Channel loadChannel(const lrit::NOAALRITHeader& h) const;
+  // The GOES-N LRIT image files contain key/value pairs in the
+  // ancillary text header. A subset is represented in this struct.
+  struct Details {
+    struct timespec frameStart;
+    std::string satellite;
+  };
+
+  Details loadDetails(const lrit::File& f);
+  Region loadRegion(const lrit::NOAALRITHeader& h) const;
+  Channel loadChannel(const lrit::NOAALRITHeader& h) const;
 
   Config::Handler config_;
   std::shared_ptr<FileWriter> fileWriter_;

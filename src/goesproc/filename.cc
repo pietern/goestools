@@ -78,6 +78,28 @@ void replace(std::string& str, const struct timespec& ts) {
     });
 }
 
+void replace(std::string& str, const Region& region) {
+  replace(str, "region", [&] (const std::string& in) {
+      if (in == "short") {
+        return region.nameShort;
+      } else if (in == "long") {
+        return region.nameLong;
+      }
+      return std::string();
+    });
+}
+
+void replace(std::string& str, const Channel& channel) {
+  replace(str, "channel", [&] (const std::string& in) {
+      if (in == "short") {
+        return channel.nameShort;
+      } else if (in == "long") {
+        return channel.nameLong;
+      }
+      return std::string();
+    });
+}
+
 std::string toISO8601(struct timespec ts) {
   std::array<char, 128> tsbuf;
   auto len = strftime(
@@ -107,12 +129,6 @@ std::string FilenameBuilder::build(
     out = out + "." + extension;
   }
 
-  // %r: Region
-  replace(out, "%r", region.nameShort);
-
-  // %c: Channel
-  replace(out, "%c", channel.nameShort);
-
   // %t: Date and time (ISO 8601)
   replace(out, "%t", toISO8601(time));
 
@@ -125,6 +141,16 @@ std::string FilenameBuilder::build(
   // Replace {awips:XXX}, if available
   if (awips != nullptr) {
     replace(out, *awips);
+  }
+
+  // Replace {region:XXX}, if applicable
+  if (region != nullptr) {
+    replace(out, *region);
+  }
+
+  // Replace {channel:XXX}, if applicable
+  if (channel != nullptr) {
+    replace(out, *channel);
   }
 
   return out;
