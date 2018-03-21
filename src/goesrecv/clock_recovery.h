@@ -13,6 +13,9 @@ public:
     samplePublisher_ = std::move(samplePublisher);
   }
 
+  // See http://www.trondeau.com/blog/2011/8/13/control-loop-gain-values.html
+  void setLoopBandwidth(float bw);
+
   // Returns number of samples per symbol.
   float getOmega() const {
     return omega_;

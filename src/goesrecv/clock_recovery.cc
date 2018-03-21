@@ -141,15 +141,13 @@ static const float mmseTaps[NUM_STEPS+1][NUM_TAPS] = {
 };
 
 ClockRecovery::ClockRecovery(uint32_t sampleRate, uint32_t symbolRate) {
+  mu_ = 0.0f;
   omega_ = ((float) sampleRate / (float) symbolRate);
-  omegaGain_ = 1e-6f;
+  setLoopBandwidth(1e-3f);
 
   // Allow 1% deviation from expected omega.
   omegaMin_ = omega_ - 0.01 * omega_;
   omegaMax_ = omega_ + 0.01 * omega_;
-
-  mu_ = 0.5f;
-  muGain_ = 1e-4f;
 
   p0t_ = 0.0f;
   p1t_ = 0.0f;
@@ -157,6 +155,12 @@ ClockRecovery::ClockRecovery(uint32_t sampleRate, uint32_t symbolRate) {
   c0t_ = 0.0f;
   c1t_ = 0.0f;
   c2t_ = 0.0f;
+}
+
+void ClockRecovery::setLoopBandwidth(float bw) {
+  const auto damp = sqrtf(2.0f) / 2.0f;
+  muGain_ = (4 * damp * bw) / (1.0 + 2.0 * damp * bw + bw * bw);
+  omegaGain_ = (4 * bw * bw) / (1.0 + 2.0 * damp * bw + bw * bw);
 }
 
 void ClockRecovery::work(
@@ -180,81 +184,74 @@ void ClockRecovery::work(
   output->clear();
   output->reserve(nsamples / omega_);
 
-  // Process 4 samples per iteration
-  // This allows vectorization where needed
+  // Process 1 sample per iteration.
+  // This does not allow vectorization but is more stable than the
+  // vectorized implementation (see git history of this file).
+  // It is roughly 15% slower than previous implementation.
   size_t i = 0;
   while (i < nsamples) {
-    float muf[4];
-    int mui[4];
-    const std::complex<float>* s[4];
+    float muf;
+    int mui;
+    const std::complex<float>* s;
 
-    // Populate phase and sample pointer for the next 4 samples
-    for (auto j = 0; j < 4; j++) {
-      muf[j] = mu_ + j * omega_;
-      mui[j] = (int) muf[j];
-      s[j] = &tmp_[i + mui[j]];
-    }
+    // Populate phase and sample pointer
+    muf = (float) mu_;
+    mui = (int) mu_;
+    s = &tmp_[i + mui];
 
     // Check that we don't go out of range
-    if ((i + mui[3] + 7) >= nsamples) {
+    if ((i + mui + 7) >= nsamples) {
       break;
     }
 
-    // In range, update index and phase
-    i += mui[3];
-    mu_ -= mui[3];
+    // In range; update sample index and phase
+    i += mui;
+    mu_ -= mui;
 
-    // Normalize mu to [0.0, 1.0)
-    for (auto j = 0; j < 4; j++) {
-      muf[j] = muf[j] - (float) mui[j];
-    }
+    // Normalize mu to [0.0, 1.0) so we can use it to
+    // choose the right interpolation filter.
+    muf = muf - (float) mui;
 
     // Run interpolator to get interpolated samples at offset mu
-    std::complex<float> acc[4];
-    for (auto j = 0; j < 4; j++) {
-      const auto taps = mmseTaps[(int) (muf[j] * 128.0f)];
-      acc[j] = 0.0f;
-      for (auto k = 0; k < NUM_TAPS; k++) {
-        acc[j] += taps[k] * s[j][k];
-      }
+    std::complex<float> acc = 0.0f;
+    const auto taps = mmseTaps[(int) (muf * 128.0f)];
+    for (auto k = 0; k < NUM_TAPS; k++) {
+      acc += taps[k] * s[k];
     }
 
-    // Keep track of sum of errors
-    float tmm = 0.0f;
+    // Push down sample
+    p2t_ = p1t_;
+    p1t_ = p0t_;
+    p0t_ = acc;
 
-    for (auto j = 0; j < 4; j++) {
-      p2t_ = p1t_;
-      p1t_ = p0t_;
-      p0t_ = acc[j];
+    // Push down associated complex quadrant
+    c2t_ = c1t_;
+    c1t_ = c0t_;
+    c0t_.real((p0t_.real() > 0.0f ? 1.0f : 0.0f));
+    c0t_.imag((p0t_.imag() > 0.0f ? 1.0f : 0.0f));
 
-      c2t_ = c1t_;
-      c1t_ = c0t_;
-      c0t_.real((p0t_.real() > 0.0f ? 1.0f : 0.0f));
-      c0t_.imag((p0t_.imag() > 0.0f ? 1.0f : 0.0f));
+    // Use interpolated sample as output
+    // Then use the estimated error to update omega_ and mu_
+    output->push_back(p0t_);
 
-      // Use interpolated sample as output
-      // Then use the estimated error to update omega_ and mu_
-      output->push_back(p0t_);
+    // Compute error
+    std::complex<float> x = (c0t_ - c2t_) * std::conj(p1t_);
+    std::complex<float> y = (p0t_ - p2t_) * std::conj(c1t_);
+    std::complex<float> u = y - x;
 
-      std::complex<float> x = (c0t_ - c2t_) * std::conj(p1t_);
-      std::complex<float> y = (p0t_ - p2t_) * std::conj(c1t_);
-      std::complex<float> u = y - x;
-
-      // Clip to [-1.0, 1.0] and accumulate
-      float mm = u.real();
-      mm = 0.5f * (fabsf(mm + 1.0f) - fabsf(mm - 1.0f));
-      tmm += mm;
-    }
+    // Clip error to [-1.0, 1.0]
+    float mm = u.real();
+    mm = 0.5f * (fabsf(mm + 1.0f) - fabsf(mm - 1.0f));
 
     // Update and clip omega
-    omega_ += omegaGain_ * (tmm / 4.0f);
+    omega_ += omegaGain_ * mm;
     omega_ = std::min(omega_, omegaMax_);
     omega_ = std::max(omega_, omegaMin_);
 
     // Update mu with new omega
     // It is OK if this is bigger than 1.0 because that means
     // we need to skip a few samples in the next iteration.
-    mu_ += (4.0f * omega_) + muGain_ * (tmm / 4.0f);
+    mu_ += omega_ + muGain_ * mm;
   }
 
   // Index i was not used yet. Copy the sample at index i and
