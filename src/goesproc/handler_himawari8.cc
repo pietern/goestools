@@ -4,6 +4,9 @@
 
 #include "lib/util.h"
 
+#include "filename.h"
+#include "string.h"
+
 Himawari8ImageHandler::Himawari8ImageHandler(
   const Config::Handler& config,
   const std::shared_ptr<FileWriter>& fileWriter)
@@ -13,9 +16,6 @@ Himawari8ImageHandler::Himawari8ImageHandler(
   for (auto& channel : config_.channels) {
     channel = toUpper(channel);
   }
-
-  // Ensure output directory exists
-  mkdirp(config_.dir);
 }
 
 void Himawari8ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
@@ -39,12 +39,13 @@ void Himawari8ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   }
 
   // Expect only full disk images
-  Image::Region region;
+  Region region;
   assert(nlh.productSubID % 2 == 1);
   region.nameShort = "FD";
   region.nameLong = "Full Disk";
 
-  Image::Channel channel;
+  // Extract channel information
+  Channel channel;
   if (nlh.productSubID == 1) {
     channel.nameShort = "VS";
     channel.nameLong = "Visible";
@@ -55,17 +56,23 @@ void Himawari8ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
     channel.nameShort = "WV";
     channel.nameLong = "Water Vapor";
   } else {
-    assert(false);
+    return;
   }
 
-  assert(f->hasHeader<lrit::SegmentIdentificationHeader>());
   auto sih = f->getHeader<lrit::SegmentIdentificationHeader>();
   auto imageIdentifier = getBasename(*f);
   auto& vector = segments_[imageIdentifier];
   vector.push_back(f);
   if (vector.size() == sih.maxSegment) {
+    FilenameBuilder fb;
+    fb.dir = config_.dir;
+    fb.filename = getBasename(*f);
+    fb.time = getTime(*f);
+    fb.region = &region;
+    fb.channel = &channel;
+
+    auto path = fb.build(config_.filename, config_.format);
     auto image = Image::createFromFiles(vector);
-    auto path = config_.dir + "/" + imageIdentifier + "." + config_.format;
     fileWriter_->write(path, image->getRawImage());
 
     // Remove from handler cache
@@ -83,4 +90,31 @@ std::string Himawari8ImageHandler::getBasename(const lrit::File& f) const {
   auto pos = findLast(text, '_');
   assert(pos != std::string::npos);
   return text.substr(0, pos);
+}
+
+struct timespec Himawari8ImageHandler::getTime(const lrit::File& f) const {
+  struct timespec time = {0, 0};
+
+  // Time of Himawari images is encoded in filename.
+  // The LRIT time stamp header is bogus.
+  // Example annotation: IMG_DK01VIS_201712162250_003.lrit
+  auto text = f.getHeader<lrit::AnnotationHeader>().text;
+  auto parts = split(text, '_');
+  if (parts.size() != 4) {
+    return time;
+  }
+
+  const char* buf = parts[2].c_str();
+  const char* format = "%Y%m%d%H%M";
+  struct tm tm;
+  memset(&tm, 0, sizeof(tm));
+  auto ptr = strptime(buf, format, &tm);
+
+  // Only use time if strptime was successful
+  if (ptr == (buf + 12)) {
+    time.tv_sec = mktime(&tm);
+    time.tv_nsec = 0;
+  }
+
+  return time;
 }

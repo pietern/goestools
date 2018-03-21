@@ -17,6 +17,7 @@ public:
 
 protected:
   std::string getBasename(const lrit::File& f) const;
+  struct timespec getTime(const lrit::File& f) const;
 
   Config::Handler config_;
   std::shared_ptr<FileWriter> fileWriter_;
