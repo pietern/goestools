@@ -11,16 +11,6 @@
 
 class Image {
 public:
-  struct Region {
-    std::string nameShort;
-    std::string nameLong;
-  };
-
-  struct Channel {
-    std::string nameShort;
-    std::string nameLong;
-  };
-
   static std::unique_ptr<Image> createFromFile(
     std::shared_ptr<const lrit::File> f);
 
