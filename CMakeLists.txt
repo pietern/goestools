@@ -30,16 +30,16 @@ if(${CMAKE_BUILD_TYPE} EQUAL "Release")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 endif()
 
-add_subdirectory(vendor/libcorrect)
-add_subdirectory(vendor/libaec)
-add_subdirectory(vendor/json11)
+add_subdirectory(vendor/libcorrect EXCLUDE_FROM_ALL)
+add_subdirectory(vendor/libaec EXCLUDE_FROM_ALL)
+add_subdirectory(vendor/json11 EXCLUDE_FROM_ALL)
 
 # Build nanomsg
 option(NN_STATIC_LIB "Build nanomsg as static library." ON)
 option(NN_ENABLE_DOC "Build nanomsg documentation." OFF)
 option(NN_TESTS "Build nanomsg tests" OFF)
 option(NN_TOOLS "Build nanomsg tools" OFF)
-add_subdirectory(vendor/nanomsg)
+add_subdirectory(vendor/nanomsg EXCLUDE_FROM_ALL)
 
 # Symlink vendor/nanomsg/src such that we can still use the "nanomsg"
 # include path and not conflict with system includes (e.g. protocol.h).
