@@ -33,12 +33,12 @@ protected:
   };
 
   void handleImage(
-    const FilenameBuilder& fb,
+    FilenameBuilder& fb,
     std::unique_ptr<Image> image,
     GOES16ImageHandler::Details details);
 
   void handleImageForFalseColor(
-    const FilenameBuilder& fb,
+    FilenameBuilder& fb,
     std::unique_ptr<Image> image,
     GOES16ImageHandler::Details details);
 

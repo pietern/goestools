@@ -24,6 +24,17 @@ std::vector<std::string> split(std::string in, char delim) {
   return items;
 }
 
+std::string join(const std::vector<std::string>& in, char delim) {
+  std::stringstream ss;
+  for (size_t i = 0; i < in.size(); i++) {
+    if (i > 0) {
+      ss << delim;
+    }
+    ss << in[i];
+  }
+  return ss.str();
+}
+
 std::string trimLeft(const std::string& in) {
   return in.substr(in.find_first_not_of(whitespace));
 }

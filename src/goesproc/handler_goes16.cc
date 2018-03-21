@@ -81,7 +81,7 @@ void GOES16ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
 }
 
 void GOES16ImageHandler::handleImage(
-    const FilenameBuilder& fb,
+    FilenameBuilder& fb,
     std::unique_ptr<Image> image,
     GOES16ImageHandler::Details details) {
   // Remap image values if configured for this channel
@@ -102,7 +102,7 @@ void GOES16ImageHandler::handleImage(
 }
 
 void GOES16ImageHandler::handleImageForFalseColor(
-    const FilenameBuilder& fb,
+    FilenameBuilder& fb,
     std::unique_ptr<Image> i1,
     GOES16ImageHandler::Details d1) {
   auto i0 = std::move(std::get<0>(tmp_));
@@ -118,6 +118,27 @@ void GOES16ImageHandler::handleImageForFalseColor(
   if (d0.channel.nameShort != config_.channels.front()) {
     i0.swap(i1);
   }
+
+  // Update filename in filename builder to reflect that this is a
+  // synthesized image. It would be misleading to use the filename of
+  // either one of the input files.
+  //
+  // For example: in OR_ABI-L2-CMIPF-M3C13_G16_[...] the C13 is
+  // replaced by CFC.
+  //
+  auto parts = split(fb.filename, '_');
+  auto pos = parts[1].rfind('C');
+  assert(pos != std::string::npos);
+  parts[1] = parts[1].substr(0, pos) + "CFC";
+  fb.filename = join(parts, '_');
+
+  // Replace channel field in filename builder.
+  // The incoming filename builder will have the channel set to one of
+  // the two channels used for this false color image.
+  Channel channel;
+  channel.nameShort = "FC";
+  channel.nameLong = "False Color";
+  fb.channel = &channel;
 
   auto image = Image::generateFalseColor(i0, i1, config_.lut);
   auto path = fb.build(config_.filename, config_.format);
