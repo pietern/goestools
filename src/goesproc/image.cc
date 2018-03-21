@@ -111,8 +111,8 @@ std::unique_ptr<Image> Image::createFromFiles(
 }
 
 std::unique_ptr<Image> Image::generateFalseColor(
-    std::unique_ptr<Image> i0,
-    std::unique_ptr<Image> i1,
+    const std::unique_ptr<Image>& i0,
+    const std::unique_ptr<Image>& i1,
     cv::Mat lut) {
   auto img0 = i0->getRawImage();
   auto img1 = i1->getRawImage();

@@ -119,7 +119,7 @@ void GOES16ImageHandler::handleImageForFalseColor(
     i0.swap(i1);
   }
 
-  auto image = Image::generateFalseColor(std::move(i0), std::move(i1), config_.lut);
+  auto image = Image::generateFalseColor(i0, i1, config_.lut);
   auto path = fb.build(config_.filename, config_.format);
   fileWriter_->write(path, image->getRawImage());
 }
