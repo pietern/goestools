@@ -21,6 +21,7 @@ System dependencies:
 * CMake
 * C++14 compiler
 * OpenCV 2 (for image processing in goesproc)
+* zlib (for EMWIN decompression)
 
 Bundled dependencies:
 
