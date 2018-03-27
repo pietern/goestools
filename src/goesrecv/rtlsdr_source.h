@@ -8,10 +8,9 @@
 
 #include <rtl-sdr.h>
 
-#include "sample_publisher.h"
-#include "types.h"
+#include "source.h"
 
-class RTLSDR {
+class RTLSDR : public Source {
 public:
   static std::unique_ptr<RTLSDR> open(uint32_t index = 0);
 
@@ -22,16 +21,22 @@ public:
     return tunerGains_;
   }
 
-  void setCenterFrequency(uint32_t freq);
+  virtual void setFrequency(uint32_t freq) override;
+
   void setSampleRate(uint32_t rate);
+
+  virtual uint32_t getSampleRate() const override;
+
   void setTunerGain(int gain);
 
   void setSamplePublisher(std::unique_ptr<SamplePublisher> samplePublisher) {
     samplePublisher_ = std::move(samplePublisher);
   }
 
-  void start(const std::shared_ptr<Queue<Samples> >& queue);
-  void stop();
+  virtual void start(const std::shared_ptr<Queue<Samples> >& queue) override;
+
+  virtual void stop() override;
+
   void handle(unsigned char* buf, uint32_t len);
 
 protected:

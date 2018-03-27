@@ -1,15 +1,15 @@
 #pragma once
 
+#include <thread>
+
 #include "agc.h"
-#include "airspy_source.h"
 #include "clock_recovery.h"
 #include "config.h"
 #include "costas.h"
-#include "nanomsg_source.h"
 #include "publisher.h"
 #include "quantize.h"
 #include "rrc.h"
-#include "rtlsdr_source.h"
+#include "source.h"
 #include "stats_publisher.h"
 #include "types.h"
 
@@ -38,13 +38,9 @@ protected:
   uint32_t symbolRate_;
   uint32_t sampleRate_;
 
+  std::unique_ptr<Source> source_;
   std::unique_ptr<StatsPublisher> statsPublisher_;
   std::thread thread_;
-
-  // Sources (only one is used)
-  std::unique_ptr<Airspy> airspy_;
-  std::unique_ptr<RTLSDR> rtlsdr_;
-  std::unique_ptr<Nanomsg> nanomsg_;
 
   // DSP blocks
   std::unique_ptr<AGC> agc_;

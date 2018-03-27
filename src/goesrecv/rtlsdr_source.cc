@@ -41,7 +41,7 @@ RTLSDR::~RTLSDR() {
   }
 }
 
-void RTLSDR::setCenterFrequency(uint32_t freq) {
+void RTLSDR::setFrequency(uint32_t freq) {
   assert(dev_ != nullptr);
   auto rv = rtlsdr_set_center_freq(dev_, freq);
   assert(rv >= 0);
@@ -51,6 +51,11 @@ void RTLSDR::setSampleRate(uint32_t rate) {
   assert(dev_ != nullptr);
   auto rv = rtlsdr_set_sample_rate(dev_, rate);
   assert(rv >= 0);
+}
+
+uint32_t RTLSDR::getSampleRate() const {
+  assert(dev_ != nullptr);
+  return rtlsdr_get_sample_rate(dev_);
 }
 
 void RTLSDR::setTunerGain(int db) {

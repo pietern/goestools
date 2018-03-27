@@ -32,28 +32,9 @@ Demodulator::Demodulator(Demodulator::Type t) {
 }
 
 void Demodulator::initialize(Config& config) {
-  const auto& source = config.demodulator.source;
-  if (source == "airspy") {
-    sampleRate_ = 3000000;
-    airspy_ = Airspy::open();
-    airspy_->setCenterFrequency(freq_);
-    airspy_->setSampleRate(sampleRate_);
-    airspy_->setGain(18);
-    airspy_->setSamplePublisher(std::move(config.source.samplePublisher));
-  } else if (source == "rtlsdr") {
-    sampleRate_ = 2400000;
-    rtlsdr_ = RTLSDR::open();
-    rtlsdr_->setCenterFrequency(freq_);
-    rtlsdr_->setSampleRate(sampleRate_);
-    rtlsdr_->setTunerGain(30);
-    rtlsdr_->setSamplePublisher(std::move(config.source.samplePublisher));
-  } else if (source == "nanomsg") {
-    sampleRate_ = config.nanomsg.sampleRate;
-    nanomsg_ = Nanomsg::open(config);
-    nanomsg_->setSamplePublisher(std::move(config.source.samplePublisher));
-  } else {
-    assert(false);
-  }
+  source_ = Source::build(config.demodulator.source, config);
+  source_->setFrequency(freq_);
+  sampleRate_ = source_->getSampleRate();
 
   statsPublisher_ = StatsPublisher::create(config.demodulator.statsPublisher.bind);
   if (config.demodulator.statsPublisher.sendBuffer > 0) {
@@ -123,28 +104,10 @@ void Demodulator::start() {
       softBitsQueue_->close();
     });
   pthread_setname_np(thread_.native_handle(), "demodulator");
-
-  if (airspy_) {
-    airspy_->start(sourceQueue_);
-  }
-  if (rtlsdr_) {
-    rtlsdr_->start(sourceQueue_);
-  }
-  if (nanomsg_) {
-    nanomsg_->start(sourceQueue_);
-  }
+  source_->start(sourceQueue_);
 }
 
 void Demodulator::stop() {
-  if (airspy_) {
-    airspy_->stop();
-  }
-  if (rtlsdr_) {
-    rtlsdr_->stop();
-  }
-  if (nanomsg_) {
-    nanomsg_->stop();
-  }
-
+  source_->stop();
   thread_.join();
 }

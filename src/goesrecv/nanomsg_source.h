@@ -4,11 +4,9 @@
 #include <thread>
 #include <vector>
 
-#include "config.h"
-#include "sample_publisher.h"
-#include "types.h"
+#include "source.h"
 
-class Nanomsg {
+class Nanomsg : public Source {
 public:
   static std::unique_ptr<Nanomsg> open(const Config& config);
 
@@ -19,14 +17,24 @@ public:
     samplePublisher_ = std::move(samplePublisher);
   }
 
-  void start(const std::shared_ptr<Queue<Samples> >& queue);
-  void stop();
+  virtual void setFrequency(uint32_t freq) override;
+
+  void setSampleRate(uint32_t rate);
+
+  virtual uint32_t getSampleRate() const override;
+
+  virtual void start(const std::shared_ptr<Queue<Samples> >& queue) override;
+
+  virtual void stop() override;
 
 protected:
   void loop();
 
   int fd_;
   std::thread thread_;
+
+  // Not used by this source but part of base class interface
+  uint32_t sampleRate_;
 
   // Set on start; cleared on stop
   std::shared_ptr<Queue<Samples> > queue_;

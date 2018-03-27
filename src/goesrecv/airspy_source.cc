@@ -49,7 +49,7 @@ std::vector<uint32_t> Airspy::loadSampleRates() {
   return rates;
 }
 
-void Airspy::setCenterFrequency(uint32_t freq) {
+void Airspy::setFrequency(uint32_t freq) {
   assert(dev_ != nullptr);
   auto rv = airspy_set_freq(dev_, freq);
   assert(rv >= 0);
@@ -59,6 +59,11 @@ void Airspy::setSampleRate(uint32_t rate) {
   assert(dev_ != nullptr);
   auto rv = airspy_set_samplerate(dev_, rate);
   assert(rv >= 0);
+  sampleRate_ = rate;
+}
+
+uint32_t Airspy::getSampleRate() const {
+  return sampleRate_;
 }
 
 void Airspy::setGain(int gain) {

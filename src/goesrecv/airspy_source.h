@@ -8,10 +8,9 @@
 
 #include <libairspy/airspy.h>
 
-#include "sample_publisher.h"
-#include "types.h"
+#include "source.h"
 
-class Airspy {
+class Airspy : public Source {
 public:
   static std::unique_ptr<Airspy> open(uint32_t index = 0);
 
@@ -22,16 +21,22 @@ public:
     return sampleRates_;
   }
 
-  void setCenterFrequency(uint32_t freq);
+  virtual void setFrequency(uint32_t freq) override;
+
   void setSampleRate(uint32_t rate);
+
+  virtual uint32_t getSampleRate() const override;
+
   void setGain(int gain);
 
   void setSamplePublisher(std::unique_ptr<SamplePublisher> samplePublisher) {
     samplePublisher_ = std::move(samplePublisher);
   }
 
-  void start(const std::shared_ptr<Queue<Samples> >& queue);
-  void stop();
+  virtual void start(const std::shared_ptr<Queue<Samples> >& queue) override;
+
+  virtual void stop() override;
+
   void handle(const airspy_transfer* transfer);
 
 protected:
@@ -39,6 +44,7 @@ protected:
 
   std::vector<uint32_t> loadSampleRates();
   std::vector<uint32_t> sampleRates_;
+  std::uint32_t sampleRate_;
 
   // Background RX thread
   std::thread thread_;
