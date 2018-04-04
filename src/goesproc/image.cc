@@ -64,7 +64,6 @@ std::unique_ptr<Image> Image::createFromFiles(
     auto& f = fs[i];
     auto is = f->getHeader<lrit::ImageStructureHeader>();
     auto in = f->getHeader<lrit::ImageNavigationHeader>();
-    auto si = f->getHeader<lrit::SegmentIdentificationHeader>();
 
     // Compute relative area for this segment
     Area tmp;
@@ -73,11 +72,10 @@ std::unique_ptr<Image> Image::createFromFiles(
     tmp.minLine = -in.lineOffset;
     tmp.maxLine = -in.lineOffset + is.lines;
 
-    // For Himawari-8, the offset accounting is done differently
+    // For Himawari-8, the line offset is an int32_t and can be negative
     if (nl.productID == 43) {
-      auto lineOffset = -in.lineOffset + si.segmentStartLine;
-      tmp.minLine = lineOffset;
-      tmp.maxLine = lineOffset + is.lines;
+      tmp.minLine = -(int32_t)in.lineOffset;
+      tmp.maxLine = -(int32_t)in.lineOffset + is.lines;
     }
 
     // Update
