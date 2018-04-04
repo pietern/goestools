@@ -4,7 +4,6 @@
 
 std::unique_ptr<Image> Image::createFromFile(
     std::shared_ptr<const lrit::File> f) {
-  auto ph = f->getHeader<lrit::PrimaryHeader>();
   auto ish = f->getHeader<lrit::ImageStructureHeader>();
   auto ifs = f->getData();
   cv::Mat raw(ish.lines, ish.columns, CV_8UC1);
