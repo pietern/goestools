@@ -23,9 +23,20 @@ find_package(Sanitizers)
 # Force static build of libaec
 set(BUILD_SHARED_LIBS OFF)
 
+# Set a default build type if none was specified
+set(default_build_type "RelWithDebInfo")
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Defaulting build type to '${default_build_type}'")
+  set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
+    STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+    "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -pedantic -Wall")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pedantic -Wall")
-if(${CMAKE_BUILD_TYPE} EQUAL "Release")
+if("${CMAKE_BUILD_TYPE}" EQUAL "Release")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 endif()
