@@ -25,8 +25,8 @@ bool filter(const Options& opts, std::unique_ptr<assembler::SessionPDU>& spdu) {
     return !opts.messages;
   }
   if (ph.fileType == 2) {
-    // This may be an EMWIN file (Product ID 9)
-    if (nlh.productID == 9) {
+    // This may be an EMWIN file.
+    if (nlh.productID == 6 || nlh.productID == 9) {
       return !opts.emwin;
     }
     return !opts.text;
