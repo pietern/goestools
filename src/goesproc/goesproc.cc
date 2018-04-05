@@ -16,6 +16,7 @@
 #include "handler_himawari8.h"
 #include "handler_nws_image.h"
 #include "handler_nws_text.h"
+#include "handler_text.h"
 #include "options.h"
 
 #include "lrit_processor.h"
@@ -78,6 +79,10 @@ int main(int argc, char** argv) {
         handlers.push_back(
           std::unique_ptr<Handler>(
             new NWSTextHandler(handler, fileWriter)));
+      } else if (handler.product == "other") {
+          handlers.push_back(
+            std::unique_ptr<Handler>(
+              new TextHandler(handler, fileWriter)));
       } else {
         std::cerr << "Invalid text handler product: " << handler.product << std::endl;
         exit(1);
