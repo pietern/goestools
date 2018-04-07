@@ -10,7 +10,6 @@ std::unique_ptr<Image> Image::createFromFile(
   if (ish.bitsPerPixel == 1) {
     // Number of pixels
     unsigned long n = (raw.size().width * raw.size().height);
-    assert(ph.dataLength == n);
 
     // Read everything in one shot
     // Round up to nearest multiple of 8 because we're reading bytes
