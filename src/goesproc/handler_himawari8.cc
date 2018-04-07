@@ -12,7 +12,9 @@ Himawari8ImageHandler::Himawari8ImageHandler(
   const std::shared_ptr<FileWriter>& fileWriter)
   : config_(config),
     fileWriter_(fileWriter) {
-  config_.region = toUpper(config_.region);
+  for (auto& region : config_.regions) {
+    region = toUpper(region);
+  }
   for (auto& channel : config_.channels) {
     channel = toUpper(channel);
   }
@@ -59,11 +61,28 @@ void Himawari8ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
     return;
   }
 
+  // Assume all images are segmented
+  if (!f->hasHeader<lrit::SegmentIdentificationHeader>()) {
+    return;
+  }
+
   auto sih = f->getHeader<lrit::SegmentIdentificationHeader>();
-  auto imageIdentifier = getBasename(*f);
-  auto& vector = segments_[imageIdentifier];
+  auto key = std::make_pair(region.nameShort, channel.nameShort);
+  auto& vector = segments_[key];
+
+  // Ensure we can append this segment
+  if (!vector.empty()) {
+    const auto& t = vector.front();
+    if (getBasename(*t) != getBasename(*f)) {
+      vector.clear();
+    }
+  }
+
   vector.push_back(f);
   if (vector.size() == sih.maxSegment) {
+    auto image = Image::createFromFiles(vector);
+    vector.clear();
+
     FilenameBuilder fb;
     fb.dir = config_.dir;
     fb.filename = getBasename(*f);
@@ -72,11 +91,7 @@ void Himawari8ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
     fb.channel = &channel;
 
     auto path = fb.build(config_.filename, config_.format);
-    auto image = Image::createFromFiles(vector);
     fileWriter_->write(path, image->getRawImage());
-
-    // Remove from handler cache
-    segments_.erase(imageIdentifier);
     return;
   }
 }

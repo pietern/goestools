@@ -17,7 +17,7 @@ struct Config {
     std::string product;
 
     // "fd", "m1", "m2", "nh", "us", ...
-    std::string region;
+    std::vector<std::string> regions;
 
     // "vs", "ir", "wv", "ch01", ...
     std::vector<std::string> channels;

@@ -6,6 +6,7 @@
 #include "file_writer.h"
 #include "handler.h"
 #include "image.h"
+#include "types.h"
 
 class Himawari8ImageHandler : public Handler {
 public:
@@ -24,6 +25,11 @@ protected:
 
   using SegmentVector = std::vector<std::shared_ptr<const lrit::File>>;
 
-  // Maintain a map of image identifier to list of segments.
-  std::unordered_map<std::string, SegmentVector> segments_;
+  // Maintain a map of region and channel to list of segments.
+  // This assumes that two images for the same region and channel are
+  // never sent concurrently, but always in order.
+  std::unordered_map<
+    SegmentKey,
+    SegmentVector,
+    SegmentKeyHash> segments_;
 };

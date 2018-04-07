@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tuple>
 #include <unordered_map>
 
 #include "config.h"
@@ -35,10 +36,12 @@ protected:
   uint16_t productID_;
 
   using SegmentVector = std::vector<std::shared_ptr<const lrit::File>>;
-  using SegmentsMap = std::map<uint16_t, SegmentVector>;
 
-  // Maintain a map of channel to image identifier to list of segments.
-  // Mapping by channel (and assuming the feed always sends images
-  // for a single region sequentially), means we can detect missing segments.
-  std::unordered_map<std::string, SegmentsMap> segments_;
+  // Maintain a map of region and channel to list of segments.
+  // This assumes that two images for the same region and channel are
+  // never sent concurrently, but always in order.
+  std::unordered_map<
+    SegmentKey,
+    SegmentVector,
+    SegmentKeyHash> segments_;
 };

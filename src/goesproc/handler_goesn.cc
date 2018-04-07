@@ -35,7 +35,9 @@ GOESNImageHandler::GOESNImageHandler(
   const std::shared_ptr<FileWriter>& fileWriter)
   : config_(config),
     fileWriter_(fileWriter) {
-  config_.region = toUpper(config_.region);
+  for (auto& region : config_.regions) {
+    region = toUpper(region);
+  }
   for (auto& channel : config_.channels) {
     channel = toUpper(channel);
   }
@@ -63,8 +65,13 @@ void GOESNImageHandler::handle(std::shared_ptr<const lrit::File> f) {
 
   // Filter by region
   auto region = loadRegion(nlh);
-  if (config_.region != region.nameShort) {
-    return;
+  if (!config_.regions.empty()) {
+    auto begin = std::begin(config_.regions);
+    auto end = std::end(config_.regions);
+    auto it = std::find(begin, end, region.nameShort);
+    if (it == end) {
+      return;
+    }
   }
 
   // Filter by channel
@@ -84,12 +91,24 @@ void GOESNImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   }
 
   auto sih = f->getHeader<lrit::SegmentIdentificationHeader>();
-  auto& map = segments_[channel.nameShort];
-  auto& vector = map[sih.imageIdentifier];
+  auto key = std::make_pair(region.nameShort, channel.nameShort);
+  auto& vector = segments_[key];
+
+  // Ensure we can append this segment
+  if (!vector.empty()) {
+    const auto& t = vector.front();
+    auto tsih = t->getHeader<lrit::SegmentIdentificationHeader>();
+    if (tsih.imageIdentifier != sih.imageIdentifier) {
+      vector.clear();
+    }
+  }
+
   vector.push_back(f);
   if (vector.size() == sih.maxSegment) {
-    const auto& first = vector.front();
+    auto first = vector.front();
     auto image = Image::createFromFiles(vector);
+    vector.clear();
+
     auto text = first->getHeader<lrit::AnnotationHeader>().text;
     auto filename = removeSuffix(text);
     auto details = loadDetails(*first);
@@ -110,9 +129,6 @@ void GOESNImageHandler::handle(std::shared_ptr<const lrit::File> f) {
 
     auto path = fb.build(config_.filename, config_.format);
     fileWriter_->write(path, raw);
-
-    // Remove from handler cache
-    map.erase(sih.imageIdentifier);
     return;
   }
 }

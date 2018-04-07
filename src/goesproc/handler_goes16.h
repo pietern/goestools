@@ -48,12 +48,14 @@ protected:
   std::shared_ptr<FileWriter> fileWriter_;
 
   using SegmentVector = std::vector<std::shared_ptr<const lrit::File>>;
-  using SegmentsMap = std::map<uint16_t, SegmentVector>;
 
-  // Maintain a map of channel to image identifier to list of segments.
-  // Mapping by channel (and assuming the feed always sends images
-  // for a single region sequentially), means we can detect missing segments.
-  std::unordered_map<std::string, SegmentsMap> segments_;
+  // Maintain a map of region and channel to list of segments.
+  // This assumes that two images for the same region and channel are
+  // never sent concurrently, but always in order.
+  std::unordered_map<
+    SegmentKey,
+    SegmentVector,
+    SegmentKeyHash> segments_;
 
   // To generate false color images we have to keep the image of one channel
   // around while we wait for the other one to be received.

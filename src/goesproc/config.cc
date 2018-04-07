@@ -25,9 +25,16 @@ bool loadHandlers(const toml::Value& v, Config& out) {
       h.product = product->as<std::string>();
     }
 
+    // Singular region is the old way to filter
     auto region = th->find("region");
     if (region) {
-      h.region = region->as<std::string>();
+      h.regions.push_back(region->as<std::string>());
+    }
+
+    // Plural regions is the new way to filter
+    auto regions = th->find("regions");
+    if (regions) {
+      h.regions = regions->as<std::vector<std::string>>();
     }
 
     auto channels = th->find("channels");
