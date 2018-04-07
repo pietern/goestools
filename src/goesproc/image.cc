@@ -58,24 +58,49 @@ std::unique_ptr<Image> Image::createFromFiles(
   // NOAA LRIT header is identical across segments
   auto nl = fs.front()->getHeader<lrit::NOAALRITHeader>();
 
+  // Detect if this image uses "new style" Himawari-8 headers.
+  // If so, the line offset property of the image navigation header is
+  // no longer specific to a particular segment, but equal across
+  // segments. We need to use the "start line of segment" property to
+  // determine the offset of a segment.
+  bool hw8new = false;
+  if (nl.productID == 43) {
+    uint32_t lineOffset = 0;
+    uint32_t i = 0;
+    for (i = 0; i < fs.size(); i++) {
+      auto in = fs[i]->getHeader<lrit::ImageNavigationHeader>();
+      if (i == 0) {
+        lineOffset = in.lineOffset;
+      } else {
+        if (in.lineOffset != lineOffset) {
+          break;
+        }
+      }
+    }
+    // If the loop didn't break then lineOffset is equal across segments
+    hw8new = (i == fs.size());
+  }
+
   // Compute geometry of area shown by this image
   Area area;
   for (unsigned i = 0; i < fs.size(); i++) {
     auto& f = fs[i];
     auto is = f->getHeader<lrit::ImageStructureHeader>();
     auto in = f->getHeader<lrit::ImageNavigationHeader>();
+    auto si = f->getHeader<lrit::SegmentIdentificationHeader>();
 
     // Compute relative area for this segment
     Area tmp;
     tmp.minColumn = -in.columnOffset;
     tmp.maxColumn = -in.columnOffset + is.columns;
-    tmp.minLine = -in.lineOffset;
-    tmp.maxLine = -in.lineOffset + is.lines;
+    tmp.minLine = -((int32_t) in.lineOffset);
+    tmp.maxLine = -((int32_t) in.lineOffset) + is.lines;
 
-    // For Himawari-8, the line offset is an int32_t and can be negative
-    if (nl.productID == 43) {
-      tmp.minLine = -(int32_t)in.lineOffset;
-      tmp.maxLine = -(int32_t)in.lineOffset + is.lines;
+    // For Himawari-8, the offset accounting may be done differently.
+    if (nl.productID == 43 && hw8new) {
+      auto lineOffset = -in.lineOffset + si.segmentStartLine;
+      tmp.minLine = lineOffset;
+      tmp.maxLine = lineOffset + is.lines;
     }
 
     // Update
