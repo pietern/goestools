@@ -3,6 +3,8 @@
 #include <functional>
 #include <stdexcept>
 
+#include "lib/util.h"
+
 namespace {
 
 using subst = std::function<std::string(const std::string&)>;
@@ -30,10 +32,25 @@ void replace(std::string& str, const std::string& keyword, subst fn) {
       throw std::runtime_error("Invalid pattern");
     }
 
+    // Lookup modifier (if any)
+    auto mlpos = str.find('|', lpos + prefix.length());
+    auto mrpos = rpos;
+    auto mok = (mlpos != std::string::npos && mlpos < rpos);
+
     // Lookup replacement
     auto klpos = lpos + prefix.length();
-    auto krpos = rpos;
-    const auto replace = fn(str.substr(klpos, krpos - klpos));
+    auto krpos = mok ? mlpos : rpos;
+    auto replace = fn(str.substr(klpos, krpos - klpos));
+
+    // Apply modifier (if applicable)
+    if (mok) {
+      auto mod = str.substr(mlpos + 1, mrpos - (mlpos + 1));
+      if (mod == "upper") {
+        replace = toUpper(replace);
+      } else if (mod == "lower") {
+        replace = toLower(replace);
+      }
+    }
 
     // Replace
     str.replace(lpos, rpos - lpos + 1, replace);
