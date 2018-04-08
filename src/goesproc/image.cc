@@ -219,16 +219,38 @@ cv::Mat Image::getRawImage() const {
 
 cv::Mat Image::getRawImage(const Area& roi) const {
   cv::Mat raw = getRawImage();
-  int x = roi.minColumn - area_.minColumn;
-  int y = roi.minLine - area_.minLine;
-  int w = roi.maxColumn - roi.minColumn;
-  int h = roi.maxLine - roi.minLine;
-  assert(x >= 0);
-  assert(y >= 0);
-  assert(w > 0 && (w - x) <= area_.width());
-  assert(h > 0 && (h - y) <= area_.height());
-  cv::Rect crop(x, y, w, h);
-  return raw(crop);
+
+  int rx = roi.minColumn - area_.minColumn;
+  int cx = 0;
+  if (rx < 0) {
+    cx = -rx;
+    rx = 0;
+  }
+
+  int ry = roi.minLine - area_.minLine;
+  int cy = 0;
+  if (ry < 0) {
+    cy = -ry;
+    ry = 0;
+  }
+
+  int w = std::min(roi.width() - cx, area_.width() - rx);
+  int h = std::min(roi.height() - cy, area_.height() - ry);
+
+  // If the region of interest fully intersects with the raw
+  // image then we can return a reference to the raw image.
+  if (w == roi.width() && h == roi.height()) {
+    return raw(cv::Rect(rx, ry, w, h));
+  }
+
+  // Otherwise, we need to make a copy such that the undefined areas
+  // of the region of interest are accessible.
+  cv::Mat copy(roi.height(), roi.width(), CV_8UC1, cv::Scalar::all(0));
+  if (w > 0 && h > 0) {
+    raw(cv::Rect(rx, ry, w, h)).copyTo(copy(cv::Rect(cx, cy, w, h)));
+  }
+
+  return copy;
 }
 
 // Scale columns/lines per scaling factor in ImageNavigationHeader

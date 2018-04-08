@@ -75,6 +75,18 @@ bool loadHandlers(const toml::Value& v, Config& out) {
       h.crop.maxColumn = vs[1];
       h.crop.minLine = vs[2];
       h.crop.maxLine = vs[3];
+
+      if (h.crop.width() < 1) {
+        out.ok = false;
+        out.error = "Expected \"crop\" to have positive width";
+        return false;
+      }
+
+      if (h.crop.height() < 1) {
+        out.ok = false;
+        out.error = "Expected \"crop\" to have positive height";
+        return false;
+      }
     }
 
     auto remap = th->find("remap");
