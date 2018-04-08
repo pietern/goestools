@@ -53,8 +53,7 @@ int main(int argc, char** argv) {
     files.push_back(std::move(file));
   }
 
-  // Compute area intersection between all images
-  Area out;
+  // Compute area for all images
   for (auto& it : all) {
     auto& files = it.second;
 
@@ -103,17 +102,11 @@ int main(int argc, char** argv) {
       }
     }
 
-    if (out.height() == 0) {
-      out = area;
-    } else {
-      out = out.getIntersection(area);
-    }
+    std::cout << "crop = [ ";
+    std::cout << area.minColumn << ", ";
+    std::cout << area.maxColumn << ", ";
+    std::cout << area.minLine << ", ";
+    std::cout << area.maxLine << " ]";
+    std::cout << std::endl;
   }
-
-  std::cout << "crop = [ ";
-  std::cout << out.minColumn << ", ";
-  std::cout << out.maxColumn << ", ";
-  std::cout << out.minLine << ", ";
-  std::cout << out.maxLine << " ]";
-  std::cout << std::endl;
 }
