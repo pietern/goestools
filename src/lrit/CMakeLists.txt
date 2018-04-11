@@ -6,4 +6,4 @@ target_link_libraries(lritdump lrit m stdc++)
 
 add_executable(intersect intersect.cc)
 add_sanitizers(intersect)
-target_link_libraries(intersect lrit m stdc++)
+target_link_libraries(intersect lrit dir m stdc++)

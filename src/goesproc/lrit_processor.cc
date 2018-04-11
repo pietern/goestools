@@ -4,9 +4,8 @@
 
 #include <algorithm>
 
+#include "lib/dir.h"
 #include "lrit/file.h"
-
-#include "dir.h"
 
 LRITProcessor::LRITProcessor(std::vector<std::unique_ptr<Handler> > handlers)
     : handlers_(std::move(handlers)) {
