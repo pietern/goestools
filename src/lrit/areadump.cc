@@ -42,7 +42,7 @@ struct Area {
   }
 };
 
-// Compute intersection of area covered by specified images.
+// Print area covered by specified images.
 int main(int argc, char** argv) {
   std::map<int, std::vector<lrit::File>> all;
 
