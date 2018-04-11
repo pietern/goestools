@@ -1,6 +1,11 @@
+#include <sys/stat.h>
+#include <sys/types.h>
+
 #include <algorithm>
 #include <map>
 #include <vector>
+
+#include "lib/dir.h"
 
 #include "file.h"
 
@@ -43,14 +48,31 @@ int main(int argc, char** argv) {
 
   // Group files by their image identifier
   for (int i = 1; i < argc; i++) {
-    auto file = lrit::File(argv[i]);
-    if (!file.hasHeader<lrit::ImageNavigationHeader>()) {
-      continue;
+    struct stat st;
+    auto rv = stat(argv[i], &st);
+    if (rv < 0) {
+      perror("stat");
+      exit(1);
     }
 
-    auto sih = file.getHeader<lrit::SegmentIdentificationHeader>();
-    auto& files = all[sih.imageIdentifier];
-    files.push_back(std::move(file));
+    std::vector<std::string> result;
+    if (S_ISDIR(st.st_mode)) {
+      Dir dir(argv[i]);
+      result = dir.matchFiles("*.lrit*");
+    } else {
+      result.push_back(argv[i]);
+    }
+
+    for (const auto& path : result) {
+      auto file = lrit::File(path);
+      if (!file.hasHeader<lrit::ImageNavigationHeader>()) {
+        continue;
+      }
+
+      auto sih = file.getHeader<lrit::SegmentIdentificationHeader>();
+      auto& files = all[sih.imageIdentifier];
+      files.push_back(std::move(file));
+    }
   }
 
   // Compute area for all images
