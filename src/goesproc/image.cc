@@ -115,9 +115,16 @@ std::unique_ptr<Image> Image::createFromFiles(
     auto ish = f->getHeader<lrit::ImageStructureHeader>();
     auto sih = f->getHeader<lrit::SegmentIdentificationHeader>();
 
-    char* chunk = (char*) raw.data + (sih.segmentStartLine * area.width());
+    // Bounds check for sanity
+    auto offset = (sih.segmentStartLine * area.width());
+    auto length = ish.lines * ish.columns;
+    if ((offset + length) > (raw.rows * raw.cols)) {
+      continue;
+    }
+
+    char* chunk = (char*) raw.data + offset;
     auto ifs = f->getData();
-    ifs->read(chunk, ish.lines * ish.columns);
+    ifs->read(chunk, length);
     assert(*ifs);
   }
 
