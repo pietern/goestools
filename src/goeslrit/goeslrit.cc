@@ -1,4 +1,5 @@
 #include <array>
+#include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <memory>
@@ -98,15 +99,20 @@ int main(int argc, char** argv) {
       }
 
       const auto name = filename(spdu);
-      std::cout << name << " (" << spdu->size() << " bytes)" << std::endl;
-      if (opts.dryrun) {
-        continue;
+      std::cout << name << " ";
+
+      if (!opts.dryrun) {
+        std::ofstream fout(name, std::ofstream::binary);
+        const auto& buf = spdu->get();
+        fout.write((const char*)buf.data(), buf.size());
+        fout.close();
+        if (fout.fail()) {
+          std::cout << "(" << strerror(errno) << ")" << std::endl;
+          continue;
+        }
       }
 
-      std::ofstream fout(name, std::ofstream::binary);
-      const auto& buf = spdu->get();
-      fout.write((const char*)buf.data(), buf.size());
-      fout.close();
+      std::cout << "(" << spdu->size() << " bytes)" << std::endl;
     }
   }
 }
