@@ -11,6 +11,7 @@ Welcome to goestools's documentation!
    :caption: Contents:
 
    installation
+   commands
 
 
 Indices and tables
