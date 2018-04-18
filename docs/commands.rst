@@ -5,3 +5,4 @@ Commands
    :maxdepth: 1
 
    commands/goesrecv
+   commands/goeslrit
