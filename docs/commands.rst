@@ -6,3 +6,4 @@ Commands
 
    commands/goesrecv
    commands/goeslrit
+   commands/goesproc
