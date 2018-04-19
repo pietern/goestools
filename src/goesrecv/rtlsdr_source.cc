@@ -33,6 +33,35 @@ RTLSDR::RTLSDR(rtlsdr_dev_t* dev) : dev_(dev) {
   tunerGains_.resize(rv);
   rv = rtlsdr_get_tuner_gains(dev_, tunerGains_.data());
   assert(rv >= 0);
+
+  // Configure manual gain mode
+  rv = rtlsdr_set_tuner_gain_mode(dev_, 1);
+  assert(rv > 0);
+
+  // Disable internal AGC
+  rv = rtlsdr_set_agc_mode(dev_, 0);
+  assert(rv >= 0);
+
+  // Disable direct sampling
+  rv = rtlsdr_set_direct_sampling(dev_, 0);
+  assert(rv >= 0);
+
+  // Disable offset tuning
+  rv = rtlsdr_set_offset_tuning(dev_, 0);
+  assert(rv >= 0);
+
+  // Tune to 100MHz to initialize.
+  //
+  // Even though the device will only be tuned here for a fraction of
+  // a second, it makes the difference between not being able to tune
+  // 99% of the time (and getting a garbage signal) and always being
+  // able to tune, on a particular unit with R820T chip.
+  //
+  // Since it doesn't hurt, we can just try, and hopefully increase
+  // our chances of being able to tune across the board.
+  //
+  rv = rtlsdr_set_center_freq(dev_, 100000000);
+  assert(rv >= 0);
 }
 
 RTLSDR::~RTLSDR() {
