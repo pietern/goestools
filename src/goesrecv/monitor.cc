@@ -205,8 +205,10 @@ void Monitor::process(const std::string& json) {
       if (ok != 0) {
         stats_.totalOK++;
         statsd << "packets_ok:1|c" << std::endl;
+        statsd << "packets_dropped:0|c" << std::endl;
       } else {
         stats_.totalDropped++;
+        statsd << "packets_ok:0|c" << std::endl;
         statsd << "packets_dropped:1|c" << std::endl;
       }
       continue;
