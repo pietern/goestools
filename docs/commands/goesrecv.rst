@@ -52,7 +52,10 @@ performance. You may use more than one method or none at all.
 stdout
 ^^^^^^
 
-See the ``--verbose`` command line option under Options_.
+Specify the ``--verbose`` option to make goesrecv periodically write
+stats to stdout. This can be useful if you need immediate feedback
+about the signal lock and signal quality. The interval can be
+controlled with the ``--interval`` option. Also see Options_.
 
 Example output (when running with ``-v -i 1``):
 
@@ -76,9 +79,17 @@ Field glossary:
 nanomsg and JSON
 ^^^^^^^^^^^^^^^^
 
-Configure goesrecv to bind the ``stats_publisher`` handlers for
-the demodulator and decoder to something you can connect to (see
-`Sample configuration`_).
+You can configure goesrecv to bind the ``stats_publisher`` handlers
+for the demodulator and decoder to some valid nanomsg address (see the
+`sample configuration`_).
+
+The stats are passed using the nanomsg publish/subscribe
+functionality. The stats are sent on a publisher socket. To receive
+them you connect a subscriber socket, and subscribe it to the zero
+length topic (such that you receive all messages). Refer to
+`nn_pubsub(7)`_ for more information about nanomsg publish/subscribe.
+
+.. _`nn_pubsub(7)`: http://nanomsg.org/v1.1.2/nn_pubsub.html
 
 Example of the raw output of the demodulator stats:
 
@@ -101,12 +112,15 @@ Example of the raw output of the decoder stats:
 statsd
 ^^^^^^
 
-Passing the statistics to a separate tool for graphing or monitoring
-is possible supported through the statsd_ protocol. Statistics are
-encoded in a simple line based text protocol and are sent to a
-configurable UDP address (see `Sample configuration`_).
+You can forward the goesrecv stats to some monitoring and graphing
+tool using the statsd_ protocol. This is a simple connection free line
+based text protocol that can encode counters, gauges, histograms, etc.
+The UDP address to send these stats to is configurable under the
+``[monitor]`` section (see the `sample configuration`_).
 
-Many tools can deal with the statsd protocol. For example, tools that folks have used with goesrecv in the past include InfluxDB_ (self-hosted) and Circonus_ (hosted).
+There are many tools that can deal with the statsd protocol. For
+example, tools that folks have used with goesrecv in the past include
+InfluxDB_ (self-hosted) and Circonus_ (hosted).
 
 .. _statsd:
   https://github.com/b/statsd_spec
