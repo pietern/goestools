@@ -1,0 +1,449 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>goesproc &mdash; goestools  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Guides" href="../guides.html" />
+    <link rel="prev" title="goeslrit" href="goeslrit.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> goestools
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../commands.html">Commands</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="goesrecv.html">goesrecv</a></li>
+<li class="toctree-l2"><a class="reference internal" href="goeslrit.html">goeslrit</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">goesproc</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuration">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#handlers">Handlers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example">Example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sample-configuration">Sample configuration</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../guides.html">Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources.html">Resources</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">goestools</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../commands.html">Commands</a> &raquo;</li>
+        
+      <li>goesproc</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/commands/goesproc.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="goesproc">
+<span id="id1"></span><h1>goesproc<a class="headerlink" href="#goesproc" title="Permalink to this headline">¶</a></h1>
+<p>Process stream of packets (VCDUs) or list of LRIT files.</p>
+<div class="section" id="options">
+<h2>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="43%" />
+<col width="57%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">-c</span></code>, <code class="docutils literal notranslate"><span class="pre">--config=PATH</span></code></td>
+<td>Path to configuration file</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">-m</span></code>, <code class="docutils literal notranslate"><span class="pre">--mode</span> <span class="pre">[packet|lrit]</span></code></td>
+<td>Process stream of VCDU packets
+or pre-assembled LRIT files</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">--subscribe</span> <span class="pre">ADDR</span></code></td>
+<td>Address of nanomsg publisher</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">-f</span></code>, <code class="docutils literal notranslate"><span class="pre">--force</span></code></td>
+<td>Overwrite existing output files</td>
+</tr>
+</tbody>
+</table>
+<p>If mode is set to <code class="docutils literal notranslate"><span class="pre">packet</span></code>, goesproc reads VCDU packets from the
+specified path(s). To process real time data you can either setup a pipe
+from the decoder into goesproc (e.g. use /dev/stdin as path argument),
+or use <code class="docutils literal notranslate"><span class="pre">--subscribe</span></code> to consume packets directly from <a class="reference internal" href="goesrecv.html#goesrecv"><span class="std std-ref">goesrecv</span></a>.
+To process recorded data you can specify a list of files that contain
+VCDU packets in chronological order.</p>
+<p>If mode is set to <code class="docutils literal notranslate"><span class="pre">lrit</span></code>, goesproc finds all LRIT files in the specified
+paths and processes them sequentially. You can specify a mix of files
+and directories. Directory arguments expand into the files they
+contain that match the glob <code class="docutils literal notranslate"><span class="pre">*.lrit*</span></code>. The complete list of LRIT files
+is sorted according to their time stamp header prior to processing it.</p>
+</div>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>The configuration file uses <a class="reference external" href="https://github.com/toml-lang/toml">TOML</a> syntax. You can
+find an example configuration (that includes stanzas for every
+available handler) in <code class="docutils literal notranslate"><span class="pre">./etc/goesproc.conf</span></code>.</p>
+</div>
+<div class="section" id="handlers">
+<h2>Handlers<a class="headerlink" href="#handlers" title="Permalink to this headline">¶</a></h2>
+<p>Different products use different handlers with different configuration
+options. For example, there is an NWS image handler, NWS text handler,
+EMWIN handler, GOES N-series handler, GOES R-series handler, Himawari
+handler, etc.</p>
+<p><strong>TODO</strong> – describe configuration options for every handler</p>
+</div>
+<div class="section" id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p>For example, with the following configuration file:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">handler</span><span class="p">]]</span>
+<span class="n">type</span> <span class="o">=</span> <span class="s">&quot;image&quot;</span>
+<span class="n">product</span> <span class="o">=</span> <span class="s">&quot;goes15&quot;</span>
+<span class="n">region</span> <span class="o">=</span> <span class="s">&quot;fd&quot;</span>
+<span class="n">channels</span> <span class="o">=</span> <span class="p">[</span> <span class="s">&quot;VS&quot;</span> <span class="p">]</span>
+<span class="n">crop</span> <span class="o">=</span> <span class="p">[</span> <span class="mi">-2373</span><span class="p">,</span> <span class="mi">2371</span><span class="p">,</span> <span class="mi">-1357</span><span class="p">,</span> <span class="mi">1347</span> <span class="p">]</span>
+<span class="n">filename</span> <span class="o">=</span> <span class="s">&quot;GOES15_%r_%c_%t&quot;</span>
+</pre></div>
+</div>
+<p>Running goesproc against a directory with GOES-15 LRIT files
+results in a number of image files of the full disk visual channel:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ goesproc --config example.conf --mode lrit ./out/images/goes15/fd
+Writing ./GOES15_FD_VS_20170820-210600.png
+Writing ./GOES15_FD_VS_20170821-000600.png
+Writing ./GOES15_FD_VS_20170821-030600.png
+Writing ./GOES15_FD_VS_20170821-060600.png
+Writing ./GOES15_FD_VS_20170821-090600.png
+Writing ./GOES15_FD_VS_20170821-120600.png
+Writing ./GOES15_FD_VS_20170821-150600.png
+Writing ./GOES15_FD_VS_20170821-180600.png
+...
+</pre></div>
+</div>
+<p>You can now use these image files however you like. For example, to
+produce a GIF from 8 consecutive full disk images, you can use the
+following <a class="reference external" href="https://www.imagemagick.org/">ImageMagick</a> commands:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ mogrify -resize <span class="s1">&#39;640x480&gt;&#39;</span> *.png
+$ convert -loop <span class="m">0</span> -delay <span class="m">50</span> *.png GOES15_FD_VS_20170821.gif
+</pre></div>
+</div>
+<p>And get:</p>
+<img alt="../_images/GOES15_FD_VS_20170821.gif" src="../_images/GOES15_FD_VS_20170821.gif" />
+</div>
+<div class="section" id="sample-configuration">
+<h2>Sample configuration<a class="headerlink" href="#sample-configuration" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example configuration file for goesproc</span>
+<span class="c1">#</span>
+<span class="c1"># This tool is designed to run on streaming data (live or recorded)</span>
+<span class="c1"># and product whatever is listed in this file. A single product can be</span>
+<span class="c1"># processed multiple times (e.g. with different contrast curves,</span>
+<span class="c1"># different scale, or different annotations) by listing multiple</span>
+<span class="c1"># handlers for that same product.</span>
+<span class="c1">#</span>
+
+<span class="c1"># GOES-16 mesoscale region 1 imagery is stored at ./goes16/m1/YYYY-MM-DD</span>
+<span class="c1"># The pattern specified in {time:XXX} is extrapolated using strftime(3).</span>
+<span class="c1"># It can be used more than once if needed.</span>
+<span class="p">[[</span><span class="n">handler</span><span class="p">]]</span>
+<span class="n">type</span> <span class="o">=</span> <span class="s">&quot;image&quot;</span>
+<span class="n">product</span> <span class="o">=</span> <span class="s">&quot;goes16&quot;</span>
+<span class="n">region</span> <span class="o">=</span> <span class="s">&quot;m1&quot;</span>
+<span class="n">dir</span> <span class="o">=</span> <span class="s">&quot;./goes16/m1/{time:%Y-%m-%d}&quot;</span>
+
+<span class="c1"># GOES-16 full disk originals.</span>
+<span class="p">[[</span><span class="n">handler</span><span class="p">]]</span>
+<span class="n">type</span> <span class="o">=</span> <span class="s">&quot;image&quot;</span>
+<span class="n">product</span> <span class="o">=</span> <span class="s">&quot;goes16&quot;</span>
+<span class="n">region</span> <span class="o">=</span> <span class="s">&quot;fd&quot;</span>
+<span class="n">dir</span> <span class="o">=</span> <span class="s">&quot;./goes16/fd/{time:%Y-%m-%d}&quot;</span>
+
+<span class="c1"># GOES-16 full disk, channel 2, with contrast curve applied.</span>
+<span class="c1"># The section [handler.remap] below applies to this handler.</span>
+<span class="p">[[</span><span class="n">handler</span><span class="p">]]</span>
+<span class="n">type</span> <span class="o">=</span> <span class="s">&quot;image&quot;</span>
+<span class="n">product</span> <span class="o">=</span> <span class="s">&quot;goes16&quot;</span>
+<span class="n">region</span> <span class="o">=</span> <span class="s">&quot;fd&quot;</span>
+<span class="n">channels</span> <span class="o">=</span> <span class="p">[</span> <span class="s">&quot;ch02&quot;</span> <span class="p">]</span>
+<span class="n">directory</span> <span class="o">=</span> <span class="s">&quot;./goes16/fd/{time:%Y-%m-%d}&quot;</span>
+<span class="n">filename</span> <span class="o">=</span> <span class="s">&quot;{filename}_contrast&quot;</span>
+
+  <span class="c1"># Check out https://github.com/hdoverobinson/wx-star_false-color for a</span>
+  <span class="c1"># GOES-16 contrast curve and false color LUT. Uncomment the snippet</span>
+  <span class="c1"># below and update the path to point to the contrast curve file.</span>
+  <span class="p">[</span><span class="n">handler</span><span class="p">.</span><span class="n">remap</span><span class="p">.</span><span class="n">ch02</span><span class="p">]</span>
+  <span class="n">path</span> <span class="o">=</span> <span class="s">&quot;./wx-star.com_GOES-R_ABI_C02_contrast-curve.pgm&quot;</span>
+
+<span class="c1"># GOES-16 full disk, channel 2 and 13 to produce a false color image.</span>
+<span class="c1"># The sections [handler.remap] and [handler.lut] below apply to this handler.</span>
+<span class="p">[[</span><span class="n">handler</span><span class="p">]]</span>
+<span class="n">type</span> <span class="o">=</span> <span class="s">&quot;image&quot;</span>
+<span class="n">product</span> <span class="o">=</span> <span class="s">&quot;goes16&quot;</span>
+<span class="n">region</span> <span class="o">=</span> <span class="s">&quot;fd&quot;</span>
+<span class="n">channels</span> <span class="o">=</span> <span class="p">[</span> <span class="s">&quot;ch02&quot;</span><span class="p">,</span> <span class="s">&quot;ch13&quot;</span> <span class="p">]</span>
+<span class="n">directory</span> <span class="o">=</span> <span class="s">&quot;./goes16/false-color/fd/{time:%Y-%m-%d}&quot;</span>
+
+  <span class="p">[</span><span class="n">handler</span><span class="p">.</span><span class="n">remap</span><span class="p">.</span><span class="n">ch02</span><span class="p">]</span>
+  <span class="n">path</span> <span class="o">=</span> <span class="s">&quot;./assets/wxstar_goes16_ch02_curve.png&quot;</span>
+
+  <span class="p">[</span><span class="n">handler</span><span class="p">.</span><span class="n">lut</span><span class="p">]</span>
+  <span class="n">path</span> <span class="o">=</span> <span class="s">&quot;./assets/wxstar_goes16_lut.png&quot;</span>
+
+<span class="c1"># The raw GOES-15 full disk images are a mix of left</span>
+<span class="c1"># and right aligned images. The image headers contain</span>
+<span class="c1"># navigational data and we can use this to produce</span>
+<span class="c1"># identical crops regardless of alignment.</span>
+<span class="p">[[</span><span class="n">handler</span><span class="p">]]</span>
+<span class="n">type</span> <span class="o">=</span> <span class="s">&quot;image&quot;</span>
+<span class="n">product</span> <span class="o">=</span> <span class="s">&quot;goes15&quot;</span>
+<span class="n">region</span> <span class="o">=</span> <span class="s">&quot;fd&quot;</span>
+<span class="n">crop</span> <span class="o">=</span> <span class="p">[</span> <span class="mi">-2373</span><span class="p">,</span> <span class="mi">2371</span><span class="p">,</span> <span class="mi">-1357</span><span class="p">,</span> <span class="mi">1347</span> <span class="p">]</span>
+<span class="n">directory</span> <span class="o">=</span> <span class="s">&quot;./goes15/fd/{time:%Y-%m-%d}&quot;</span>
+<span class="n">filename</span> <span class="o">=</span> <span class="s">&quot;GOES15_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}&quot;</span>
+
+<span class="c1"># The HRIT stream on the GOES-R series includes EMWIN data.</span>
+<span class="c1"># This handler writes EMWIN files and decompresses them if applicable</span>
+<span class="c1"># (a subset of EMWIN files is compressed as ZIP file).</span>
+<span class="p">[[</span><span class="n">handler</span><span class="p">]]</span>
+<span class="n">type</span> <span class="o">=</span> <span class="s">&quot;emwin&quot;</span>
+<span class="n">directory</span> <span class="o">=</span> <span class="s">&quot;./emwin/{time:%Y-%m-%d}&quot;</span>
+
+<span class="c1"># NWS text messages</span>
+<span class="c1">#</span>
+<span class="c1"># The AWIPS Product Identifier of the message can be used in the</span>
+<span class="c1"># filename pattern. See https://www.weather.gov/tg/awips for a</span>
+<span class="c1"># description of the fields in this identifier. They are usable</span>
+<span class="c1"># through the following keywords (in &quot;{awips:...}&quot;):</span>
+<span class="c1">#</span>
+<span class="c1">#  * t1t2</span>
+<span class="c1">#  * a1a2</span>
+<span class="c1">#  * ii</span>
+<span class="c1">#  * cccc</span>
+<span class="c1">#  * yy</span>
+<span class="c1">#  * gggg</span>
+<span class="c1">#  * bbb</span>
+<span class="c1">#  * nnn</span>
+<span class="c1">#  * xxx</span>
+<span class="c1">#</span>
+<span class="p">[[</span><span class="n">handler</span><span class="p">]]</span>
+<span class="n">type</span> <span class="o">=</span> <span class="s">&quot;text&quot;</span>
+<span class="n">product</span> <span class="o">=</span> <span class="s">&quot;nws&quot;</span>
+<span class="n">directory</span> <span class="o">=</span> <span class="s">&quot;./nws/{time:%Y-%m-%d}&quot;</span>
+<span class="n">filename</span> <span class="o">=</span> <span class="s">&quot;{time:%Y%m%dT%H%M%SZ}_{awips:nnn}{awips:xxx}&quot;</span>
+
+<span class="c1"># NWS images</span>
+<span class="c1">#</span>
+<span class="c1"># Files received through HRIT do not have an LRIT timestamp header and</span>
+<span class="c1"># goesproc tries to parse their timestamp from their file name. This</span>
+<span class="c1"># format is not specified anywhere so it might change at any point in</span>
+<span class="c1"># time. If the timestamp cannot be parsed from the file name, goesproc</span>
+<span class="c1"># defaults to 1970-01-01. @pietern pinged NOAA (Seth) about this.</span>
+<span class="c1">#</span>
+<span class="c1"># NWS image files received through LRIT (GOES-15) have a timestamp.</span>
+<span class="c1">#</span>
+<span class="p">[[</span><span class="n">handler</span><span class="p">]]</span>
+<span class="n">type</span> <span class="o">=</span> <span class="s">&quot;image&quot;</span>
+<span class="n">product</span> <span class="o">=</span> <span class="s">&quot;nws&quot;</span>
+<span class="n">directory</span> <span class="o">=</span> <span class="s">&quot;./nws/{time:%Y-%m-%d}&quot;</span>
+<span class="n">filename</span> <span class="o">=</span> <span class="s">&quot;{time:%Y%m%dT%H%M%SZ}_{filename}&quot;</span>
+
+<span class="c1"># Miscellaneous text.</span>
+<span class="p">[[</span><span class="n">handler</span><span class="p">]]</span>
+<span class="n">type</span> <span class="o">=</span> <span class="s">&quot;text&quot;</span>
+<span class="n">product</span> <span class="o">=</span> <span class="s">&quot;other&quot;</span>
+<span class="n">directory</span> <span class="o">=</span> <span class="s">&quot;./text/{time:%Y-%m-%d}&quot;</span>
+<span class="n">filename</span> <span class="o">=</span> <span class="s">&quot;{time:%Y%m%dT%H%M%SZ}_{filename}&quot;</span>
+</pre></div>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../guides.html" class="btn btn-neutral float-right" title="Guides" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="goeslrit.html" class="btn btn-neutral" title="goeslrit" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Pieter Noordhuis.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

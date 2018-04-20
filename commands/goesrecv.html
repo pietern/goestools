@@ -1,0 +1,408 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>goesrecv &mdash; goestools  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="goeslrit" href="goeslrit.html" />
+    <link rel="prev" title="Commands" href="../commands.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> goestools
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../commands.html">Commands</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">goesrecv</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuration">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#statistics">Statistics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#stdout">stdout</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#nanomsg-and-json">nanomsg and JSON</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#statsd">statsd</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#sample-configuration">Sample configuration</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="goeslrit.html">goeslrit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="goesproc.html">goesproc</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../guides.html">Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources.html">Resources</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">goestools</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../commands.html">Commands</a> &raquo;</li>
+        
+      <li>goesrecv</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/commands/goesrecv.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="goesrecv">
+<span id="id1"></span><h1>goesrecv<a class="headerlink" href="#goesrecv" title="Permalink to this headline">¶</a></h1>
+<p>Demodulate and decode signal into packet stream.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p>You need a proper antenna system (incl. LNA and filter) to
+receive the LRIT and HRIT signals.</p>
+<p class="last">See <a class="reference internal" href="../guides/minimal_receiver.html#minimal-receiver"><span class="std std-ref">A minimal LRIT/HRIT receiver</span></a> for an example setup.</p>
+</div>
+<p>You can use goesrecv with an <a class="reference external" href="https://rtlsdr.org/">RTL-SDR</a> (make sure you have one with the
+R820T tuner chip), or an <a class="reference external" href="https://airspy.com/">Airspy</a> (confirmed to work with the Mini).
+The raw signal is then processed by the demodulator and turned into a
+stream of 1s and 0s. This is then passed to the decoder where the
+bitstream is synchronized and error correction is applied. Every valid
+packet is then forwarded to downstream tools (e.g. goeslrit or
+goesproc).</p>
+<div class="section" id="options">
+<h2>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="62%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">-c</span></code>, <code class="docutils literal notranslate"><span class="pre">--config=PATH</span></code></td>
+<td>Path to configuration file</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">-v</span></code>, <code class="docutils literal notranslate"><span class="pre">--verbose</span></code></td>
+<td>Periodically show statistics</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">-i</span></code>, <code class="docutils literal notranslate"><span class="pre">--interval=SEC</span></code></td>
+<td>Interval for <code class="docutils literal notranslate"><span class="pre">--verbose</span></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>The configuration file uses <a class="reference external" href="https://github.com/toml-lang/toml">TOML</a> syntax. Look further down for a
+sample configuration file.</p>
+</div>
+<div class="section" id="statistics">
+<h2>Statistics<a class="headerlink" href="#statistics" title="Permalink to this headline">¶</a></h2>
+<p>There are a few ways to keep an eye on the signal quality and goesrecv
+performance. You may use more than one method or none at all.</p>
+<div class="section" id="stdout">
+<h3>stdout<a class="headerlink" href="#stdout" title="Permalink to this headline">¶</a></h3>
+<p>Specify the <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> option to make goesrecv periodically write
+stats to stdout. This can be useful if you need immediate feedback
+about the signal lock and signal quality. The interval can be
+controlled with the <code class="docutils literal notranslate"><span class="pre">--interval</span></code> option. Also see <a class="reference internal" href="#options">Options</a>.</p>
+<p>Example output (when running with <code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">-i</span> <span class="pre">1</span></code>):</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>2018-04-18T04:28:08Z [monitor] gain: 22.54, freq:  2899.3, omega: 1.618, vit(avg):   54, rs(sum):    0, packets: 57, drops:  0
+2018-04-18T04:28:09Z [monitor] gain: 22.51, freq:  2917.1, omega: 1.618, vit(avg):   55, rs(sum):    0, packets: 57, drops:  0
+2018-04-18T04:28:10Z [monitor] gain: 22.53, freq:  2924.1, omega: 1.618, vit(avg):   56, rs(sum):    2, packets: 56, drops:  0
+2018-04-18T04:28:11Z [monitor] gain: 22.53, freq:  2952.2, omega: 1.618, vit(avg):   55, rs(sum):    0, packets: 57, drops:  0
+</pre></div>
+</div>
+<p>Field glossary:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">gain</span></code> – Multiplier to normalize signal</li>
+<li><code class="docutils literal notranslate"><span class="pre">freq</span></code> – Frequency offset of signal</li>
+<li><code class="docutils literal notranslate"><span class="pre">omega</span></code> – Samples per symbol in clock recovery</li>
+<li><code class="docutils literal notranslate"><span class="pre">vit(avg)</span></code> – Average number of bit errors corrected by Viterbi decoder</li>
+<li><code class="docutils literal notranslate"><span class="pre">rs(sum)</span></code> – Total number of errors corrected by Reed-Solomon across packets</li>
+<li><code class="docutils literal notranslate"><span class="pre">packets</span></code> – Number of packets decoded</li>
+<li><code class="docutils literal notranslate"><span class="pre">drops</span></code> – Number of packets dropped</li>
+</ul>
+</div>
+<div class="section" id="nanomsg-and-json">
+<h3>nanomsg and JSON<a class="headerlink" href="#nanomsg-and-json" title="Permalink to this headline">¶</a></h3>
+<p>You can configure goesrecv to bind the <code class="docutils literal notranslate"><span class="pre">stats_publisher</span></code> handlers
+for the demodulator and decoder to some valid nanomsg address (see the
+<a class="reference internal" href="#sample-configuration">sample configuration</a>).</p>
+<p>The stats are passed using the nanomsg publish/subscribe
+functionality. The stats are sent on a publisher socket. To receive
+them you connect a subscriber socket, and subscribe it to the zero
+length topic (such that you receive all messages). Refer to
+<a class="reference external" href="http://nanomsg.org/v1.1.2/nn_pubsub.html">nn_pubsub(7)</a> for more information about nanomsg publish/subscribe.</p>
+<p>Example of the raw output of the demodulator stats:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ nanocat --sub --connect tcp://127.0.0.1:6001 --raw
+{&quot;timestamp&quot;: &quot;2018-04-18T04:52:58.357Z&quot;,&quot;gain&quot;: 2.2494e+01,&quot;frequency&quot;: 2.9813e+03,&quot;omega&quot;: 1.6181e+00}
+{&quot;timestamp&quot;: &quot;2018-04-18T04:52:58.379Z&quot;,&quot;gain&quot;: 2.2494e+01,&quot;frequency&quot;: 3.0140e+03,&quot;omega&quot;: 1.6181e+00}
+...
+</pre></div>
+</div>
+<p>Example of the raw output of the decoder stats:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ nanocat --sub --connect tcp://127.0.0.1:6002 --raw
+{&quot;timestamp&quot;: &quot;2018-04-18T04:54:22.974Z&quot;,&quot;skipped_symbols&quot;: 0,&quot;viterbi_errors&quot;: 44,&quot;reed_solomon_errors&quot;: 0,&quot;ok&quot;: 1}
+{&quot;timestamp&quot;: &quot;2018-04-18T04:54:22.995Z&quot;,&quot;skipped_symbols&quot;: 0,&quot;viterbi_errors&quot;: 35,&quot;reed_solomon_errors&quot;: 0,&quot;ok&quot;: 1}
+...
+</pre></div>
+</div>
+</div>
+<div class="section" id="statsd">
+<h3>statsd<a class="headerlink" href="#statsd" title="Permalink to this headline">¶</a></h3>
+<p>You can forward the goesrecv stats to some monitoring and graphing
+tool using the <a class="reference external" href="https://github.com/b/statsd_spec">statsd</a> protocol. This is a simple connection free line
+based text protocol that can encode counters, gauges, histograms, etc.
+The UDP address to send these stats to is configurable under the
+<code class="docutils literal notranslate"><span class="pre">[monitor]</span></code> section (see the <a class="reference internal" href="#sample-configuration">sample configuration</a>).</p>
+<p>There are many tools that can deal with the statsd protocol. For
+example, tools that folks have used with goesrecv in the past include
+<a class="reference external" href="https://www.influxdata.com/time-series-platform/">InfluxDB</a> (self-hosted) and <a class="reference external" href="https://www.circonus.com/">Circonus</a> (hosted).</p>
+</div>
+</div>
+<div class="section" id="sample-configuration">
+<h2>Sample configuration<a class="headerlink" href="#sample-configuration" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">demodulator</span><span class="p">]</span>
+<span class="c1"># mode = &quot;lrit&quot;</span>
+<span class="c1"># mode = &quot;hrit&quot;</span>
+<span class="n">source</span> <span class="o">=</span> <span class="s">&quot;airspy&quot;</span>
+
+<span class="c1"># The section below configures the sample source to use.</span>
+<span class="c1">#</span>
+<span class="c1"># You can leave them commented out to use the default values for the</span>
+<span class="c1"># demodulator mode you choose (&quot;lrit&quot; or &quot;hrit&quot;). To use and configure</span>
+<span class="c1"># any of them, uncomment the section below, and change the demodulator</span>
+<span class="c1"># source field to match the source you want to use.</span>
+<span class="c1">#</span>
+
+<span class="c1"># [airspy]</span>
+<span class="c1"># frequency = 1694100000</span>
+<span class="c1"># gain = 18</span>
+
+<span class="c1"># [rtlsdr]</span>
+<span class="c1"># frequency = 1694100000</span>
+<span class="c1"># gain = 30</span>
+
+<span class="c1"># [nanomsg]</span>
+<span class="c1"># connect = &quot;tcp://1.2.3.4:5005&quot;</span>
+<span class="c1"># receive_buffer = 2097152</span>
+<span class="c1"># sample_rate = 2400000</span>
+
+<span class="p">[</span><span class="n">costas</span><span class="p">]</span>
+<span class="n">max_deviation</span> <span class="o">=</span> <span class="mf">200e3</span>
+
+<span class="p">[</span><span class="n">clock_recovery</span><span class="p">.</span><span class="n">sample_publisher</span><span class="p">]</span>
+<span class="n">bind</span> <span class="o">=</span> <span class="s">&quot;tcp://0.0.0.0:5002&quot;</span>
+<span class="n">send_buffer</span> <span class="o">=</span> <span class="mi">2097152</span>
+
+<span class="p">[</span><span class="n">quantization</span><span class="p">.</span><span class="n">soft_bit_publisher</span><span class="p">]</span>
+<span class="n">bind</span> <span class="o">=</span> <span class="s">&quot;tcp://0.0.0.0:5001&quot;</span>
+<span class="n">send_buffer</span> <span class="o">=</span> <span class="mi">1048576</span>
+
+<span class="p">[</span><span class="n">decoder</span><span class="p">.</span><span class="n">packet_publisher</span><span class="p">]</span>
+<span class="n">bind</span> <span class="o">=</span> <span class="s">&quot;tcp://0.0.0.0:5004&quot;</span>
+<span class="n">send_buffer</span> <span class="o">=</span> <span class="mi">1048576</span>
+
+<span class="c1"># The demodulator stats publisher sends a JSON object that describes</span>
+<span class="c1"># the state of the demodulator (gain, frequency correction, samples</span>
+<span class="c1"># per symbol), for every block of samples.</span>
+<span class="p">[</span><span class="n">demodulator</span><span class="p">.</span><span class="n">stats_publisher</span><span class="p">]</span>
+<span class="n">bind</span> <span class="o">=</span> <span class="s">&quot;tcp://0.0.0.0:6001&quot;</span>
+
+<span class="c1"># The decoder stats publisher sends a JSON object for every packet it</span>
+<span class="c1"># decodes (Viterbi corrections, Reed-Solomon corrections, etc.).</span>
+<span class="p">[</span><span class="n">decoder</span><span class="p">.</span><span class="n">stats_publisher</span><span class="p">]</span>
+<span class="n">bind</span> <span class="o">=</span> <span class="s">&quot;tcp://0.0.0.0:6002&quot;</span>
+
+<span class="c1"># The monitor can log aggregated stats (counters, gauges, and</span>
+<span class="c1"># histograms) to a statsd daemon. Because this uses UDP, you can keep</span>
+<span class="c1"># this enabled even if you haven&#39;t setup a statsd daemon yet.</span>
+<span class="p">[</span><span class="n">monitor</span><span class="p">]</span>
+<span class="n">statsd_address</span> <span class="o">=</span> <span class="s">&quot;udp4://localhost:8125&quot;</span>
+</pre></div>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="goeslrit.html" class="btn btn-neutral float-right" title="goeslrit" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../commands.html" class="btn btn-neutral" title="Commands" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Pieter Noordhuis.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

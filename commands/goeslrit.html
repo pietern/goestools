@@ -1,0 +1,284 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>goeslrit &mdash; goestools  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="goesproc" href="goesproc.html" />
+    <link rel="prev" title="goesrecv" href="goesrecv.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> goestools
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../commands.html">Commands</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="goesrecv.html">goesrecv</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">goeslrit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#reading-packets-from-files">Reading packets from files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reading-packets-from-goesrecv">Reading packets from goesrecv</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="goesproc.html">goesproc</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../guides.html">Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources.html">Resources</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">goestools</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../commands.html">Commands</a> &raquo;</li>
+        
+      <li>goeslrit</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/commands/goeslrit.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="goeslrit">
+<span id="id1"></span><h1>goeslrit<a class="headerlink" href="#goeslrit" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you’re only interested in post-processed data (image and text
+files) you can ignore this command and continue reading about
+goesproc instead.</p>
+</div>
+<p>This tool can be used to turn a stream of packets into LRIT files.
+LRIT files can then be used by goesproc (or other tools, such as to
+generate usable images and text files, or for debugging purposes.</p>
+<p>It can either read packets from files to process recorded data, or
+subscribe to <a class="reference internal" href="goesrecv.html#goesrecv"><span class="std std-ref">goesrecv</span></a> process to work with live data.</p>
+<p>To make it write LRIT files to disk, you have to specify the category
+of files you are interested in. Pass <code class="docutils literal notranslate"><span class="pre">--help</span></code> for a list of
+filtering options. To make it write <strong>ALL</strong> LRIT files it seems, run
+goeslrit with the <code class="docutils literal notranslate"><span class="pre">--all</span></code> option.</p>
+<div class="section" id="reading-packets-from-files">
+<h2>Reading packets from files<a class="headerlink" href="#reading-packets-from-files" title="Permalink to this headline">¶</a></h2>
+<p>The files must be specified in chronological order because they are
+read in order. Packets for a single LRIT file can span multiple packet
+files, so if they are not specified in chronological order some LRIT
+files will be dropped. Specifying a file glob in Bash expands to an
+alphabetically sorted list of file names that match the pattern.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ goeslrit --images /path/to/packets/packets-2018-02-28T*
+Reading: /path/to/packets/packets-2018-02-28T00:00:00Z.raw
+Writing: OR_ABI-L2-CMIPM1-M3C02_G16_s20180582358300_e20180582358358_c20180582358429.lrit (4004087 bytes)
+Writing: OR_ABI-L2-CMIPM2-M3C07_G16_s20180590000000_e20180590000071_c20180590000108.lrit (254551 bytes)
+...
+</pre></div>
+</div>
+</div>
+<div class="section" id="reading-packets-from-goesrecv">
+<h2>Reading packets from goesrecv<a class="headerlink" href="#reading-packets-from-goesrecv" title="Permalink to this headline">¶</a></h2>
+<p>Subscribe to the <a class="reference internal" href="goesrecv.html#goesrecv"><span class="std std-ref">goesrecv</span></a> packet publisher to process live data.</p>
+<p>This is done using the <code class="docutils literal notranslate"><span class="pre">--subscribe</span></code> option, which takes a valid
+<em>nanomsg</em> address. This is typically a TCP address if goeslrit runs on
+a different machine than goesrecv. If they run on the same machine, it
+can either be a TCP address or an IPC address.</p>
+<p>The address takes the following form:</p>
+<ul class="simple">
+<li><code class="code docutils literal notranslate"><span class="pre">tcp://&lt;ip&gt;:&lt;port&gt;</span></code> – connect to goesrecv over the network.
+Also see <a class="reference external" href="http://nanomsg.org/v1.1.2/nn_tcp.html">nn_tcp(7)</a>.</li>
+<li><code class="code docutils literal notranslate"><span class="pre">ipc://path/to/socket</span></code> – connect to goesrecv on same machine.
+Also see <a class="reference external" href="http://nanomsg.org/v1.1.2/nn_ipc.html">nn_ipc(7)</a>.</li>
+</ul>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ goeslrit --images --subscribe tcp://1.2.3.4:5005
+Writing: OR_ABI-L2-CMIPM1-M3C02_G16_s20180591958303_e20180591958360_c20180591958427.lrit (4004087 bytes)
+Writing: OR_ABI-L2-CMIPM2-M3C07_G16_s20180592000003_e20180592000073_c20180592000110.lrit (254551 bytes)
+...
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="goesproc.html" class="btn btn-neutral float-right" title="goesproc" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="goesrecv.html" class="btn btn-neutral" title="goesrecv" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Pieter Noordhuis.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
