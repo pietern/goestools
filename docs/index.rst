@@ -13,6 +13,7 @@ Welcome to goestools's documentation!
    installation
    commands
    guides
+   resources
 
 
 Indices and tables
