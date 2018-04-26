@@ -6,8 +6,15 @@ Links
 
 About the satellites and the signals (GOES-R series):
 
-* HRIT/EMWIN: https://www.goes-r.gov/hrit_emwin/ATR-2010-5482.pdf
-* GOES Rebroadcast (GRB): https://www.goes-r.gov/users/docs/GRB_downlink.pdf
+* HRIT/EMWIN:
+
+  * https://www.goes-r.gov/users/hrit.html
+  * https://www.goes-r.gov/hrit_emwin/ATR-2010-5482.pdf
+
+* GOES Rebroadcast (GRB):
+
+  * https://www.goes-r.gov/users/grb.html
+  * https://www.goes-r.gov/users/docs/GRB_downlink.pdf
 
 Since HRIT is a higher baud rate LRIT, all the docs about the LRIT
 signal and file format still apply:
