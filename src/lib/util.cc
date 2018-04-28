@@ -91,7 +91,11 @@ void mkdirp(const std::string& path) {
       continue;
     }
     auto sub = path.substr(0, pos);
-    auto rv = mkdir(sub.c_str(), S_IRWXU);
+    constexpr auto mode =
+      S_IRUSR | S_IWUSR | S_IXUSR |
+      S_IRGRP | S_IXGRP |
+      S_IROTH | S_IXOTH;
+    auto rv = mkdir(sub.c_str(), mode);
     if (rv == -1 && errno != EEXIST) {
       perror("mkdir");
       assert(rv == 0);
