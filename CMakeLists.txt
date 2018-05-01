@@ -88,3 +88,8 @@ option(BUILD_GOESPROC "Build goesproc" ON)
 if(${BUILD_GOESPROC})
   add_subdirectory(src/goesproc)
 endif()
+
+option(BUILD_GOESCAT "Build goescat" ON)
+if(${BUILD_GOESCAT})
+  add_subdirectory(src/goescat)
+endif()
