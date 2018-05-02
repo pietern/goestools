@@ -145,9 +145,10 @@ ClockRecovery::ClockRecovery(uint32_t sampleRate, uint32_t symbolRate) {
   omega_ = ((float) sampleRate / (float) symbolRate);
   setLoopBandwidth(1e-3f);
 
-  // Allow 1% deviation from expected omega.
-  omegaMin_ = omega_ - 0.01 * omega_;
-  omegaMax_ = omega_ + 0.01 * omega_;
+  // Allow 0.2% deviation from expected omega.
+  constexpr auto deviate = 0.002f;
+  omegaMin_ = omega_ - deviate * omega_;
+  omegaMax_ = omega_ + deviate * omega_;
 
   p0t_ = 0.0f;
   p1t_ = 0.0f;
@@ -243,10 +244,19 @@ void ClockRecovery::work(
     float mm = u.real();
     mm = 0.5f * (fabsf(mm + 1.0f) - fabsf(mm - 1.0f));
 
-    // Update and clip omega
+    // Update omega
     omega_ += omegaGain_ * mm;
-    omega_ = std::min(omega_, omegaMax_);
-    omega_ = std::max(omega_, omegaMin_);
+
+    // Wrap omega if it hits the lower or upper bound.
+    // If the algorithm is biased to always increase omega at a
+    // certain point, it will wrap and start from minimum, in the
+    // hope it locks on to the signal again.
+    if (omega_ < omegaMin_) {
+      omega_ = omegaMax_;
+    }
+    if (omega_ > omegaMax_) {
+      omega_ = omegaMin_;
+    }
 
     // Update mu with new omega
     // It is OK if this is bigger than 1.0 because that means
