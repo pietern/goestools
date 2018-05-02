@@ -27,9 +27,16 @@ std::string SessionPDU::getName() const {
 }
 
 void SessionPDU::skipLines(int skip) {
-  // Insert black line if there is no contents yet
   auto columns = szParam_->pixels_per_scanline;
-  if (buf_.empty()) {
+
+  // The header must be complete or this function would not be called,
+  // so the number of bytes in excess of the header must be greater
+  // than or equal to 0.
+  auto bytes = buf_.size() - ph_.totalHeaderLength;
+  assert(bytes >= 0);
+
+  // Insert black line if there is no contents yet
+  if (bytes == 0) {
     buf_.insert(buf_.end(), columns, 0);
     linesDone_++;
     skip--;
