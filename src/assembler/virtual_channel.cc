@@ -187,7 +187,7 @@ void VirtualChannel::process(
           << apid
           << " (" << spdu->getName() << ")"
           << std::endl;
-        out.push_back(std::move(spdu));
+        finish(std::move(spdu), out);
       }
 
       // Erase pending S_PDU as it won't be finished now
@@ -213,7 +213,7 @@ void VirtualChannel::process(
             << apid
             << std::endl;
         } else {
-          out.push_back(std::move(spdu));
+          finish(std::move(spdu), out);
         }
       } else {
         // Expecting subsequent TP_PDUs to fill this S_PDU
@@ -256,7 +256,7 @@ void VirtualChannel::process(
             << apid
             << " (" << spdu->getName() << ")"
             << std::endl;
-          out.push_back(std::move(spdu));
+          finish(std::move(spdu), out);
         }
 
         // Erase S_PDU regardless if it was finished or not
@@ -264,12 +264,36 @@ void VirtualChannel::process(
       } else {
         // Successfully appended TP_PDU to S_PDU
         if (flag == 2) {
-          out.push_back(std::move(spdu));
+          finish(std::move(spdu), out);
           apidSessionPDU_.erase(apid);
         }
       }
     }
   }
+}
+
+// Add session PDU to output vector if sanity checks pass
+void VirtualChannel::finish(
+    std::unique_ptr<SessionPDU> spdu,
+    std::vector<std::unique_ptr<SessionPDU>>& out) {
+  // Must have complete header
+  if (spdu->hasCompleteHeader()) {
+    // Ensure that the reported size is equal to the actual size
+    auto ph = spdu->getPrimaryHeader();
+    auto size = ph.totalHeaderLength + ((ph.dataLength + 7) / 8);
+    if (size == spdu->size()) {
+      out.push_back(std::move(spdu));
+      return;
+    }
+  }
+
+  std::cerr
+    << "VC "
+    << spdu->vcid
+    << ": Dropping malformed S_PDU for APID "
+    << spdu->apid
+    << " (" << spdu->size() << " bytes)"
+    << std::endl;
 }
 
 } // namespace assembler

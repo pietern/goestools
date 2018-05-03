@@ -73,6 +73,10 @@ public:
     return m_;
   }
 
+  const lrit::PrimaryHeader& getPrimaryHeader() const {
+    return ph_;
+  }
+
   const int vcid;
   const int apid;
 

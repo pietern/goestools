@@ -23,6 +23,10 @@ protected:
     std::unique_ptr<TransportPDU> tpdu,
     std::vector<std::unique_ptr<SessionPDU>>& out);
 
+  void finish(
+    std::unique_ptr<SessionPDU> spdu,
+    std::vector<std::unique_ptr<SessionPDU>>& out);
+
   int id_;
   int n_;
 
