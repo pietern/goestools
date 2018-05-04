@@ -9,6 +9,11 @@ class Costas {
 public:
   explicit Costas();
 
+  // Set maximum frequency deviation in radians per sample.
+  void setMaxDeviation(float maxDeviation) {
+    maxDeviation_ = maxDeviation;
+  }
+
   void setSamplePublisher(std::unique_ptr<SamplePublisher> samplePublisher) {
     samplePublisher_ = std::move(samplePublisher);
   }
@@ -32,6 +37,7 @@ protected:
   float freq_;
   float alpha_;
   float beta_;
+  float maxDeviation_;
 
   std::unique_ptr<SamplePublisher> samplePublisher_;
 };

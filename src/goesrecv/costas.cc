@@ -16,6 +16,7 @@ Costas::Costas() {
   freq_ = 0.0f;
   alpha_ = (4 * damp * bw) / (1.0 + 2.0 * damp * bw + bw * bw);
   beta_ = (4 * bw * bw) / (1.0 + 2.0 * damp * bw + bw * bw);
+  maxDeviation_ = M_2PI;
 }
 
 #ifdef __ARM_NEON__
@@ -76,6 +77,10 @@ void Costas::work(
     freq_ += beta_ * terr;
     phase_ += alpha_ * terr + freq_;
 
+    // Clamp frequency
+    freq_ = (0.5f * (fabsf(freq_ + maxDeviation_) -
+                     fabsf(freq_ - maxDeviation_)));
+
     // Wrap phase if needed
     if (phase_ > M_2PI || phase_ < -M_2PI) {
       float frac = phase_ * (1.0 / M_2PI);
@@ -122,6 +127,10 @@ void Costas::work(
     // Update frequency and phase
     freq_ += beta_ * terr;
     phase_ += alpha_ * terr + freq_;
+
+    // Clamp frequency
+    freq_ = (0.5f * (fabsf(freq_ + maxDeviation_) -
+                     fabsf(freq_ - maxDeviation_)));
 
     // Wrap phase if needed
     if (phase_ > M_2PI || phase_ < -M_2PI) {

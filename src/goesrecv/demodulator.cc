@@ -50,7 +50,11 @@ void Demodulator::initialize(Config& config) {
   agc_->setMax(config.agc.max);
   agc_->setSamplePublisher(std::move(config.agc.samplePublisher));
 
+  // Maximum frequency deviation in radians per sample (given in Hz)
+  const auto maxDeviation =
+    (config.costas.maxDeviation * 2 * M_PI) / sampleRate_;
   costas_ = std::make_unique<Costas>();
+  costas_->setMaxDeviation(maxDeviation);
   costas_->setSamplePublisher(std::move(config.costas.samplePublisher));
 
   rrc_ = std::make_unique<RRC>(dc, sr1, symbolRate_);

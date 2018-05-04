@@ -193,6 +193,14 @@ void loadCostas(Config::Costas& out, const toml::Value& v) {
     const auto& key = it.first;
     const auto& value = it.second;
 
+    if (key == "max_deviation") {
+      out.maxDeviation = (int) value.as<double>();
+      if (out.maxDeviation <= 0) {
+        throw std::invalid_argument("Expected 'max_deviation' to be positive");
+      }
+      continue;
+    }
+
     if (key == "sample_publisher") {
       out.samplePublisher = createSamplePublisher(value);
       continue;

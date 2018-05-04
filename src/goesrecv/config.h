@@ -65,6 +65,9 @@ struct Config {
   AGC agc;
 
   struct Costas {
+    // Maximum frequency deviation in Hz (defaults to 20 KHz)
+    int maxDeviation = 20000;
+
     std::unique_ptr<SamplePublisher> samplePublisher;
   };
 
