@@ -7,11 +7,9 @@
 Demodulator::Demodulator(Demodulator::Type t) {
   switch (t) {
   case LRIT:
-    freq_ = 1691000000;
     symbolRate_ = 293883;
     break;
   case HRIT:
-    freq_ = 1694100000;
     symbolRate_ = 927000;
     break;
   default:
@@ -33,7 +31,6 @@ Demodulator::Demodulator(Demodulator::Type t) {
 
 void Demodulator::initialize(Config& config) {
   source_ = Source::build(config.demodulator.source, config);
-  source_->setFrequency(freq_);
   sampleRate_ = source_->getSampleRate();
 
   statsPublisher_ = StatsPublisher::create(config.demodulator.statsPublisher.bind);

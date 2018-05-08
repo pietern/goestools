@@ -56,10 +56,6 @@ Nanomsg::Nanomsg(int fd) : fd_(fd) {
 Nanomsg::~Nanomsg() {
 }
 
-void Nanomsg::setFrequency(uint32_t freq) {
-  // Nothing to do; frequency is determined by producer
-}
-
 void Nanomsg::setSampleRate(uint32_t sampleRate) {
   sampleRate_ = sampleRate;
 }

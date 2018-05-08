@@ -21,7 +21,7 @@ public:
     return tunerGains_;
   }
 
-  virtual void setFrequency(uint32_t freq) override;
+  void setFrequency(uint32_t freq);
 
   void setSampleRate(uint32_t rate);
 

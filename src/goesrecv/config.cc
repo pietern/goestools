@@ -14,6 +14,13 @@ void throwInvalidKey(const std::string& key) {
   throw std::invalid_argument(ss.str());
 }
 
+template <typename T>
+void setIfZero(T& out, T value) {
+  if (out == 0) {
+    out = value;
+  }
+}
+
 std::unique_ptr<SamplePublisher> createSamplePublisher(const toml::Value& v) {
   auto bind = v.find("bind");
   if (!bind) {
@@ -116,6 +123,56 @@ void loadDemodulator(Config::Demodulator& out, const toml::Value& v) {
   }
 }
 
+void loadAirspySource(Config::Airspy& out, const toml::Value& v) {
+  const auto& table = v.as<toml::Table>();
+  for (const auto& it : table) {
+    const auto& key = it.first;
+    const auto& value = it.second;
+
+    if (key == "frequency") {
+      out.frequency = value.as<int>();
+      continue;
+    }
+
+    if (key == "gain") {
+      out.gain = value.as<int>();
+      continue;
+    }
+
+    if (key == "sample_publisher") {
+      out.samplePublisher = createSamplePublisher(value);
+      continue;
+    }
+
+    throwInvalidKey(key);
+  }
+}
+
+void loadRTLSDRSource(Config::RTLSDR& out, const toml::Value& v) {
+  const auto& table = v.as<toml::Table>();
+  for (const auto& it : table) {
+    const auto& key = it.first;
+    const auto& value = it.second;
+
+    if (key == "frequency") {
+      out.frequency = value.as<int>();
+      continue;
+    }
+
+    if (key == "gain") {
+      out.gain = value.as<int>();
+      continue;
+    }
+
+    if (key == "sample_publisher") {
+      out.samplePublisher = createSamplePublisher(value);
+      continue;
+    }
+
+    throwInvalidKey(key);
+  }
+}
+
 void loadNanomsgSource(Config::Nanomsg& out, const toml::Value& v) {
   const auto& table = v.as<toml::Table>();
   for (const auto& it : table) {
@@ -137,6 +194,11 @@ void loadNanomsgSource(Config::Nanomsg& out, const toml::Value& v) {
       continue;
     }
 
+    if (key == "sample_publisher") {
+      out.samplePublisher = createSamplePublisher(value);
+      continue;
+    }
+
     throwInvalidKey(key);
   }
 
@@ -144,21 +206,6 @@ void loadNanomsgSource(Config::Nanomsg& out, const toml::Value& v) {
     std::stringstream ss;
     ss << "Key not set: sample_rate";
     throw std::invalid_argument(ss.str());
-  }
-}
-
-void loadSource(Config::Source& out, const toml::Value& v) {
-  const auto& table = v.as<toml::Table>();
-  for (const auto& it : table) {
-    const auto& key = it.first;
-    const auto& value = it.second;
-
-    if (key == "sample_publisher") {
-      out.samplePublisher = createSamplePublisher(value);
-      continue;
-    }
-
-    throwInvalidKey(key);
   }
 }
 
@@ -310,13 +357,18 @@ Config Config::load(const std::string& file) {
       continue;
     }
 
-    if (key == "nanomsg") {
-      loadNanomsgSource(out.nanomsg, value);
+    if (key == "airspy") {
+      loadAirspySource(out.airspy, value);
       continue;
     }
 
-    if (key == "source") {
-      loadSource(out.source, value);
+    if (key == "rtlsdr") {
+      loadRTLSDRSource(out.rtlsdr, value);
+      continue;
+    }
+
+    if (key == "nanomsg") {
+      loadNanomsgSource(out.nanomsg, value);
       continue;
     }
 
@@ -364,6 +416,16 @@ Config Config::load(const std::string& file) {
   // Add inproc endpoints for the stats publishers
   out.demodulator.statsPublisher.bind.push_back(demodulatorStatsEndpoint);
   out.decoder.statsPublisher.bind.push_back(decoderStatsEndpoint);
+
+  // If the mode field is used, we can populate sane defaults
+  if (out.demodulator.downlinkType == "lrit") {
+    setIfZero(out.airspy.frequency, 1691000000u);
+    setIfZero(out.rtlsdr.frequency, 1691000000u);
+  }
+  if (out.demodulator.downlinkType == "hrit") {
+    setIfZero(out.airspy.frequency, 1694100000u);
+    setIfZero(out.rtlsdr.frequency, 1694100000u);
+  }
 
   return out;
 }

@@ -18,9 +18,6 @@ public:
   // Sample rate is set in the configuration
   virtual uint32_t getSampleRate() const = 0;
 
-  // Frequency is set by the demodulator (depends on downlink type)
-  virtual void setFrequency(uint32_t) = 0;
-
   // Start producing samples
   virtual void start(const std::shared_ptr<Queue<Samples> >& queue) = 0;
 

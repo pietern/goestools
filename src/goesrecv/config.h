@@ -33,6 +33,28 @@ struct Config {
 
   Demodulator demodulator;
 
+  struct Airspy {
+    uint32_t frequency = 0;
+
+    // Applies to the linearity gain setting
+    uint8_t gain = 18;
+
+    std::unique_ptr<SamplePublisher> samplePublisher;
+ };
+
+  Airspy airspy;
+
+  struct RTLSDR {
+    uint32_t frequency = 0;
+
+    // Applies to the tuner gain setting
+    uint8_t gain = 30;
+
+    std::unique_ptr<SamplePublisher> samplePublisher;
+  };
+
+  RTLSDR rtlsdr;
+
   struct Nanomsg {
     // Address to connect to
     std::string connect;
@@ -42,15 +64,11 @@ struct Config {
 
     // Required sample rate of stream
     uint32_t sampleRate = 0;
-  };
 
-  Nanomsg nanomsg;
-
-  struct Source {
     std::unique_ptr<SamplePublisher> samplePublisher;
   };
 
-  Source source;
+  Nanomsg nanomsg;
 
   struct AGC {
     // Minimum gain

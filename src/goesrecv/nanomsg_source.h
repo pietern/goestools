@@ -17,8 +17,6 @@ public:
     samplePublisher_ = std::move(samplePublisher);
   }
 
-  virtual void setFrequency(uint32_t freq) override;
-
   void setSampleRate(uint32_t rate);
 
   virtual uint32_t getSampleRate() const override;

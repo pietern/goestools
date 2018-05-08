@@ -34,7 +34,6 @@ public:
 protected:
   void publishStats();
 
-  uint32_t freq_;
   uint32_t symbolRate_;
   uint32_t sampleRate_;
 
