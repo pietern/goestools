@@ -160,20 +160,14 @@ std::string FilenameBuilder::build(
   // Replace {time:FORMAT}
   replace(out, time);
 
-  // Replace {awips:XXX}, if available
-  if (awips != nullptr) {
-    replace(out, *awips);
-  }
+  // Replace {awips:XXX}
+  replace(out, awips);
 
-  // Replace {region:XXX}, if applicable
-  if (region != nullptr) {
-    replace(out, *region);
-  }
+  // Replace {region:XXX}
+  replace(out, region);
 
-  // Replace {channel:XXX}, if applicable
-  if (channel != nullptr) {
-    replace(out, *channel);
-  }
+  // Replace {channel:XXX}
+  replace(out, channel);
 
   return out;
 }

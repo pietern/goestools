@@ -8,9 +8,9 @@ struct FilenameBuilder {
   std::string filename;
 
   struct timespec time;
-  const AWIPS* awips;
-  Region* region;
-  Channel* channel;
+  AWIPS awips;
+  Region region;
+  Channel channel;
 
   std::string build(
     const std::string& pattern,

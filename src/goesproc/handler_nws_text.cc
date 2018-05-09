@@ -82,7 +82,7 @@ void NWSTextHandler::handle(std::shared_ptr<const lrit::File> f) {
   fb.dir = config_.dir;
   fb.filename = removeSuffix(f->getHeader<lrit::AnnotationHeader>().text);
   fb.time = time;
-  fb.awips = &awips;
+  fb.awips = awips;
   auto path = fb.build(config_.filename, "txt");
   fileWriter_->write(path, f->read());
 }

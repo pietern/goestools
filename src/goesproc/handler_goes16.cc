@@ -59,8 +59,8 @@ void GOES16ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   fb.dir = config_.dir;
   fb.filename = removeSuffix(f->getHeader<lrit::AnnotationHeader>().text);
   fb.time = details.frameStart;
-  fb.region = &details.region;
-  fb.channel = &details.channel;
+  fb.region = details.region;
+  fb.channel = details.channel;
 
   // If this is not a segmented image we can post process immediately
   if (!details.segmented) {
@@ -156,10 +156,8 @@ void GOES16ImageHandler::handleImageForFalseColor(
   // Replace channel field in filename builder.
   // The incoming filename builder will have the channel set to one of
   // the two channels used for this false color image.
-  Channel channel;
-  channel.nameShort = "FC";
-  channel.nameLong = "False Color";
-  fb.channel = &channel;
+  fb.channel.nameShort = "FC";
+  fb.channel.nameLong = "False Color";
 
   auto image = Image::generateFalseColor(i0, i1, config_.lut);
   auto path = fb.build(config_.filename, config_.format);

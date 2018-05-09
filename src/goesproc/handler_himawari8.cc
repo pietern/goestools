@@ -87,8 +87,8 @@ void Himawari8ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
     fb.dir = config_.dir;
     fb.filename = getBasename(*f);
     fb.time = getTime(*f);
-    fb.region = &region;
-    fb.channel = &channel;
+    fb.region = region;
+    fb.channel = channel;
 
     auto path = fb.build(config_.filename, config_.format);
     fileWriter_->write(path, image->getRawImage());

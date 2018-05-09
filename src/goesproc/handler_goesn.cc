@@ -117,8 +117,8 @@ void GOESNImageHandler::handle(std::shared_ptr<const lrit::File> f) {
     fb.dir = config_.dir;
     fb.filename = filename;
     fb.time = details.frameStart;
-    fb.region = &region;
-    fb.channel = &channel;
+    fb.region = region;
+    fb.channel = channel;
 
     cv::Mat raw;
     if (config_.crop.empty()) {
