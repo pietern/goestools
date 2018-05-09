@@ -32,15 +32,11 @@ protected:
     bool segmented;
   };
 
-  void handleImage(
-    FilenameBuilder& fb,
-    std::unique_ptr<Image> image,
-    GOES16ImageHandler::Details details);
+  using Tuple = std::tuple<std::unique_ptr<Image>, Details, FilenameBuilder>;
 
-  void handleImageForFalseColor(
-    FilenameBuilder& fb,
-    std::unique_ptr<Image> image,
-    GOES16ImageHandler::Details details);
+  void handleImage(Tuple t);
+
+  void handleImageForFalseColor(Tuple t);
 
   Details loadDetails(const lrit::File& f);
 
@@ -59,5 +55,5 @@ protected:
 
   // To generate false color images we have to keep the image of one channel
   // around while we wait for the other one to be received.
-  std::tuple<std::unique_ptr<Image>, Details> tmp_;
+  Tuple tmp_;
 };

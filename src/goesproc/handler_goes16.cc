@@ -65,7 +65,8 @@ void GOES16ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   // If this is not a segmented image we can post process immediately
   if (!details.segmented) {
     auto image = Image::createFromFile(f);
-    handleImage(fb, std::move(image), details);
+    auto tuple = Tuple(std::move(image), std::move(details), std::move(fb));
+    handleImage(std::move(tuple));
     return;
   }
 
@@ -96,15 +97,17 @@ void GOES16ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
 
     // Fill sides with black only for GOES-16
     image->fillSides();
-    handleImage(fb, std::move(image), details);
+    auto tuple = Tuple(std::move(image), std::move(details), std::move(fb));
+    handleImage(std::move(tuple));
     return;
   }
 }
 
-void GOES16ImageHandler::handleImage(
-    FilenameBuilder& fb,
-    std::unique_ptr<Image> image,
-    GOES16ImageHandler::Details details) {
+void GOES16ImageHandler::handleImage(Tuple t) {
+  auto& image = std::get<0>(t);
+  auto& details = std::get<1>(t);
+  auto& fb = std::get<2>(t);
+
   // Remap image values if configured for this channel
   auto it = config_.remap.find(details.channel.nameShort);
   if (it != std::end(config_.remap)) {
@@ -114,7 +117,7 @@ void GOES16ImageHandler::handleImage(
   // If this handler is configured to produce false color images,
   // we may need to wait for the other channel to come along.
   if (config_.lut.data) {
-    handleImageForFalseColor(fb, std::move(image), details);
+    handleImageForFalseColor(std::move(t));
     return;
   }
 
@@ -122,23 +125,29 @@ void GOES16ImageHandler::handleImage(
   fileWriter_->write(path, image->getRawImage());
 }
 
-void GOES16ImageHandler::handleImageForFalseColor(
-    FilenameBuilder& fb,
-    std::unique_ptr<Image> i1,
-    GOES16ImageHandler::Details d1) {
-  auto i0 = std::move(std::get<0>(tmp_));
-  auto d0 = std::move(std::get<1>(tmp_));
+void GOES16ImageHandler::handleImageForFalseColor(Tuple t) {
+  auto& i0 = std::get<0>(tmp_);
+  auto& d0 = std::get<1>(tmp_);
+  auto& f0 = std::get<2>(tmp_);
+  auto& i1 = std::get<0>(t);
+  auto& d1 = std::get<1>(t);
+  auto& f1 = std::get<2>(t);
 
   // If this is the first image of a pair, keep it around and wait for the next one.
   if (!i0 || (d0.frameStart.tv_sec != d1.frameStart.tv_sec)) {
-    tmp_ = std::make_tuple<std::unique_ptr<Image>, Details>(std::move(i1), std::move(d1));
+    tmp_ = std::move(t);
     return;
   }
 
   // Swap if ordering of images doesn't match ordering of channels
   if (d0.channel.nameShort != config_.channels.front()) {
-    i0.swap(i1);
+    std::swap(i0, i1);
+    std::swap(d0, d1);
+    std::swap(f0, f1);
   }
+
+  // Use filename builder of first channel
+  auto& fb = f0;
 
   // Update filename in filename builder to reflect that this is a
   // synthesized image. It would be misleading to use the filename of
