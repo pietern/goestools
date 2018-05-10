@@ -6,6 +6,7 @@
 #include "lib/file_reader.h"
 #include "lib/file_writer.h"
 #include "lib/nanomsg_reader.h"
+#include "lib/nanomsg_writer.h"
 #include "options.h"
 
 int main(int argc, char** argv) {
@@ -13,8 +14,8 @@ int main(int argc, char** argv) {
 
   // Create packet reader depending on options
   std::unique_ptr<PacketReader> reader;
-  if (!opts.publisher.empty()) {
-    reader = std::make_unique<NanomsgReader>(opts.publisher);
+  if (!opts.subscribe.empty()) {
+    reader = std::make_unique<NanomsgReader>(opts.subscribe);
   } else if (!opts.files.empty()) {
     reader = std::make_unique<FileReader>(opts.files);
   } else {
@@ -23,8 +24,13 @@ int main(int argc, char** argv) {
   }
 
   // Create file writer for current directory
-  std::unique_ptr<PacketWriter> writer;
-  writer = std::make_unique<FileWriter>(".");
+  std::vector<std::unique_ptr<PacketWriter>> writers;
+  if (opts.record) {
+    writers.push_back(std::make_unique<FileWriter>("."));
+  }
+  if (!opts.publish.empty()) {
+    writers.push_back(std::make_unique<NanomsgWriter>(opts.publish));
+  }
 
   std::array<uint8_t, 892> buf;
   while (reader->nextPacket(buf)) {
@@ -36,6 +42,8 @@ int main(int argc, char** argv) {
       }
     }
 
-    writer->write(buf, time(0));
+    for (auto& writer : writers) {
+      writer->write(buf, time(0));
+    }
   }
 }
