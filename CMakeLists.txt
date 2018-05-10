@@ -21,7 +21,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/vendor/sanitizers-cmake/cmake ${CMAKE_
 find_package(Sanitizers)
 
 # Force static build of libaec
-set(BUILD_SHARED_LIBS OFF)
+set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "" FORCE)
 
 # Set a default build type if none was specified
 set(default_build_type "RelWithDebInfo")
