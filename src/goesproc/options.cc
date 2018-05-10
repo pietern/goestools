@@ -46,11 +46,12 @@ Options parseOptions(int& argc, char**& argv) {
 
   while (1) {
     static struct option longOpts[] = {
-      {"config", required_argument, 0, 'c'},
-      {"mode", required_argument, 0, 'm'},
-      {"subscribe", required_argument, 0, 0x1001},
-      {"force", no_argument, 0, 'f'},
-      {"help", no_argument, 0, 0x1337},
+      {"config",    required_argument, nullptr, 'c'},
+      {"mode",      required_argument, nullptr, 'm'},
+      {"subscribe", required_argument, nullptr, 0x1001},
+      {"force",     no_argument,       nullptr, 'f'},
+      {"help",      no_argument,       nullptr, 0x1337},
+      {nullptr,     0,                 nullptr, 0},
     };
     int i;
     int c = getopt_long(argc, argv, "c:m:f", longOpts, &i);

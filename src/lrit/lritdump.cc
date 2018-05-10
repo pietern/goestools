@@ -219,9 +219,10 @@ int main(int argc, char** argv) {
 
   while (1) {
     static struct option longOpts[] = {
-      {"extract", no_argument, 0, 'x'},
-      {"verbose", no_argument, 0, 'v'},
-      {"help",    no_argument, 0, 0x1337},
+      {"extract", no_argument, nullptr, 'x'},
+      {"verbose", no_argument, nullptr, 'v'},
+      {"help",    no_argument, nullptr, 0x1337},
+      {nullptr,   0,           nullptr, 0},
     };
 
     auto c = getopt_long(argc, argv, "xv", longOpts, nullptr);

@@ -23,10 +23,11 @@ Options parseOptions(int argc, char** argv) {
 
   while (1) {
     static struct option longOpts[] = {
-      {"config", required_argument, 0, 'c'},
-      {"verbose", no_argument, 0, 'v'},
-      {"interval", required_argument, 0, 'i'},
-      {"help", no_argument, 0, 0x1337},
+      {"config",   required_argument, nullptr, 'c'},
+      {"verbose",  no_argument,       nullptr, 'v'},
+      {"interval", required_argument, nullptr, 'i'},
+      {"help",     no_argument,       nullptr, 0x1337},
+      {nullptr,    0,                 nullptr, 0},
     };
 
     auto c = getopt_long(argc, argv, "c:vi:", longOpts, nullptr);

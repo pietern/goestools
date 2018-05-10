@@ -32,15 +32,16 @@ Options parseOptions(int argc, char** argv) {
 
   while (1) {
     static struct option longOpts[] = {
-      {"subscribe", required_argument, 0, 0x1001},
-      {"dry-run",  no_argument,        0, 'n'},
-      {"all",      no_argument,        0, 0x1100},
-      {"images",   no_argument,        0, 0x1101},
-      {"messages", no_argument,        0, 0x1102},
-      {"text",     no_argument,        0, 0x1103},
-      {"dcs",      no_argument,        0, 0x1104},
-      {"emwin",    no_argument,        0, 0x1105},
-      {"help",     no_argument,        0, 0x1337},
+      {"subscribe", required_argument, nullptr, 0x1001},
+      {"dry-run",   no_argument,       nullptr, 'n'},
+      {"all",       no_argument,       nullptr, 0x1100},
+      {"images",    no_argument,       nullptr, 0x1101},
+      {"messages",  no_argument,       nullptr, 0x1102},
+      {"text",      no_argument,       nullptr, 0x1103},
+      {"dcs",       no_argument,       nullptr, 0x1104},
+      {"emwin",     no_argument,       nullptr, 0x1105},
+      {"help",      no_argument,       nullptr, 0x1337},
+      {nullptr,     0,                 nullptr, 0},
     };
 
     auto c = getopt_long(argc, argv, "n", longOpts, nullptr);
