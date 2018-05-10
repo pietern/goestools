@@ -53,8 +53,8 @@ Options parseOptions(int& argc, char**& argv) {
       {"help",      no_argument,       nullptr, 0x1337},
       {nullptr,     0,                 nullptr, 0},
     };
-    int i;
-    int c = getopt_long(argc, argv, "c:m:f", longOpts, &i);
+
+    auto c = getopt_long(argc, argv, "c:m:f", longOpts, nullptr);
     if (c == -1) {
       break;
     }
