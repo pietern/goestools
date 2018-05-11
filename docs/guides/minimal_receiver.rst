@@ -5,8 +5,13 @@ A minimal LRIT/HRIT receiver
 
 Receiving the LRIT and/or HRIT signal can be done with relatively
 inexpensive equipment. This guide describes a minimal configuration
-that I have confirmed to work. Reproducing this setup with new
-components costs about $200 (excluding tax/shipping).
+that I have confirmed to work **at my location**.
+
+.. warning::
+
+   Whether or not this configuration works at your location depends on
+   a large number of factors, such as satellite elevation, local
+   interference, etc. Try it at your own risk.
 
 The bill of materials is as follows:
 
@@ -33,6 +38,8 @@ The bill of materials is as follows:
 * Jumper from male SMA to male SMA (for LNA to RTL-SDR)
 
   * Available at NooElec__; $8
+
+This sums up to about $200 excluding tax/shipping.
 
 .. __: http://www.newark.com/raspberry-pi/2773729/sbc-arm-cortex-a53-1gb-sdram/dp/49AC7637
 .. __: http://www.nooelec.com/store/sdr/sdr-receivers/nesdr/nesdr-smart-sdr.html
