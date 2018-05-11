@@ -61,13 +61,16 @@ pictures below).
 .. important::
 
    The listed grid dish antenna works for me at my location (San
-   Francisco Bay Area). I can receive GOES-15 at its west location,
-   GOES-16 at its east location, and GOES-17 at its checkout location
-   of 89 degrees west. GOES-16 is at about 25 degrees elevation. If
-   your location has GOES-16 at a lower elevation, you may need a
-   bigger dish. That said, even with GOES-16 at a higher elevation,
-   there are other factors that can impact whether or not you can use
-   this dish (blocked line of sight, local interference, etc).
+   Francisco Bay Area). I can receive GOES-15 at its west location
+   (135 degrees west), GOES-16 at its east location (75 degrees west),
+   and GOES-17 at its checkout location (89 degrees west). GOES-16 is
+   furthest away and at 25 degrees elevation at my location.
+
+   If your location has the satellite you're interested in at a lower
+   elevation than 25 degrees, you may need a bigger dish. However,
+   even with any satellite at a higher elevation, there are other
+   factors that can impact whether or not you can use the dish
+   mentioned here (blocked line of sight, local interference, etc).
 
    Find your local azimuth and elevation on `Satview`_
    (`GOES-15 <http://www.satview.org/?sat_id=36411U>`_,
@@ -86,14 +89,14 @@ The setup to test this configuration looked like this.
 .. image:: minimal_overview.jpg
    :scale: 45 %
 
-* The grid dish antenna has a female Type N connector so to connect it
-  to the SAWbird we need a male Type N to male SMA adapter (in the
+* The grid dish antenna has a female Type N connector. To connect it
+  to the SAWBird you need a male Type N to male SMA adapter (in the
   picture you see the adapter and an male SMA to male SMA jumper).
 * The NooElec SAWBird is connected to the grid dish antenna on the
   input and the RTL-SDR on the output. It is powered by the Pi over
   USB (the bias tee version of the SAWBird has a micro-USB connector).
-* The RTL-SDR is connected to the SAWBird with an male SMA to male SMA
-  jumper.
+* The RTL-SDR is connected to the SAWBird using a male SMA to male SMA
+  jumper cable.
 * In this setup, the Pi gets its power over USB.
 * In this setup, the Pi is connected to the network over Ethernet.
 * The laptop in the right image was only used to SSH into the Raspberry
@@ -101,10 +104,15 @@ The setup to test this configuration looked like this.
 
 .. note::
 
-   The Raspberry Pi 2 v1.1 works, but it doesn't leave much margin on
-   the processing power. You can only use it in combination with an
-   RTL-SDR. If you want to use it with an Airspy, the receiver will
-   drop packets due to its higher sampling rate of 3M samples/sec.
+   While the Raspberry Pi 2 v1.1 is adequate for HRIT demodulation and
+   decoding, it doesn't leave much margin on the processing power. In
+   a screenshot below you can see the demodulator use 96% of a single
+   CPU core.
+
+   The RTL-SDR can be configured to use a low enough sample rate to
+   still work with the Pi 2. If you want to use an Airspy Mini instead
+   (which has a minimum sample rate of 3M samples/sec), you'll have to
+   use a Raspberry Pi 2 v1.2 or the Raspberry Pi 3.
 
 Software
 --------
@@ -114,15 +122,18 @@ only use the Pi for signal demodulation and decode, so you can use the
 lite version. For instructions on building and installing goestools,
 see :ref:`installation`.
 
-After installing :ref:`goesrecv` and copying/modifying its
-configuration file, run it with ``-v -i 1`` to get second-by-second
-demodulator statistics. You can use the Viterbi error rate for
-pointing your dish. A rate of ~2000 means there is no signal. A rate
-of ~1000 may give you sporadic packets. A rate of ~400 can give you
-the complete stream of packets without any drops, but is very
-sensitive to interference. A rate of ~100 or lower is good and can
-give you a packet stream without drops for hours on end. The lower the
-Viterbi error rate, the better your signal. the better your signal.
+After installing :ref:`goesrecv`, copying and modifying its
+configuration file, you can run it with ``-v -i 1`` to get
+second-by-second demodulator statistics.
+You can use the Viterbi error rate for pointing your dish.
+A rate of ~2000 means there is no signal.
+A rate of ~1000 may give you sporadic packets.
+A rate of ~400 can give you the complete stream of packets without any
+drops, but is very sensitive to interference.
+A rate of ~100 or lower is good and can give you a packet stream
+without drops for hours on end.
+The lower the Viterbi error rate, the better your signal. the better
+your signal.
 
 The output of :ref:`goesrecv` during operation of the test setup:
 
