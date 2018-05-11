@@ -1,3 +1,5 @@
+.. _minimal_receiver:
+
 A minimal LRIT/HRIT receiver
 ============================
 

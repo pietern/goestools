@@ -10,7 +10,7 @@ Demodulate and decode signal into packet stream.
    You need a proper antenna system (incl. LNA and filter) to
    receive the LRIT and HRIT signals.
 
-   **TODO** -- link to guide for building one
+   See :ref:`minimal_receiver` for an example setup.
 
 You can use goesrecv with an RTL-SDR_ (make sure you have one with the
 R820T tuner chip), or an Airspy_ (confirmed to work with the Mini).
