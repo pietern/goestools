@@ -43,8 +43,8 @@ sample configuration file.
 .. _TOML:
    https://github.com/toml-lang/toml
 
-Stats
-=====
+Statistics
+==========
 
 There are a few ways to keep an eye on the signal quality and goesrecv
 performance. You may use more than one method or none at all.
