@@ -9,11 +9,42 @@ components costs about $200 (excluding tax/shipping).
 The bill of materials is as follows:
 
 * Raspberry Pi 2 (v1.1+) or higher
+
+  * Available at Newark__; $35 (Raspberry Pi 3 Model B+)
+
 * RTL-SDR with R820T2 tuner
-* NooElec SAWbird with bias tee (LNA and filter board)
+
+  * Available at NooElec__; $24 (NooElec NESDR SMArt)
+
+* NooElec SAWBird with bias tee (LNA and filter board)
+
+  * Available at NooElec (send an email to support@nooelec.com); ~$25
+
 * L-Com 1.9 GHz Parabolic Grid Antenna
-* Jumper/adapter from male Type N to male SMA (for antenna to LNA)
-* Jumper/adapter from male SMA to male SMA (for LNA to RTL-SDR)
+
+  * Available at L-Com__; $89
+
+* Adapter from male Type N to male SMA (for antenna to LNA)
+
+  * Available at L-Com__; $7
+
+* Jumper from male SMA to male SMA (for LNA to RTL-SDR)
+
+  * Available at NooElec__; $8
+
+.. __: http://www.newark.com/raspberry-pi/2773729/sbc-arm-cortex-a53-1gb-sdram/dp/49AC7637
+.. __: http://www.nooelec.com/store/sdr/sdr-receivers/nesdr/nesdr-smart-sdr.html
+.. __: http://www.l-com.com/wireless-antenna-hyperlink-brand-19-ghz-22-dbi-parabolic-grid-antenna
+.. __: http://www.l-com.com/coaxial-coaxial-adapter-n-male-sma-male
+.. __: http://www.nooelec.com/store/sdr/sdr-adapters-and-cables/sdr-cables/male-sma-to-male-sma-pigtail-rg316-0-5-length.html
+
+Instead of the listed RTL-SDR, you can also opt to buy the `NESDR
+SMArTee`__ ($26) which has an always-on bias tee for powering the
+SAWBird SAWBird LNA. Without an integrated bias tee you'll have to
+supply power to the SAWBird yourself with a micro-USB cable (see
+pictures below).
+
+.. __: http://www.nooelec.com/store/sdr/sdr-receivers/nesdr/nesdr-smartee-sdr.html
 
 .. note::
 
@@ -57,11 +88,11 @@ The setup to test this configuration looked like this.
 
 * The grid dish antenna has a female Type N connector so to connect it
   to the SAWbird we need a male Type N to male SMA adapter (in the
-  picture you see the adapter and an SMA-M to SMA-M jumper).
-* The NooElec SAWbird is connected to the grid dish antenna on the
-  input and the RTL-SDR on the output. It is powered from the Pi over
-  USB (the bias tee version of the SAWbird has a micro-USB connector).
-* The RTL-SDR is connected to the SAWbird with an SMA-M to SMA-M
+  picture you see the adapter and an male SMA to male SMA jumper).
+* The NooElec SAWBird is connected to the grid dish antenna on the
+  input and the RTL-SDR on the output. It is powered by the Pi over
+  USB (the bias tee version of the SAWBird has a micro-USB connector).
+* The RTL-SDR is connected to the SAWBird with an male SMA to male SMA
   jumper.
 * In this setup, the Pi gets its power over USB.
 * In this setup, the Pi is connected to the network over Ethernet.
@@ -131,3 +162,7 @@ Notes
 * Empirical evidence shows that adding another LNA *after* the NooElec
   SAWbird improves signal quality (e.g. going from Viterbi error rate
   ~150 to ~100).
+* `This post`__ by `@usa_satcom <https://twitter.com/usa_satcom>`_
+  showing the grid antenna is capable of receiving LRIT.
+
+.. __: https://twitter.com/usa_satcom/status/820773345956200449
