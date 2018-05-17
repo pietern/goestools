@@ -94,9 +94,6 @@ void GOES16ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   if (vector.size() == sih.maxSegment) {
     auto image = Image::createFromFiles(vector);
     vector.clear();
-
-    // Fill sides with black only for GOES-16
-    image->fillSides();
     auto tuple = Tuple(std::move(image), std::move(details), std::move(fb));
     handleImage(std::move(tuple));
     return;
@@ -107,6 +104,9 @@ void GOES16ImageHandler::handleImage(Tuple t) {
   auto& image = std::get<0>(t);
   auto& details = std::get<1>(t);
   auto& fb = std::get<2>(t);
+
+  // This turns the white fills outside the disk black
+  image->fillSides();
 
   // Remap image values if configured for this channel
   auto it = config_.remap.find(details.channel.nameShort);
