@@ -20,10 +20,10 @@ filename = "GOES16_{region:short}_FC_{time:%Y%m%dT%H%M%SZ}"
 format = "jpg"
 
   [handler.remap.ch02]
-  path = "/usr/share/goestools/wx-star/GOES-R_ABI_ch02_contrast_curve.pgm"
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/wxstar/wxstar_goes16_ch02_curve.png"
 
   [handler.lut]
-  path = "/usr/share/goestools/wx-star/GOES-R_ABI_false_color_lut.png"
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/wxstar/wxstar_goes16_lut.png"
 
 # Images relayed from Himawari-8.
 [[handler]]

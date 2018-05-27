@@ -87,6 +87,30 @@ endif()
 option(BUILD_GOESPROC "Build goesproc" ON)
 if(${BUILD_GOESPROC})
   add_subdirectory(src/goesproc)
+
+  # Process and install GOES-N series example config
+  configure_file(
+    share/goesproc-goesn.conf.in
+    "${PROJECT_BINARY_DIR}/share/goesproc-goesn.conf")
+  install(
+    FILES "${PROJECT_BINARY_DIR}/share/goesproc-goesn.conf"
+    DESTINATION share/goestools
+    COMPONENT goestools)
+
+  # Process and install GOES-R series example config
+  configure_file(
+    share/goesproc-goesr.conf.in
+    "${PROJECT_BINARY_DIR}/share/goesproc-goesr.conf")
+  install(
+    FILES "${PROJECT_BINARY_DIR}/share/goesproc-goesr.conf"
+    DESTINATION share/goestools
+    COMPONENT goestools)
+
+  # Install contrast curve and false color LUT
+  install(
+    DIRECTORY share/wxstar
+    DESTINATION share/goestools
+    COMPONENT goestools)
 endif()
 
 option(BUILD_GOESPACKETS "Build goespackets" ON)
