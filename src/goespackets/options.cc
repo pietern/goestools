@@ -10,11 +10,15 @@ void usage(int argc, char** argv) {
   fprintf(stderr, "Relay and/or record packet stream.\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "Options:\n");
-  fprintf(stderr, "      --subscribe ADDR  Address to subscribe to\n");
-  fprintf(stderr, "      --publish ADDR    Address to re-publish packets to\n");
-  fprintf(stderr, "      --record          Write packet stream to files on disk\n");
-  fprintf(stderr, "      --vcid VCID       Virtual Channel ID to filter\n");
-  fprintf(stderr, "                        (can be specified multiple times)\n");
+  fprintf(stderr, "      --subscribe ADDR    Address to subscribe to\n");
+  fprintf(stderr, "      --publish ADDR      Address to re-publish packets to\n");
+  fprintf(stderr, "      --vcid VCID         Virtual Channel ID to filter\n");
+  fprintf(stderr, "                          (can be specified multiple times)\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "Record packet stream:\n");
+  fprintf(stderr, "      --record            Enable recording of packet stream to disk\n");
+  fprintf(stderr, "      --filename PATTERN  Filename pattern for packet files (see strftime(3))\n");
+  fprintf(stderr, "                          (default: ./packets-%%FT%%H:%%M:00.raw)\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "If an address to subscribe to is specified,\n");
   fprintf(stderr, "FILE arguments are ignored.\n");
@@ -31,6 +35,7 @@ Options parseOptions(int argc, char** argv) {
       {"vcid",      required_argument, 0,       0x1002},
       {"publish",   required_argument, 0,       0x1003},
       {"record" ,   no_argument,       0,       0x1004},
+      {"filename" , required_argument, 0,       0x1005},
       {"help",      no_argument,       0,       0x1337},
       {nullptr,     0,                 nullptr, 0},
     };
@@ -54,6 +59,9 @@ Options parseOptions(int argc, char** argv) {
       break;
     case 0x1004:
       opts.record = true;
+      break;
+    case 0x1005:
+      opts.filename = optarg;
       break;
     case 0x1337:
       usage(argc, argv);

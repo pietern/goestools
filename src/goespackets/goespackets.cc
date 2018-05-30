@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
   // Create file writer for current directory
   std::vector<std::unique_ptr<PacketWriter>> writers;
   if (opts.record) {
-    writers.push_back(std::make_unique<FileWriter>("."));
+    writers.push_back(std::make_unique<FileWriter>(opts.filename));
   }
   if (!opts.publish.empty()) {
     writers.push_back(std::make_unique<NanomsgWriter>(opts.publish));
