@@ -106,7 +106,11 @@ void Nanomsg::loop() {
 void Nanomsg::start(const std::shared_ptr<Queue<Samples> >& queue) {
   queue_ = queue;
   thread_ = std::thread(&Nanomsg::loop, this);
+#ifdef __APPLE__
+  pthread_setname_np("nanomsg");
+#else
   pthread_setname_np(thread_.native_handle(), "nanomsg");
+#endif
 }
 
 void Nanomsg::stop() {

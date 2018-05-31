@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <ctime>
 #include <map>
+#include <string>
 #include <vector>
 
 namespace lrit {

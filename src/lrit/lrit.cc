@@ -1,5 +1,6 @@
 #include "lrit.h"
 
+#include <array>
 #include <cassert>
 #include <cstring>
 

@@ -104,7 +104,11 @@ void Demodulator::start() {
       clockRecoveryQueue_->close();
       softBitsQueue_->close();
     });
+#ifdef __APPLE__
+  pthread_setname_np("demodulator");
+#else
   pthread_setname_np(thread_.native_handle(), "demodulator");
+#endif
   source_->start(sourceQueue_);
 }
 
