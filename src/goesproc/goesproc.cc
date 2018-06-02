@@ -11,8 +11,8 @@
 
 #include "config.h"
 #include "handler_emwin.h"
-#include "handler_goes16.h"
 #include "handler_goesn.h"
+#include "handler_goesr.h"
 #include "handler_himawari8.h"
 #include "handler_nws_image.h"
 #include "handler_nws_text.h"
@@ -47,7 +47,11 @@ int main(int argc, char** argv) {
       if (handler.product == "goes16") {
         handlers.push_back(
           std::unique_ptr<Handler>(
-            new GOES16ImageHandler(handler, fileWriter)));
+            new GOESRImageHandler(handler, fileWriter)));
+      } else if (handler.product == "goes17") {
+          handlers.push_back(
+            std::unique_ptr<Handler>(
+              new GOESRImageHandler(handler, fileWriter)));
       } else if (handler.product == "nws") {
         handlers.push_back(
           std::unique_ptr<Handler>(

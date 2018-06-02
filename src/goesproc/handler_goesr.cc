@@ -1,4 +1,4 @@
-#include "handler_goes16.h"
+#include "handler_goesr.h"
 
 #include <cassert>
 
@@ -6,7 +6,7 @@
 
 #include "string.h"
 
-GOES16ImageHandler::GOES16ImageHandler(
+GOESRImageHandler::GOESRImageHandler(
   const Config::Handler& config,
   const std::shared_ptr<FileWriter>& fileWriter)
   : config_(config),
@@ -17,17 +17,25 @@ GOES16ImageHandler::GOES16ImageHandler(
   for (auto& channel : config_.channels) {
     channel = toUpper(channel);
   }
+
+  if (config_.product == "goes16") {
+    productID_ = 16;
+  } else if (config_.product == "goes17") {
+    productID_ = 17;
+  } else {
+    assert(false);
+  }
 }
 
-void GOES16ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
+void GOESRImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   auto ph = f->getHeader<lrit::PrimaryHeader>();
   if (ph.fileType != 0) {
     return;
   }
 
-  // Filter GOES-16
+  // Filter by product
   auto nlh = f->getHeader<lrit::NOAALRITHeader>();
-  if (nlh.productID != 16) {
+  if (nlh.productID != productID_) {
     return;
   }
 
@@ -100,7 +108,7 @@ void GOES16ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   }
 }
 
-void GOES16ImageHandler::handleImage(Tuple t) {
+void GOESRImageHandler::handleImage(Tuple t) {
   auto& image = std::get<0>(t);
   auto& details = std::get<1>(t);
   auto& fb = std::get<2>(t);
@@ -125,7 +133,7 @@ void GOES16ImageHandler::handleImage(Tuple t) {
   fileWriter_->write(path, image->getRawImage());
 }
 
-void GOES16ImageHandler::handleImageForFalseColor(Tuple t) {
+void GOESRImageHandler::handleImageForFalseColor(Tuple t) {
   auto& i0 = std::get<0>(tmp_);
   auto& d0 = std::get<1>(tmp_);
   auto& f0 = std::get<2>(tmp_);
@@ -173,7 +181,7 @@ void GOES16ImageHandler::handleImageForFalseColor(Tuple t) {
   fileWriter_->write(path, image->getRawImage());
 }
 
-GOES16ImageHandler::Details GOES16ImageHandler::loadDetails(const lrit::File& f) {
+GOESRImageHandler::Details GOESRImageHandler::loadDetails(const lrit::File& f) {
   Details details;
 
   auto text = f.getHeader<lrit::AncillaryTextHeader>().text;

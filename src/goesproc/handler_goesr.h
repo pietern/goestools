@@ -9,9 +9,9 @@
 #include "handler.h"
 #include "image.h"
 
-class GOES16ImageHandler : public Handler {
+class GOESRImageHandler : public Handler {
 public:
-  explicit GOES16ImageHandler(
+  explicit GOESRImageHandler(
     const Config::Handler& config,
     const std::shared_ptr<FileWriter>& fileWriter);
 
@@ -42,6 +42,7 @@ protected:
 
   Config::Handler config_;
   std::shared_ptr<FileWriter> fileWriter_;
+  uint16_t productID_;
 
   using SegmentVector = std::vector<std::shared_ptr<const lrit::File>>;
 
