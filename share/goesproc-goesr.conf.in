@@ -21,7 +21,7 @@ format = "jpg"
 [[handler]]
 type = "image"
 product = "goes16"
-regions = [ "fd" ]
+regions = [ "fd", "m1", "m2" ]
 channels = [ "ch02", "ch13" ]
 directory = "./goes16/{region:short|lower}/fc/{time:%Y-%m-%d}"
 filename = "GOES16_{region:short}_FC_{time:%Y%m%dT%H%M%SZ}"
@@ -37,7 +37,7 @@ format = "jpg"
 [[handler]]
 type = "image"
 product = "goes17"
-regions = [ "fd" ]
+regions = [ "fd", "m1", "m2" ]
 channels = [ "ch02", "ch13" ]
 directory = "./goes17/{region:short|lower}/fc/{time:%Y-%m-%d}"
 filename = "GOES17_{region:short}_FC_{time:%Y%m%dT%H%M%SZ}"

@@ -32,7 +32,26 @@ protected:
     bool segmented;
   };
 
-  using Tuple = std::tuple<std::unique_ptr<Image>, Details, FilenameBuilder>;
+  // Complete images are passed along together with any information we
+  // need from the source LRIT files without holding onto them.
+  // For example, the default filename comes from the LRIT header.
+  struct Tuple {
+    Tuple() {
+    }
+
+    Tuple(
+      std::unique_ptr<Image> image,
+      Details details,
+      FilenameBuilder fb)
+      : image(std::move(image)),
+        details(std::move(details)),
+        fb(std::move(fb)) {
+    }
+
+    std::unique_ptr<Image> image;
+    Details details;
+    FilenameBuilder fb;
+  };
 
   void handleImage(Tuple t);
 
@@ -54,7 +73,11 @@ protected:
     SegmentVector,
     SegmentKeyHash> segments_;
 
-  // To generate false color images we have to keep the image of one channel
-  // around while we wait for the other one to be received.
-  Tuple tmp_;
+  // To generate false color images we have to keep the image of one
+  // channel around while we wait for the other one to be received.
+  // The first-to-arrive channel is stored in this map and the
+  // second-to-arrive channel is handled as it is received. To deal
+  // with multiple regions concurrently they are indexed by their
+  // region identifier.
+  std::unordered_map<std::string, Tuple> falseColor_;
 };

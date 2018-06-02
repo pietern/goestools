@@ -109,9 +109,9 @@ void GOESRImageHandler::handle(std::shared_ptr<const lrit::File> f) {
 }
 
 void GOESRImageHandler::handleImage(Tuple t) {
-  auto& image = std::get<0>(t);
-  auto& details = std::get<1>(t);
-  auto& fb = std::get<2>(t);
+  auto& image = t.image;
+  auto& details = t.details;
+  auto& fb = t.fb;
 
   // This turns the white fills outside the disk black
   image->fillSides();
@@ -133,17 +133,24 @@ void GOESRImageHandler::handleImage(Tuple t) {
   fileWriter_->write(path, image->getRawImage());
 }
 
-void GOESRImageHandler::handleImageForFalseColor(Tuple t) {
-  auto& i0 = std::get<0>(tmp_);
-  auto& d0 = std::get<1>(tmp_);
-  auto& f0 = std::get<2>(tmp_);
-  auto& i1 = std::get<0>(t);
-  auto& d1 = std::get<1>(t);
-  auto& f1 = std::get<2>(t);
+void GOESRImageHandler::handleImageForFalseColor(Tuple t1) {
+  const auto key = t1.details.region.nameShort;
+  auto& t0 = falseColor_[key];
 
-  // If this is the first image of a pair, keep it around and wait for the next one.
+  // References to existing tuple
+  auto& i0 = t0.image;
+  auto& d0 = t0.details;
+  auto& f0 = t0.fb;
+
+  // References to new tuple
+  auto& i1 = t1.image;
+  auto& d1 = t1.details;
+  auto& f1 = t1.fb;
+
+  // If this is the first image of a pair, keep it around and wait for
+  // the next one.
   if (!i0 || (d0.frameStart.tv_sec != d1.frameStart.tv_sec)) {
-    tmp_ = std::move(t);
+    falseColor_[key] = std::move(t1);
     return;
   }
 
@@ -179,6 +186,9 @@ void GOESRImageHandler::handleImageForFalseColor(Tuple t) {
   auto image = Image::generateFalseColor(i0, i1, config_.lut);
   auto path = fb.build(config_.filename, config_.format);
   fileWriter_->write(path, image->getRawImage());
+
+  // Remove existing tuple from temporary storage
+  falseColor_.erase(key);
 }
 
 GOESRImageHandler::Details GOESRImageHandler::loadDetails(const lrit::File& f) {
