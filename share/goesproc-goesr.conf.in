@@ -9,6 +9,14 @@ directory = "./goes16/{region:short|lower}/{channel:short|lower}/{time:%Y-%m-%d}
 filename = "GOES16_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
 format = "jpg"
 
+# Store all original GOES-17 products.
+[[handler]]
+type = "image"
+product = "goes17"
+directory = "./goes17/{region:short|lower}/{channel:short|lower}/{time:%Y-%m-%d}"
+filename = "GOES17_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
+format = "jpg"
+
 # GOES-16 ABI false color.
 [[handler]]
 type = "image"
@@ -22,6 +30,24 @@ format = "jpg"
   [handler.remap.ch02]
   path = "${CMAKE_INSTALL_PREFIX}/share/goestools/wxstar/wxstar_goes16_ch02_curve.png"
 
+  [handler.lut]
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/wxstar/wxstar_goes16_lut.png"
+
+# GOES-17 ABI false color.
+[[handler]]
+type = "image"
+product = "goes17"
+regions = [ "fd" ]
+channels = [ "ch02", "ch13" ]
+directory = "./goes17/{region:short|lower}/fc/{time:%Y-%m-%d}"
+filename = "GOES17_{region:short}_FC_{time:%Y%m%dT%H%M%SZ}"
+format = "jpg"
+
+  # This reuses the GOES-16 contrast curve assuming it is identical
+  [handler.remap.ch02]
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/wxstar/wxstar_goes16_ch02_curve.png"
+
+  # This reuses the GOES-16 LUT assuming it is identical
   [handler.lut]
   path = "${CMAKE_INSTALL_PREFIX}/share/goestools/wxstar/wxstar_goes16_lut.png"
 
