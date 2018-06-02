@@ -39,6 +39,20 @@ void GOESRImageHandler::handle(std::shared_ptr<const lrit::File> f) {
     return;
   }
 
+  // Require presence of ancillary text header.
+  //
+  // The details expect this header to be present. It appears not to
+  // be present on products other than cloud and moisture image
+  // products (included in the HRIT stream starting late May 2018).
+  //
+  // The first GOES-16 image file that did not have this header was
+  // named: OR_ABI-L2-RRQPEF-M3_G16_[...]_rescaled.lrit and I saw it
+  // on the stream on 2018-05-21T18:50:00Z.
+  //
+  if (!f->hasHeader<lrit::AncillaryTextHeader>()) {
+    return;
+  }
+
   auto details = loadDetails(*f);
 
   // Filter by region
