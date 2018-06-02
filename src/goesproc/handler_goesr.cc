@@ -154,6 +154,12 @@ void GOESRImageHandler::handleImageForFalseColor(Tuple t1) {
     return;
   }
 
+  // If the channels are the same, there has been duplication on the
+  // packet stream and we can ignore the latest one.
+  if (d0.channel.nameShort == d1.channel.nameShort) {
+    return;
+  }
+
   // Swap if ordering of images doesn't match ordering of channels
   if (d0.channel.nameShort != config_.channels.front()) {
     std::swap(i0, i1);
