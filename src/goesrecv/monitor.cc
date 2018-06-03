@@ -1,5 +1,6 @@
 #include "monitor.h"
 
+#include <array>
 #include <chrono>
 #include <iostream>
 #include <iomanip>
@@ -261,7 +262,11 @@ void Monitor::print(const Stats& stats) {
 
 void Monitor::start() {
   thread_ = std::thread(&Monitor::loop, this);
+#ifdef __APPLE__
+  pthread_setname_np("monitor");
+#else
   pthread_setname_np(thread_.native_handle(), "monitor");
+#endif
 }
 
 void Monitor::stop() {

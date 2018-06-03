@@ -1,5 +1,6 @@
 #include "packet_publisher.h"
 
+#include <array>
 #include <cassert>
 
 #include <nanomsg/nn.h>

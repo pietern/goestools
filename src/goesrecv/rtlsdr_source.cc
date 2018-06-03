@@ -117,7 +117,11 @@ void RTLSDR::start(const std::shared_ptr<Queue<Samples> >& queue) {
   thread_ = std::thread([&] {
       rtlsdr_read_async(dev_, rtlsdr_callback, this, 0, 0);
     });
+#ifdef __APPLE__
+  pthread_setname_np("rtlsdr");
+#else
   pthread_setname_np(thread_.native_handle(), "rtlsdr");
+#endif
 }
 
 void RTLSDR::stop() {

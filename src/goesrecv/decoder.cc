@@ -108,7 +108,11 @@ void Decoder::start() {
         publishStats(details);
       }
     });
+#ifdef __APPLE__
+  pthread_setname_np("decoder");
+#else
   pthread_setname_np(thread_.native_handle(), "decoder");
+#endif
 }
 
 void Decoder::stop() {

@@ -8,7 +8,7 @@ add_library(publisher
 target_link_libraries(publisher nanomsg)
 
 find_library(AIRSPY_LIBRARY
-  NAMES libairspy.so
+  NAMES libairspy.so airspy
   PATH_SUFFIXES arm-linux-gnueabihf)
 if(NOT AIRSPY_LIBRARY)
   message(WARNING "Unable to find libairspy")
@@ -18,7 +18,7 @@ else()
 endif()
 
 find_library(RTLSDR_LIBRARY
-  NAMES librtlsdr.so
+  NAMES librtlsdr.so rtlsdr
   PATH_SUFFIXES arm-linux-gnueabihf)
 if(NOT RTLSDR_LIBRARY)
   message(WARNING "Unable to find librtlsdr")
