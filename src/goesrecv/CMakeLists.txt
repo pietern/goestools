@@ -7,14 +7,9 @@ add_library(publisher
   )
 target_link_libraries(publisher nanomsg)
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  find_library(AIRSPY_LIBRARY
-    NAMES airspy)
-else()
-  find_library(AIRSPY_LIBRARY
-    NAMES libairspy.so
-    PATH_SUFFIXES arm-linux-gnueabihf)
-endif()
+find_library(AIRSPY_LIBRARY
+  NAMES libairspy.so airspy
+  PATH_SUFFIXES arm-linux-gnueabihf)
 if(NOT AIRSPY_LIBRARY)
   message(WARNING "Unable to find libairspy")
 else()
@@ -22,14 +17,9 @@ else()
   target_link_libraries(airspy_source ${AIRSPY_LIBRARY} publisher stdc++)
 endif()
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  find_library(RTLSDR_LIBRARY
-    NAMES rtlsdr)
-else()
-  find_library(RTLSDR_LIBRARY
-    NAMES librtlsdr.so
-    PATH_SUFFIXES arm-linux-gnueabihf)
-endif()
+find_library(RTLSDR_LIBRARY
+  NAMES librtlsdr.so rtlsdr
+  PATH_SUFFIXES arm-linux-gnueabihf)
 if(NOT RTLSDR_LIBRARY)
   message(WARNING "Unable to find librtlsdr")
 else()
