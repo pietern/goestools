@@ -176,6 +176,9 @@ void Monitor::process(const std::string& json) {
 
     if (key == "frequency") {
       stats_.frequency.push_back(value.number_value());
+      // First set to 0 to support negative values.
+      // See: https://github.com/etsy/statsd/blob/master/docs/metric_types.md#gauges
+      statsd << key << ":0|g" << std::endl;
       statsd << key << ":" << value.number_value() << "|g" << std::endl;
       continue;
     }
