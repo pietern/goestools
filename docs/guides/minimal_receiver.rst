@@ -141,8 +141,7 @@ A rate of ~400 can give you the complete stream of packets without any
 drops, but is very sensitive to interference.
 A rate of ~100 or lower is good and can give you a packet stream
 without drops for hours on end.
-The lower the Viterbi error rate, the better your signal. the better
-your signal.
+The lower the Viterbi error rate, the better your signal.
 
 The output of :ref:`goesrecv` during operation of the test setup:
 
