@@ -40,6 +40,7 @@ release = ''
 # ones.
 extensions = [
     'sphinx.ext.githubpages',
+    'sphinxcontrib.googleanalytics',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -157,3 +158,5 @@ texinfo_documents = [
 
 
 # -- Extension configuration -------------------------------------------------
+googleanalytics_id = 'UA-120209331-1'
+googleanalytics_enabled = True
