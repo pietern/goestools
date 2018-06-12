@@ -146,12 +146,10 @@ The lower the Viterbi error rate, the better your signal.
 The output of :ref:`goesrecv` during operation of the test setup:
 
 .. image:: minimal_goesrecv.png
-   :scale: 90 %
 
 The output of ``htop`` during signal lock:
 
 .. image:: minimal_htop.png
-   :scale: 90 %
 
 To process the packet stream, see :ref:`goeslrit` and :ref:`goesproc`.
 
@@ -160,13 +158,11 @@ and assembled by goesproc during this test (resized to 1024x1024 for
 size constraints):
 
 .. image:: minimal_GOES16_FD_FC_20180505T223038Z_full.jpg
-   :scale: 90 %
 
 This is a crop of Northern America to get an impression of the
 resolution of these full disk images:
 
 .. image:: minimal_GOES16_FD_FC_20180505T223038Z_crop.jpg
-   :scale: 90 %
 
 Notes
 -----
