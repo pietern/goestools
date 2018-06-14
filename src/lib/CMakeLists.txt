@@ -1,5 +1,7 @@
 add_library(util util.cc)
 add_library(dir dir.cc)
+add_library(zip zip.cc)
+target_link_libraries(zip z)
 add_library(packet_reader packet_reader.cc nanomsg_reader.cc file_reader.cc)
 target_link_libraries(packet_reader nanomsg)
 add_library(packet_writer packet_writer.cc nanomsg_writer.cc file_writer.cc)

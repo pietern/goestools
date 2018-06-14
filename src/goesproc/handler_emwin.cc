@@ -1,10 +1,10 @@
 #include "handler_emwin.h"
 
 #include "lib/util.h"
+#include "lib/zip.h"
 
 #include "filename.h"
 #include "string.h"
-#include "zip.h"
 
 EMWINHandler::EMWINHandler(
   const Config::Handler& config,
