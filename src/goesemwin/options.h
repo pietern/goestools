@@ -9,6 +9,7 @@ struct Options {
   std::string nanomsg;
   std::vector<std::string> files;
   Mode mode = Mode::RAW;
+  std::string out = ".";
 };
 
 Options parseOptions(int argc, char** argv);

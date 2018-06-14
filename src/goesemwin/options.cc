@@ -12,6 +12,7 @@ void usage(int argc, char** argv) {
   fprintf(stderr, "Options:\n");
   fprintf(stderr, "      --subscribe ADDR  Address of nanomsg publisher\n");
   fprintf(stderr, "      --mode MODE       One of raw, qbt, or emwin (default: raw)\n");
+  fprintf(stderr, "      --out DIR         Output directory\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "If a nanomsg address to subscribe to is specified,\n");
   fprintf(stderr, "FILE arguments are not used.\n");
@@ -26,6 +27,7 @@ Options parseOptions(int argc, char** argv) {
     static struct option longOpts[] = {
       {"subscribe", required_argument, nullptr, 0x1001},
       {"mode",      required_argument, nullptr, 0x1002},
+      {"out",       required_argument, nullptr, 0x1003},
       {"help",      no_argument,       nullptr, 0x1337},
       {nullptr,     0,                 nullptr, 0},
     };
@@ -52,6 +54,9 @@ Options parseOptions(int argc, char** argv) {
           opts.mode = Mode::EMWIN;
         }
       }
+      break;
+    case 0x1003:
+      opts.out = optarg;
       break;
     case 0x1337:
       usage(argc, argv);

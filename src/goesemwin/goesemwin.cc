@@ -62,14 +62,15 @@ std::string filename(const emwin::File& f) {
 template<typename T>
 void write(const Options& opts, const T& t) {
   auto data = t.data();
-  auto name = filename(t);
-  std::cout << "Writing " << name << std::endl;
-  std::ofstream fout(name, std::ofstream::binary);
+  auto path = opts.out + "/" + filename(t);
+  std::cout << "Writing " << path;
+  std::ofstream fout(path, std::ofstream::binary);
   fout.write((const char*) &data[0], data.size());
   fout.close();
   if (fout.fail()) {
-    std::cout << "(" << strerror(errno) << ")" << std::endl;
+    std::cout << " (error: " << strerror(errno) << ")";
   }
+  std::cout << std::endl;
 }
 
 // FragmentReader reads packets, filters EMWIN S_PDUs, and yields
