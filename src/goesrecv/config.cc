@@ -175,7 +175,11 @@ void loadRTLSDRSource(Config::RTLSDR& out, const toml::Value& v) {
     }
 
     if (key == "bias_tee") {
+<<<<<<< 961ad39daad15e366c44535ac8273ab9beb328ff
       out.bias_tee = value.as<bool>();
+=======
+      out.bias_tee = value.as<int>();
+>>>>>>> Add software bias tee support for AirSpy and RTL-SDR devices
       continue;
     }
 
