@@ -43,7 +43,7 @@ std::string loadString(std::unique_ptr<std::istream>& is, size_t len) {
 Zip::Zip(std::unique_ptr<std::istream> is)
   : is_(std::move(is)) {
   // Load EOCD record
-  is_->seekg(-sizeof(eocd_), is_->end);
+  is_->seekg(-(std::streampos) sizeof(eocd_), is_->end);
   is_->read((char*) &eocd_, sizeof(eocd_));
   assert(is_->good());
   checkSignature(0x06054b50, eocd_.signature);
