@@ -54,11 +54,7 @@ struct Config {
     uint8_t gain = 30;
 
     // Enable/disable bias tee
-<<<<<<< 961ad39daad15e366c44535ac8273ab9beb328ff
     bool bias_tee = 0;
-=======
-    uint32_t bias_tee = 0;
->>>>>>> Add software bias tee support for AirSpy and RTL-SDR devices
 
     std::unique_ptr<SamplePublisher> samplePublisher;
   };
