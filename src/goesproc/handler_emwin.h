@@ -17,6 +17,10 @@ protected:
       const lrit::File& f,
       struct timespec& ts) const;
 
+  bool extractAWIPS(
+      const lrit::File& f,
+      struct AWIPS& out) const;
+
   Config::Handler config_;
   std::shared_ptr<FileWriter> fileWriter_;
 };
