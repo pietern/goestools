@@ -2,6 +2,20 @@ cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
 project(goesdec CXX C)
 
+# Remove directory from CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES and add it
+# to the link directories list. This is needed to prioritize the
+# libraries in that directory over the ones stored in the implicit
+# link directories. This is done to make a cross compiler find and use
+# a different default library (e.g. libc or stdc++) from the one it
+# ships with. For example, Raspbian uses a different libc (version
+# 2.24) than the one that comes with GCC 5 for arm-linux-gnueabihf in
+# Ubuntu 18.04 (version 2.27), and mixing the newer one with Raspbian
+# system libraries causes symbol resolution errors.
+macro(shift_link_directories dir)
+  list(REMOVE_ITEM CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "${dir}")
+  link_directories("${dir}")
+endmacro()
+
 if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "^arm")
   # Enable NEON
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfpu=neon")
@@ -11,9 +25,10 @@ if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "^arm")
   if(CMAKE_CROSSCOMPILING)
     # Raspbian supports multiarch and as such places libraries in
     # directories named after their architecture identifier.
-    # These paths are not included when cross compiling, so add them here.
-    link_directories(${RASPBERRYPI_SYSROOT}/lib/arm-linux-gnueabihf)
-    link_directories(${RASPBERRYPI_SYSROOT}/usr/lib/arm-linux-gnueabihf)
+    shift_link_directories(${RASPBERRYPI_SYSROOT}/lib/arm-linux-gnueabihf)
+    shift_link_directories(${RASPBERRYPI_SYSROOT}/usr/lib/arm-linux-gnueabihf)
+    set(ENV{PKG_CONFIG_PATH} "${RASPBERRYPI_SYSROOT}/usr/lib/arm-linux-gnueabihf/pkgconfig")
+    set(ENV{PKG_CONFIG_SYSROOT_DIR} "${RASPBERRYPI_SYSROOT}")
   endif()
 endif()
 

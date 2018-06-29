@@ -4,9 +4,16 @@
 # by parsing Packages file from Raspbian repository.
 #
 
+import argparse
 import re
 import sys
 import urllib
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-v', '--verbose', action='store_true')
+parser.add_argument('packages', metavar='PACKAGE', type=str, nargs='+')
+args = parser.parse_args()
 
 
 # Load list of packages
@@ -27,13 +34,14 @@ for m1 in chunk.finditer(body):
 
 
 # List recursive dependencies
-queue = sys.argv[1:]
+queue = args.packages
 skip = set()
 while len(queue) > 0:
     package = queue.pop(0)
     if not package in packages:
-        sys.stderr.write("Package doesn't exist: {}\n".format(package))
-        sys.exit(1)
+        if args.verbose:
+            sys.stderr.write("Package doesn't exist: {}\n".format(package))
+        continue
 
     if package in skip:
         continue

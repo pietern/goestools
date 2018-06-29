@@ -9,32 +9,39 @@ target_dir="xcompile/raspbian"
 mkdir -p "${target_dir}"
 cp -f "$(dirname "$0")/files/raspberrypi.cmake" "${target_dir}"
 
-# Checkout tools repository if needed
-if [ ! -d "${target_dir}/tools" ]; then
-    git clone https://github.com/raspberrypi/tools.git "${target_dir}/tools"
-fi
-
-urls() {
-    (
-        scripts/list_raspbian_urls.py \
-            librtlsdr-dev \
-            libairspy-dev \
-            libusb-1.0-0-dev \
-            libudev1
-    ) | sort | uniq
+install_if_needed() {
+    if ! dpkg -l "$1" | grep -q '^ii'; then
+        sudo apt-get install -y "$1"
+    fi
 }
 
-tmp=$(mktemp -d)
-trap "rm -rf $tmp" EXIT
+# These resolve to 5.5.0-12ubuntu1cross1 on Ubuntu 18.04
+install_if_needed gcc-5-arm-linux-gnueabihf
+install_if_needed g++-5-arm-linux-gnueabihf
 
-# Download packages of interest
+urls() {
+    scripts/list_raspbian_urls.py \
+        librtlsdr-dev \
+        libairspy-dev \
+        libusb-1.0-0-dev \
+        libudev1 \
+        zlib1g-dev \
+        libopencv-dev \
+        libopencv-highgui-dev \
+        gcc-5 \
+        g++-5
+}
+
+tmp="$target_dir/tmp"
+mkdir -p "$tmp"
+
+# Download and extract packages of interest
 for url in $(urls); do
-    echo "Downloading ${url}..."
-    ( cd "$tmp" && curl -LOs "${url}" )
-done
-
-# Extract into sysroot
-for deb in "$tmp"/*.deb; do
-    echo "Extracting $(basename "${deb}")..."
-    dpkg-deb -x "${deb}" "${target_dir}/tools/arm-bcm2708/arm-linux-gnueabihf/arm-linux-gnueabihf/sysroot"
+    deb=$(basename "${url}")
+    if [ ! -f "${tmp}/${deb}" ]; then
+        echo "Downloading ${url}..."
+        ( cd "$tmp" && curl -LOs "${url}" )
+    fi
+    echo "Extracting ${deb}..."
+    dpkg-deb -x "${tmp}/${deb}" "${target_dir}/sysroot"
 done
