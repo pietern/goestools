@@ -72,6 +72,12 @@ void Airspy::setGain(int gain) {
   assert(rv >= 0);
 }
 
+void Airspy::setBiasTee(int on) {
+  assert(dev_ != nullptr);
+  auto rv = airspy_set_rf_bias(dev_, on);
+  assert(rv >= 0);
+}
+
 static int airspy_callback(airspy_transfer* transfer) {
   auto airspy = reinterpret_cast<Airspy*>(transfer->ctx);
   airspy->handle(transfer);

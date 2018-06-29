@@ -29,6 +29,8 @@ public:
 
   void setGain(int gain);
 
+  void setBiasTee(int on);
+
   void setSamplePublisher(std::unique_ptr<SamplePublisher> samplePublisher) {
     samplePublisher_ = std::move(samplePublisher);
   }

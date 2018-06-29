@@ -144,6 +144,11 @@ void loadAirspySource(Config::Airspy& out, const toml::Value& v) {
       continue;
     }
 
+    if (key == "bias_tee") {
+      out.bias_tee = value.as<int>();
+      continue;
+    }
+
     throwInvalidKey(key);
   }
 }
@@ -166,6 +171,11 @@ void loadRTLSDRSource(Config::RTLSDR& out, const toml::Value& v) {
 
     if (key == "sample_publisher") {
       out.samplePublisher = createSamplePublisher(value);
+      continue;
+    }
+
+    if (key == "bias_tee") {
+      out.bias_tee = value.as<int>();
       continue;
     }
 
