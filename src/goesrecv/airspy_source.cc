@@ -72,9 +72,9 @@ void Airspy::setGain(int gain) {
   assert(rv >= 0);
 }
 
-void Airspy::setBiasTee(int on) {
+void Airspy::setBiasTee(bool on) {
   assert(dev_ != nullptr);
-  auto rv = airspy_set_rf_bias(dev_, on);
+  auto rv = airspy_set_rf_bias(dev_, on ? 1 : 0);
   assert(rv >= 0);
 }
 

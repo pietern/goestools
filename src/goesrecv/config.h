@@ -40,7 +40,7 @@ struct Config {
     uint8_t gain = 18;
 
     // Enable/disable bias tee
-    uint32_t bias_tee = 0;
+    bool bias_tee = 0;
 
     std::unique_ptr<SamplePublisher> samplePublisher;
  };
@@ -54,7 +54,7 @@ struct Config {
     uint8_t gain = 30;
 
     // Enable/disable bias tee
-    uint32_t bias_tee = 0;
+    bool bias_tee = 0;
 
     std::unique_ptr<SamplePublisher> samplePublisher;
   };

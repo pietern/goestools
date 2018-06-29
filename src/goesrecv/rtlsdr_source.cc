@@ -105,9 +105,9 @@ void RTLSDR::setTunerGain(int db) {
   assert(rv >= 0);
 }
 
-void RTLSDR::setBiasTee(int on) {
+void RTLSDR::setBiasTee(bool on) {
   assert(dev_ != nullptr);
-  auto rv = rtlsdr_set_bias_tee(dev_, on);
+  auto rv = rtlsdr_set_bias_tee(dev_, on ? 1 : 0);
   assert(rv >= 0);
 }
 

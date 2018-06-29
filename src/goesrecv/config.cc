@@ -145,7 +145,7 @@ void loadAirspySource(Config::Airspy& out, const toml::Value& v) {
     }
 
     if (key == "bias_tee") {
-      out.bias_tee = value.as<int>();
+      out.bias_tee = value.as<bool>();
       continue;
     }
 
@@ -175,7 +175,7 @@ void loadRTLSDRSource(Config::RTLSDR& out, const toml::Value& v) {
     }
 
     if (key == "bias_tee") {
-      out.bias_tee = value.as<int>();
+      out.bias_tee = value.as<bool>();
       continue;
     }
 
