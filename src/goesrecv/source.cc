@@ -19,6 +19,7 @@ std::unique_ptr<Source> Source::build(
     airspy->setSampleRate(3000000);
     airspy->setFrequency(config.airspy.frequency);
     airspy->setGain(config.airspy.gain);
+    airspy->setBiasTee(config.airspy.bias_tee);
     airspy->setSamplePublisher(std::move(config.airspy.samplePublisher));
     return std::unique_ptr<Source>(airspy.release());
   }
@@ -29,6 +30,7 @@ std::unique_ptr<Source> Source::build(
     rtlsdr->setSampleRate(2400000);
     rtlsdr->setFrequency(config.rtlsdr.frequency);
     rtlsdr->setTunerGain(config.rtlsdr.gain);
+    rtlsdr->setBiasTee(config.rtlsdr.bias_tee);
     rtlsdr->setSamplePublisher(std::move(config.rtlsdr.samplePublisher));
     return std::unique_ptr<Source>(rtlsdr.release());
   }

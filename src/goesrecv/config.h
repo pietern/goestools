@@ -39,6 +39,9 @@ struct Config {
     // Applies to the linearity gain setting
     uint8_t gain = 18;
 
+    // Enable/disable bias tee
+    bool bias_tee = 0;
+
     std::unique_ptr<SamplePublisher> samplePublisher;
  };
 
@@ -49,6 +52,9 @@ struct Config {
 
     // Applies to the tuner gain setting
     uint8_t gain = 30;
+
+    // Enable/disable bias tee
+    bool bias_tee = 0;
 
     std::unique_ptr<SamplePublisher> samplePublisher;
   };

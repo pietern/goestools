@@ -78,6 +78,8 @@ void replace(std::string& str, const AWIPS& awips) {
         return awips.nnn;
       } else if (in == "xxx") {
         return awips.xxx;
+      } else if (in == "qq") {
+        return awips.qq;
       }
       return std::string();
     });

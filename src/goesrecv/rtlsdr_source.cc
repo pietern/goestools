@@ -105,6 +105,12 @@ void RTLSDR::setTunerGain(int db) {
   assert(rv >= 0);
 }
 
+void RTLSDR::setBiasTee(bool on) {
+  assert(dev_ != nullptr);
+  auto rv = rtlsdr_set_bias_tee(dev_, on ? 1 : 0);
+  assert(rv >= 0);
+}
+
 static void rtlsdr_callback(unsigned char* buf, uint32_t len, void* ptr) {
   RTLSDR* rtlsdr = reinterpret_cast<RTLSDR*>(ptr);
   rtlsdr->handle(buf, len);

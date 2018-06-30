@@ -144,5 +144,6 @@ bool EMWINHandler::extractAWIPS(const lrit::File& f, struct AWIPS& out) const {
   out.bbb = smw[8];
   out.nnn = sma[3];
   out.xxx = sma[4];
+  out.qq = sma[5];
   return true;
 }

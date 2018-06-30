@@ -16,6 +16,7 @@ struct AWIPS {
   std::string bbb;
   std::string nnn;
   std::string xxx;
+  std::string qq;
 };
 
 // Image region (e.g. FD/Full Disk or NH/Northern Hemisphere)
