@@ -1,3 +1,5 @@
+find_package(PkgConfig)
+
 add_library(publisher
   packet_publisher.cc
   publisher.cc
@@ -7,24 +9,24 @@ add_library(publisher
   )
 target_link_libraries(publisher nanomsg)
 
-find_library(AIRSPY_LIBRARY
-  NAMES libairspy.so airspy
-  PATH_SUFFIXES arm-linux-gnueabihf)
-if(NOT AIRSPY_LIBRARY)
+pkg_check_modules(AIRSPY libairspy)
+if(NOT AIRSPY_FOUND)
   message(WARNING "Unable to find libairspy")
 else()
   add_library(airspy_source airspy_source.cc)
-  target_link_libraries(airspy_source ${AIRSPY_LIBRARY} publisher stdc++)
+  target_link_libraries(airspy_source ${AIRSPY_LIBRARIES} publisher stdc++)
 endif()
 
-find_library(RTLSDR_LIBRARY
-  NAMES librtlsdr.so rtlsdr
-  PATH_SUFFIXES arm-linux-gnueabihf)
-if(NOT RTLSDR_LIBRARY)
+pkg_check_modules(RTLSDR librtlsdr)
+if(NOT RTLSDR_FOUND)
   message(WARNING "Unable to find librtlsdr")
 else()
   add_library(rtlsdr_source rtlsdr_source.cc)
-  target_link_libraries(rtlsdr_source ${RTLSDR_LIBRARY} publisher stdc++)
+  if((RTLSDR_VERSION VERSION_EQUAL 0.5.4) OR
+     (RTLSDR_VERSION VERSION_GREATER 0.5.4))
+    target_compile_definitions(rtlsdr_source PRIVATE RTLSDR_HAS_BIAS_TEE)
+  endif()
+  target_link_libraries(rtlsdr_source ${RTLSDR_LIBRARIES} publisher stdc++)
 endif()
 
 add_library(nanomsg_source nanomsg_source.cc)
