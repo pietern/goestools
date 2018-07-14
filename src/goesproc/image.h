@@ -8,6 +8,7 @@
 #include "lrit/file.h"
 
 #include "area.h"
+#include "gradient.h"
 
 class Image {
 public:

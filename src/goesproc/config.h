@@ -7,6 +7,7 @@
 #include <opencv2/opencv.hpp>
 
 #include "area.h"
+#include "gradient.h"
 
 struct Config {
   struct Handler {
@@ -39,6 +40,10 @@ struct Config {
 
     // Just like remap, but takes an RGB lookup table
     std::map<std::string, cv::Mat> remap_rgb;
+
+    // Gradient defines a parametric RGB or luminance curve
+    // to be applied via the Image Data Function
+    std::map<std::string, Gradient> gradient;
 
     // Lookup table to use to generate false color images
     cv::Mat lut;

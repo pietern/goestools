@@ -1,7 +1,6 @@
 #include "config.h"
-
+#include <sstream>
 #include <toml/toml.h>
-
 #include "lib/util.h"
 
 namespace {
@@ -115,7 +114,6 @@ bool loadHandlers(const toml::Value& v, Config& out) {
     if (remap_rgb) {
       auto trs = remap_rgb->as<toml::Table>();
       for (const auto& it : trs) {
-        auto channel = toUpper(it.first);
         auto path = it.second.get<std::string>("path");
         auto img = cv::imread(path);
         if (!img.data) {
@@ -130,6 +128,65 @@ bool loadHandlers(const toml::Value& v, Config& out) {
         }
 
         h.remap_rgb[toUpper(it.first)] = img;
+      }
+    }
+
+    auto gradient = th->find("gradient");
+    if (gradient) {
+      auto trs = gradient->as<toml::Table>();
+      for (const auto& it : trs) {
+        Gradient grad;
+        auto points = it.second.get<toml::Array>("points");
+        for (const auto& point : points) {
+          auto units = point.find("units");
+          if (!units) units = point.find("u");
+          auto color = point.find("color");
+          if (!color) color = point.find("c");
+          auto red = point.find("red");
+          if (!red) red = point.find("r");
+          auto green = point.find("green");
+          if (!green) green = point.find("g");
+          auto blue = point.find("blue");
+          if (!blue) blue = point.find("b");
+
+          float r, g, b;
+          r = g = b = -1;
+
+          if (!units || !units->isNumber()) {
+            out.ok = false;
+            out.error = "Expected numeric units field in gradient point";
+            return false;
+          }
+
+          if (color && color->is<std::string>()) {
+            auto c = color->as<std::string>();
+            std::stringstream t;
+            unsigned int ti;
+
+            if (c.at(0) == '#') {
+              t << std::hex << c.substr(1); t >> ti;
+
+              if (c.length() == 4) {
+                r = ((ti & 0xF00) >> 8) / 15.0;
+                g = ((ti & 0xF0) >> 4) / 15.0;
+                b = (ti & 0xF) / 15.0;
+              } else if (c.length() == 7) {
+                r = ((ti & 0xFF0000) >> 16) / 255.0;
+                g = ((ti & 0xFF00) >> 8) / 255.0;
+                b = (ti & 0xFF) / 255.0;
+              }
+            }
+          }
+
+          if (r >= 0 && g >= 0 && b >= 0) {
+            GradientPoint newpoint;
+            newpoint = newpoint.fromRGB(r, g, b);
+            newpoint.units = units->asNumber();
+            grad.addPoint(newpoint);
+          }
+        }
+        //grad.debug();
+        h.gradient[toUpper(it.first)] = grad;
       }
     }
 

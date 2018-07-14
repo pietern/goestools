@@ -226,13 +226,6 @@ cv::Mat Image::remap_rgb(const cv::Mat& img) {
   uint8_t* map = (uint8_t*) img.data;
   uint8_t* data = (uint8_t*) m_.data;
 
-  std::cerr << "remap_rgb: ";
-  for (int i = 0; i < 256 * 3; i++) 
-    std::cerr << (int)map[i] << " ";
-  std::cerr << std::endl;
-
-  std::cerr << "remap_rgb map channels: " << img.channels() << std::endl;
-
   cv::Mat raw(rows, cols, CV_8UC3);
   uint8_t* ptr = (uint8_t*) raw.data;
 
@@ -240,18 +233,12 @@ cv::Mat Image::remap_rgb(const cv::Mat& img) {
     for (auto x = 0; x < cols; x++) {
       auto lut = data[y * cols + x];
 
-      lut *= 2;
-      if (lut > 255) lut = 255;
-
-     //std::cerr << "x: " << x << "   Y: " << y << ":   lut: " << (int)lut << "   B: " << (int)map[lut * 3 + 0] << "   G: " << (int)map[lut * 3 + 1] << "   R: " << (int)map[lut * 3 + 2] << std::endl;
-
       ptr[(y * cols + x) * 3 + 0] = map[lut * 3 + 0];
       ptr[(y * cols + x) * 3 + 1] = map[lut * 3 + 1];
       ptr[(y * cols + x) * 3 + 2] = map[lut * 3 + 2];
     }
   }
 
-  std::cerr << "remap_rgb out channels: " << raw.channels() << std::endl;
   return raw;
 }
 

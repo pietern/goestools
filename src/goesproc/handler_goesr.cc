@@ -84,6 +84,29 @@ void GOESRImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   fb.region = details.region;
   fb.channel = details.channel;
 
+  // Process image data function
+  if (f->hasHeader<lrit::ImageDataFunctionHeader>()) {
+    auto h = f->getHeader<lrit::ImageDataFunctionHeader>();
+
+    const auto str = std::string((const char*) h.data.data(), h.data.size());
+    std::istringstream iss(str);
+    std::string line;
+
+    unsigned int ki;
+    float vf;
+
+    while (std::getline(iss, line, '\n')) {
+      std::istringstream lss(line);
+      std::string k, v;
+      std::getline(lss, k, '=');
+      std::getline(lss, v, '=');
+      k.erase(k.end() - 1);
+      ki = atoi(k.c_str());
+      vf = atof(v.c_str());
+      imageDataFunction_[ki] = vf;
+    }
+  }
+
   // If this is not a segmented image we can post process immediately
   if (!details.segmented) {
     auto image = Image::createFromFile(f);
@@ -142,6 +165,28 @@ void GOESRImageHandler::handleImage(Tuple t) {
 
     //:TODO: Image() wrapper clobbers RGB color, so we short-
     //       circuit the file writer and output RGB cv::Mat here.
+    auto path = fb.build(config_.filename, config_.format);
+    fileWriter_->write(path, raw);
+    return;
+  }
+
+  auto grad = config_.gradient.find(details.channel.nameShort);
+  auto idf = imageDataFunction_.begin();
+  if (idf != imageDataFunction_.end()) {
+    for (auto i = idf; i != imageDataFunction_.end(); i++) {
+     //std::cout << i->first << " " << i->second << std::endl;
+    }
+  }
+
+  if (grad != std::end(config_.gradient) && idf != imageDataFunction_.end()) {
+    cv::Mat tempMap(256, 1, CV_8UC3);
+    for (auto i = idf; i != imageDataFunction_.end(); i++) {
+      auto p = grad->second.interpolate(i->second);
+      tempMap.data[i->first * 3] = p.rgb[2] * 255;
+      tempMap.data[i->first * 3 + 1] = p.rgb[1] * 255;
+      tempMap.data[i->first * 3 + 2] = p.rgb[0] * 255;
+    }
+    auto raw = image->remap_rgb(tempMap);
     auto path = fb.build(config_.filename, config_.format);
     fileWriter_->write(path, raw);
     return;
