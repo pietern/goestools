@@ -111,6 +111,28 @@ bool loadHandlers(const toml::Value& v, Config& out) {
       }
     }
 
+    auto remap_rgb = th->find("remap_rgb");
+    if (remap_rgb) {
+      auto trs = remap_rgb->as<toml::Table>();
+      for (const auto& it : trs) {
+        auto channel = toUpper(it.first);
+        auto path = it.second.get<std::string>("path");
+        auto img = cv::imread(path);
+        if (!img.data) {
+          out.ok = false;
+          out.error = "Unable to load image at: " + path;
+          return false;
+        }
+        if (img.total() != 256) {
+          out.ok = false;
+          out.error = "Expected channel remap image to have 256 pixels";
+          return false;
+        }
+
+        h.remap_rgb[toUpper(it.first)] = img;
+      }
+    }
+
     auto lut = th->find("lut");
     if (lut) {
       auto path = lut->get<std::string>("path");

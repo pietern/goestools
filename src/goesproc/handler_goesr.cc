@@ -136,6 +136,17 @@ void GOESRImageHandler::handleImage(Tuple t) {
     image->remap(it->second);
   }
 
+  it = config_.remap_rgb.find(details.channel.nameShort);
+  if (it != std::end(config_.remap_rgb)) {
+    auto raw = image->remap_rgb(it->second);
+
+    //:TODO: Image() wrapper clobbers RGB color, so we short-
+    //       circuit the file writer and output RGB cv::Mat here.
+    auto path = fb.build(config_.filename, config_.format);
+    fileWriter_->write(path, raw);
+    return;
+  }
+
   // If this handler is configured to produce false color images,
   // we may need to wait for the other channel to come along.
   if (config_.lut.data) {

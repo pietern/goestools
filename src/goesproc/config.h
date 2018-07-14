@@ -37,6 +37,9 @@ struct Config {
     // have dimensions equal to either 1x256 or 256x1.
     std::map<std::string, cv::Mat> remap;
 
+    // Just like remap, but takes an RGB lookup table
+    std::map<std::string, cv::Mat> remap_rgb;
+
     // Lookup table to use to generate false color images
     cv::Mat lut;
 
