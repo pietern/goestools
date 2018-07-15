@@ -19,9 +19,9 @@ GOESRImageHandler::GOESRImageHandler(
   }
 
   if (config_.product == "goes16") {
-    productID_ = 16;
+    satelliteID_ = 16;
   } else if (config_.product == "goes17") {
-    productID_ = 17;
+    satelliteID_ = 17;
   } else {
     assert(false);
   }
@@ -34,8 +34,17 @@ void GOESRImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   }
 
   // Filter by product
+  //
+  // We assume that the NOAA product ID can be either 16 or 17,
+  // indicating GOES-16 and GOES-17. The latter has not yet been
+  // spotted in the wild as of July 2018. Even GOES-17 products
+  // still used product ID equal to 16 at this time.
+  //
+  // Actual filtering based on satellite is done based on the details
+  // encoded in the ancillary data field.
+  //
   auto nlh = f->getHeader<lrit::NOAALRITHeader>();
-  if (nlh.productID != productID_) {
+  if (nlh.productID != 16 && nlh.productID != 17) {
     return;
   }
 
@@ -54,6 +63,11 @@ void GOESRImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   }
 
   auto details = loadDetails(*f);
+
+  // Filter by satellite
+  if (satelliteID_ != details.satelliteID) {
+    return;
+  }
 
   // Filter by region
   if (!config_.regions.empty()) {
@@ -230,6 +244,14 @@ GOESRImageHandler::Details GOESRImageHandler::loadDetails(const lrit::File& f) {
 
     if (key == "Satellite") {
       details.satellite = value;
+
+      // First skip over non-digits.
+      // Expect a value of "G16" or "G17".
+      std::stringstream ss(value);
+      while (!isdigit(ss.peek())) {
+        ss.get();
+      }
+      ss >> details.satelliteID;
       continue;
     }
 
