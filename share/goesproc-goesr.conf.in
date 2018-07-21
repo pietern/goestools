@@ -69,23 +69,23 @@ format = "jpg"
   ## Water Vapor (Channels 8 and 9)
   [handler.gradient.ch08]
   points = [
-    { units = 273, color = "#000000" },
-    { units = 272.9, color = "#ff0000" },
+    { units = 276, color = "#000000" },
+    { units = 275.9, color = "#ff0000" },
     { units = 258, color = "#ffff00" },
-    { units = 243, color = "#000070" },
-    { units = 226, color = "#ffffff" },
-    { units = 198, color = "#408020" },
-    { units = 164, color = "#00ffff" }
+    { units = 250, color = "#000070" },
+    { units = 233, color = "#ffffff" },
+    { units = 195, color = "#408020" },
+    { units = 178, color = "#00ffff" }
   ]
   [handler.gradient.ch09]
   points = [
-    { units = 273, color = "#000000" },
-    { units = 272.9, color = "#ff0000" },
+    { units = 276, color = "#000000" },
+    { units = 275.9, color = "#ff0000" },
     { units = 258, color = "#ffff00" },
-    { units = 243, color = "#000070" },
-    { units = 226, color = "#ffffff" },
-    { units = 198, color = "#408020" },
-    { units = 164, color = "#00ffff" }
+    { units = 250, color = "#000070" },
+    { units = 233, color = "#ffffff" },
+    { units = 195, color = "#408020" },
+    { units = 178, color = "#00ffff" }
   ]
 
   ## Longwave IR (Channels 13, 14, and 15)
