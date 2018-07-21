@@ -126,18 +126,23 @@ void GOESRImageHandler::handle(std::shared_ptr<const lrit::File> f) {
     std::istringstream iss(str);
     std::string line;
 
-    unsigned int ki;
+    long int ki;
     float vf;
 
     while (std::getline(iss, line, '\n')) {
       std::istringstream lss(line);
       std::string k, v;
       std::getline(lss, k, '=');
-      std::getline(lss, v, '=');
+      std::getline(lss, v, '\n');
       k.erase(k.end() - 1);
-      ki = atoi(k.c_str());
-      vf = atof(v.c_str());
-      imageDataFunction_[ki] = vf;
+
+      // Exceptions thrown for any non-numeric key/value pair, but
+      // we can just discard them.
+      try {
+        ki = std::stoi(k);
+        vf = std::stof(v);
+        imageDataFunction_[ki] = vf;
+      } catch(std::exception &e) { }
     }
   }
 

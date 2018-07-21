@@ -147,7 +147,7 @@ struct Gradient {
       float b = pd * right->rgb[2] + (1 - pd) * left->rgb[2];
 
       // Perform color-space conversion
-      out = out.fromRGB(units, r, g, b);
+      out = GradientPoint::fromRGB(units, r, g, b);
     } else if (lerptype == LERP_HSV) {
       auto lh = left->hsv[0], rh = right->hsv[0];
       double dh = rh - lh, adh = fabs(dh);
@@ -163,7 +163,7 @@ struct Gradient {
       if (h < 0.0) h += 1.0;
 
       // Perform color-space conversion
-      out = out.fromHSV(units, h, s, v);
+      out = GradientPoint::fromHSV(units, h, s, v);
     } else {
       throw std::runtime_error("Invalid interpolation type specified");
     }
