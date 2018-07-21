@@ -142,7 +142,7 @@ bool loadHandlers(const toml::Value& v, Config& out) {
           else if (0 == interpolation->as<std::string>().compare("rgb")) h.lerptype = LERP_RGB;
           else {
             out.ok = false;
-            out.error = "Unknown gradient interpolation type (supported types are RGB and HSV)";
+            out.error = "Unknown gradient interpolation type (supported types are \"rgb\" and \"hsv\")";
             return false;
           }
         }
@@ -207,6 +207,7 @@ bool loadHandlers(const toml::Value& v, Config& out) {
           }
 
           GradientPoint newpoint;
+          newpoint.units = units->asNumber();
 
           if (r >= 0 && g >= 0 && b >= 0) {
             newpoint = newpoint.fromRGB(r, g, b);
