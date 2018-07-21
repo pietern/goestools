@@ -173,11 +173,21 @@ void GOESRImageHandler::handleImage(Tuple t) {
     image->remap(it->second);
   }
 
+  // If this handler is configured to produce false color images,
+  // we may need to wait for the other channel to come along.
+  if (config_.lut.data) {
+    handleImageForFalseColor(std::move(t));
+    return;
+  }
+
+  // If there's a parametric gradient configured, use it in
+  // combination with the LRIT ImageDataFunction to map 
+  // CMIP grey levels to temperature units (Kelvin), then map
+  // those temperatures onto the RGB gradient.
   auto grad = config_.gradient.find(details.channel.nameShort);
   auto idf = imageDataFunction_.begin();
 
-  // If there's a parametric gradient set, use it to generate
-  // an RGB gradient map LUT, then apply it to the image
+  // This is stored in an 256x1 RGB matrix for use in Image::remap()
   if (grad != std::end(config_.gradient) && idf != imageDataFunction_.end()) {
     cv::Mat gradientMap(256, 1, CV_8UC3);
     for (auto i = idf; i != imageDataFunction_.end(); i++) {
@@ -187,13 +197,6 @@ void GOESRImageHandler::handleImage(Tuple t) {
       gradientMap.data[i->first * 3 + 2] = p.rgb[0] * 255;
     }
     image->remap(gradientMap);
-  }
-
-  // If this handler is configured to produce false color images,
-  // we may need to wait for the other channel to come along.
-  if (config_.lut.data) {
-    handleImageForFalseColor(std::move(t));
-    return;
   }
 
   auto path = fb.build(config_.filename, config_.format);

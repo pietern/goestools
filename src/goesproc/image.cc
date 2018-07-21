@@ -231,6 +231,8 @@ void Image::remap(const cv::Mat& img) {
       }
     }
     m_ = rgbOut;
+  } else {
+    throw std::runtime_error("remap: incorrect number of channels in image");
   }
 }
 
