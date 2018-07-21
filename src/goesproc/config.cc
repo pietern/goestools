@@ -96,7 +96,7 @@ bool loadHandlers(const toml::Value& v, Config& out) {
       for (const auto& it : trs) {
         auto channel = toUpper(it.first);
         auto path = it.second.get<std::string>("path");
-        auto img = cv::imread(path);
+        auto img = cv::imread(path, CV_LOAD_IMAGE_UNCHANGED);
         if (!img.data) {
           out.ok = false;
           out.error = "Unable to load image at: " + path;
