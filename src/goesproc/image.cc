@@ -219,14 +219,14 @@ void Image::remap(const cv::Mat& img) {
         data[x] = map[data[x]];
       }
     }
-  } else if (img.channels() == 3) {
+  } else if (img.channels() >= 3) {
     cv::Mat rgbOut(m_.rows, m_.cols, CV_8UC3);
     for (auto y = 0; y < m_.rows; y++) {
       uint8_t* data = (uint8_t*) m_.data + y * m_.cols;
       uint8_t* odata = (uint8_t*) rgbOut.data + (3 * y * m_.cols);
       for (auto x = 0; x < m_.cols; x++) {
         for (auto c = 0; c < 3; c++) {
-          odata[x * 3 + c] = map[data[x] * 3 + c];
+          odata[x * 3 + c] = map[data[x] * img.channels() + c];
         }
       }
     }
