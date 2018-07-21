@@ -172,16 +172,11 @@ void GOESRImageHandler::handleImage(Tuple t) {
 
   auto grad = config_.gradient.find(details.channel.nameShort);
   auto idf = imageDataFunction_.begin();
-  if (idf != imageDataFunction_.end()) {
-    for (auto i = idf; i != imageDataFunction_.end(); i++) {
-     //std::cout << i->first << " " << i->second << std::endl;
-    }
-  }
 
   if (grad != std::end(config_.gradient) && idf != imageDataFunction_.end()) {
     cv::Mat tempMap(256, 1, CV_8UC3);
     for (auto i = idf; i != imageDataFunction_.end(); i++) {
-      auto p = grad->second.interpolate(i->second);
+      auto p = grad->second.interpolate(i->second, config_.lerptype);
       tempMap.data[i->first * 3] = p.rgb[2] * 255;
       tempMap.data[i->first * 3 + 1] = p.rgb[1] * 255;
       tempMap.data[i->first * 3 + 2] = p.rgb[0] * 255;

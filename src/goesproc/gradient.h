@@ -1,15 +1,15 @@
 #pragma once
 
 #include <algorithm>
-#include <ostream>
+#include <iostream>
 
 struct GradientPoint {
   float units = 0;
   float rgb[3];
-  float extent_rgb[2];
   float hsv[3];
 
   GradientPoint fromRGB(float r, float g, float b) const {
+    float min, max;
     GradientPoint out;
     out.units = units;
 
@@ -25,28 +25,24 @@ struct GradientPoint {
     out.rgb[2] = b;
 
     // Compute min/max RGB
-    if (r < g && r < b) out.extent_rgb[0] = r;
-    else if (g < r && g < b) out.extent_rgb[0] = g;
-    else out.extent_rgb[0] = b;
+    if (r <= g && r <= b) min = r;
+    else if (g <= r && g <= b) min = g;
+    else min = b;
 
-    if (r > g && r > b) out.extent_rgb[1] = r;
-    else if (g > r && g > b) out.extent_rgb[1] = g;
-    else out.extent_rgb[1] = b;
+    if (r >= g && r >= b) max = r;
+    else if (g >= r && g >= b) max = g;
+    else max = b;
 
-    // Perform HSV conversion
-    out.hsv[2] = extent_rgb[1];
-    float d = extent_rgb[1] - extent_rgb[0];
-    out.hsv[1] = (extent_rgb[1] <= 0 ? 0 : d / extent_rgb[1]);
+    // Perform HSV->RGB conversion
+    out.hsv[2] = max;
+    float d = max - min;
+    out.hsv[1] = (max <= 0) ? 0 : d / max;
 
-    if (extent_rgb[0] == extent_rgb[1]) out.hsv[0] = 0;
+    if (min == max) out.hsv[0] = 0;
     else {
-      if (out.extent_rgb[1] == r) {
-        out.hsv[0] = (g - b) / d + (g < b ? 6 : 0);
-      } else if (out.extent_rgb[1] == rgb[1]) {
-        out.hsv[0] = (b - r) / d + 2;
-      } else if (out.extent_rgb[1] == rgb[2]) {
-        out.hsv[0] = (r - g) / d + 4;
-      }
+      if (max == r) out.hsv[0] = fmod((g - b) / d, 6);
+      else if (max == g) out.hsv[0] = (b - r) / d + 2;
+      else if (max == b) out.hsv[0] = (r - g) / d + 4;
     }
 
     out.hsv[0] /= 6;
@@ -56,12 +52,20 @@ struct GradientPoint {
   GradientPoint fromHSV(float h, float s, float v) const {
     GradientPoint out;
     out.units = units;
+
+    // Rescale if max input range exceeds 1
+    if (h > 1 || s > 1 || v > 1) {
+      h /= 360;
+      s /= 100;
+      v /= 100;
+    }
+
     out.hsv[0] = h;
     out.hsv[1] = s;
     out.hsv[2] = v;
 
-    // Perform RGB conversion
-    int i = (int) h;
+    // Perform RGB->HSV conversion
+    int i = (int) (h * 6);
     float f = h * 6 - i;
     float p = v * (1 - s);
     float q = v * (1 - f * s);
@@ -76,21 +80,17 @@ struct GradientPoint {
       case 5: out.rgb[0] = v; out.rgb[1] = p; out.rgb[2] = q; break;
     }
 
-    // Compute min/max RGB
-    if (out.rgb[0] < out.rgb[1] && out.rgb[0] < out.rgb[2]) out.extent_rgb[0] = out.rgb[0];
-    else if (out.rgb[1] < out.rgb[0] && out.rgb[1] < out.rgb[2]) out.extent_rgb[0] = out.rgb[1];
-    else out.extent_rgb[0] = out.rgb[2];
-
-    if (out.rgb[0] > out.rgb[1] && out.rgb[0] > out.rgb[2]) out.extent_rgb[1] = out.rgb[0];
-    else if (out.rgb[1] > out.rgb[0] && out.rgb[1] > out.rgb[2]) out.extent_rgb[1] = out.rgb[1];
-    else out.extent_rgb[1] = out.rgb[2];
-
     return out;
   }
+};
 
-  inline float value() const {
-    return hsv[2];
-  }
+std::ostream& operator<<(std::ostream& os, const GradientPoint &p);
+
+enum GradientInterpolationType {
+  LERP_UNDEFINED = -1,
+  LERP_RGB,
+  LERP_HSV,
+  LERP_NUMTYPES
 };
 
 struct Gradient {
@@ -108,15 +108,15 @@ struct Gradient {
     return size();
   }
 
+  // Emit gradient points to stderr for debug purposes
   void debug() const {
     for (auto i = points.begin(); i != points.end(); i++) {
-      std::cerr << i->units << " " << i->rgb[0] << "," << i->rgb[1] << "," << i->rgb[2] << std::endl;
+      std::cerr << "[" << (i - points.begin()) << "] -> " << *i << std::endl;
     }
   }
 
   // Find bounding points and perform linear interpolation
-  // in HSV color space
-  GradientPoint interpolate(const float units) const {
+  GradientPoint interpolate(const float units, const GradientInterpolationType lerptype = LERP_UNDEFINED) const {
     auto left = points.end();
     auto right = points.begin();
 
@@ -127,34 +127,44 @@ struct Gradient {
       if (i->units >= units) right = i;
     }
 
-
     // Clamp to ends of gradient if out of bounds
     if (left == points.end()) return *(points.begin());
     if (right == points.begin()) return *std::prev(points.end());
 
+    // Compute parametric distance between endpoints
     auto du = right->units - left->units;
     auto pd = (units - left->units) / du;
 
-    // Perform HSV interpolation
-    /*
-    auto h = pd * right->hsv[0] + (1 - pd) * left->hsv[0];
-    auto s = pd * right->hsv[1] + (1 - pd) * left->hsv[1];
-    auto v = pd * right->hsv[2] + (1 - pd) * left->hsv[2];
     GradientPoint out;
-    out = out.fromHSV(h, s, v);
-    */
 
-    // Perform RGB interpolation
-    auto r = pd * right->rgb[0] + (1 - pd) * left->rgb[0];
-    auto g = pd * right->rgb[1] + (1 - pd) * left->rgb[1];
-    auto b = pd * right->rgb[2] + (1 - pd) * left->rgb[2];
+    if (lerptype == LERP_HSV) {
+      // Perform HSV interpolation
+      auto lh = left->hsv[0], rh = right->hsv[0];
+      double dh = rh - lh, adh = fabs(dh);
 
-    // Perform color-space conversions and return complete result
-    GradientPoint out;
-    out = out.fromRGB(r, g, b);
+      // Flip direction to choose shortest path in hue dimension
+      if (adh > 0.5) rh -= dh / adh;
+
+      float h = pd * rh + (1 - pd) * lh;
+      float s = pd * right->hsv[1] + (1 - pd) * left->hsv[1];
+      float v = pd * right->hsv[2] + (1 - pd) * left->hsv[2];
+
+      // Wrap the hue interpolation to deal with any negative values
+      if (h < 0.0) h += 1.0;
+
+      // Perform color-space conversion
+      out = out.fromHSV(h, s, v);
+    } else {
+      // Default to RGB interpolation unless user explicitly requests HSV
+      float r = pd * right->rgb[0] + (1 - pd) * left->rgb[0];
+      float g = pd * right->rgb[1] + (1 - pd) * left->rgb[1];
+      float b = pd * right->rgb[2] + (1 - pd) * left->rgb[2];
+
+      // Perform color-space conversion
+      out = out.fromRGB(r, g, b);
+    }
 
     out.units = units;
-
     return out;
   }
 };

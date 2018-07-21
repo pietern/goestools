@@ -44,6 +44,7 @@ struct Config {
     // Gradient defines a parametric RGB or luminance curve
     // to be applied via the Image Data Function
     std::map<std::string, Gradient> gradient;
+    enum GradientInterpolationType lerptype = LERP_UNDEFINED;
 
     // Lookup table to use to generate false color images
     cv::Mat lut;
