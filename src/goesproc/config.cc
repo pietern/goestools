@@ -1,6 +1,8 @@
 #include "config.h"
+
 #include <sstream>
 #include <toml/toml.h>
+
 #include "lib/util.h"
 
 namespace {
