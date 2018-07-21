@@ -108,7 +108,7 @@ bool loadHandlers(const toml::Value& v, Config& out) {
           return false;
         }
 
-        h.remap[toUpper(it.first)] = img;
+        h.remap[channel] = img;
       }
     }
 
@@ -116,6 +116,7 @@ bool loadHandlers(const toml::Value& v, Config& out) {
     if (gradient) {
       auto trs = gradient->as<toml::Table>();
       for (const auto& it : trs) {
+        auto channel = toUpper(it.first);
         auto interpolation = it.second.find("interpolation");
 
         if (interpolation) {
@@ -209,7 +210,7 @@ bool loadHandlers(const toml::Value& v, Config& out) {
             return false;
           }
         }
-        h.gradient[toUpper(it.first)] = grad;
+        h.gradient[channel] = grad;
       }
     }
 
