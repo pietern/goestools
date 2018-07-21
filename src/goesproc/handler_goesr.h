@@ -26,6 +26,7 @@ protected:
     Region region;
     Channel channel;
     std::string satellite;
+    int satelliteID;
     std::string instrument;
     std::string imagingMode;
     std::string resolution;
@@ -61,7 +62,7 @@ protected:
 
   Config::Handler config_;
   std::shared_ptr<FileWriter> fileWriter_;
-  uint16_t productID_;
+  int satelliteID_;
 
   using SegmentVector = std::vector<std::shared_ptr<const lrit::File>>;
 
