@@ -173,17 +173,6 @@ void GOESRImageHandler::handleImage(Tuple t) {
     image->remap(it->second);
   }
 
-  it = config_.remap_rgb.find(details.channel.nameShort);
-  if (it != std::end(config_.remap_rgb)) {
-    auto raw = image->remap_rgb(it->second);
-
-    //:TODO: Image() wrapper clobbers RGB color, so we short-
-    //       circuit the file writer and output RGB cv::Mat here.
-    auto path = fb.build(config_.filename, config_.format);
-    fileWriter_->write(path, raw);
-    return;
-  }
-
   auto grad = config_.gradient.find(details.channel.nameShort);
   auto idf = imageDataFunction_.begin();
 
@@ -197,10 +186,7 @@ void GOESRImageHandler::handleImage(Tuple t) {
       gradientMap.data[i->first * 3 + 1] = p.rgb[1] * 255;
       gradientMap.data[i->first * 3 + 2] = p.rgb[0] * 255;
     }
-    auto raw = image->remap_rgb(gradientMap);
-    auto path = fb.build(config_.filename, config_.format);
-    fileWriter_->write(path, raw);
-    return;
+    image->remap(gradientMap);
   }
 
   // If this handler is configured to produce false color images,

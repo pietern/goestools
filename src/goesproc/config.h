@@ -38,9 +38,6 @@ struct Config {
     // have dimensions equal to either 1x256 or 256x1.
     std::map<std::string, cv::Mat> remap;
 
-    // Just like remap, but takes an RGB lookup table
-    std::map<std::string, cv::Mat> remap_rgb;
-
     // Gradient defines a parametric RGB or luminance curve
     // to be applied via the Image Data Function
     std::map<std::string, Gradient> gradient;

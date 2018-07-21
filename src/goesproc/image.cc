@@ -212,34 +212,26 @@ void Image::fillSides() {
 
 void Image::remap(const cv::Mat& img) {
   uint8_t* map = (uint8_t*) img.data;
-  for (auto y = 0; y < m_.rows; y++) {
-    uint8_t* data = (uint8_t*) m_.data + y * m_.cols;
-    for (auto x = 0; x < m_.cols; x++) {
-      data[x] = map[data[x]];
+  if (img.channels() == 1) {
+    for (auto y = 0; y < m_.rows; y++) {
+      uint8_t* data = (uint8_t*) m_.data + y * m_.cols;
+      for (auto x = 0; x < m_.cols; x++) {
+        data[x] = map[data[x]];
+      }
     }
-  }
-}
-
-cv::Mat Image::remap_rgb(const cv::Mat& img) {
-  auto rows = m_.rows;
-  auto cols = m_.cols;
-  uint8_t* map = (uint8_t*) img.data;
-  uint8_t* data = (uint8_t*) m_.data;
-
-  cv::Mat raw(rows, cols, CV_8UC3);
-  uint8_t* ptr = (uint8_t*) raw.data;
-
-  for (auto y = 0; y < rows; y++) {
-    for (auto x = 0; x < cols; x++) {
-      auto lut = data[y * cols + x];
-
-      ptr[(y * cols + x) * 3 + 0] = map[lut * 3 + 0];
-      ptr[(y * cols + x) * 3 + 1] = map[lut * 3 + 1];
-      ptr[(y * cols + x) * 3 + 2] = map[lut * 3 + 2];
+  } else if (img.channels() == 3) {
+    cv::Mat rgbOut(m_.rows, m_.cols, CV_8UC3);
+    for (auto y = 0; y < m_.rows; y++) {
+      uint8_t* data = (uint8_t*) m_.data + y * m_.cols;
+      uint8_t* odata = (uint8_t*) rgbOut.data + (3 * y * m_.cols);
+      for (auto x = 0; x < m_.cols; x++) {
+        for (auto c = 0; c < 3; c++) {
+          odata[x * 3 + c] = map[data[x] * 3 + c];
+        }
+      }
     }
+    m_ = rgbOut;
   }
-
-  return raw;
 }
 
 cv::Mat Image::getRawImage() const {
