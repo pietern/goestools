@@ -8,10 +8,10 @@ struct GradientPoint {
   float rgb[3];
   float hsv[3];
 
-  GradientPoint fromRGB(float r, float g, float b) const {
+  static const GradientPoint fromRGB(float u, float r, float g, float b) {
     float min, max;
     GradientPoint out;
-    out.units = units;
+    out.units = u;
 
     // Rescale if max input range exceeds 1
     if (r > 1 || g > 1 || b > 1) {
@@ -33,7 +33,7 @@ struct GradientPoint {
     else if (g >= r && g >= b) max = g;
     else max = b;
 
-    // Perform HSV->RGB conversion
+    // Perform RGB->HSV conversion
     out.hsv[2] = max;
     float d = max - min;
     out.hsv[1] = (max <= 0) ? 0 : d / max;
@@ -49,9 +49,9 @@ struct GradientPoint {
     return out;
   }
 
-  GradientPoint fromHSV(float h, float s, float v) const {
+  static const GradientPoint fromHSV(float u, float h, float s, float v) {
     GradientPoint out;
-    out.units = units;
+    out.units = u;
 
     // Rescale if max input range exceeds 1
     if (h > 1 || s > 1 || v > 1) {
@@ -64,7 +64,7 @@ struct GradientPoint {
     out.hsv[1] = s;
     out.hsv[2] = v;
 
-    // Perform RGB->HSV conversion
+    // Perform HSV->RGB conversion
     int i = (int) (h * 6);
     float f = h * 6 - i;
     float p = v * (1 - s);
@@ -116,9 +116,10 @@ struct Gradient {
   }
 
   // Find bounding points and perform linear interpolation
-  GradientPoint interpolate(const float units, const GradientInterpolationType lerptype = LERP_UNDEFINED) const {
+  const GradientPoint interpolate(const float units, const GradientInterpolationType lerptype = LERP_UNDEFINED) const {
     auto left = points.end();
     auto right = points.begin();
+    
 
     // Find left and right bounding points
     auto i = points.begin();
@@ -137,8 +138,17 @@ struct Gradient {
 
     GradientPoint out;
 
-    if (lerptype == LERP_HSV) {
-      // Perform HSV interpolation
+
+    // Default to RGB interpolation if not specified
+    if (lerptype == LERP_RGB ||
+        lerptype == LERP_UNDEFINED) {
+      float r = pd * right->rgb[0] + (1 - pd) * left->rgb[0];
+      float g = pd * right->rgb[1] + (1 - pd) * left->rgb[1];
+      float b = pd * right->rgb[2] + (1 - pd) * left->rgb[2];
+
+      // Perform color-space conversion
+      out = out.fromRGB(units, r, g, b);
+    } else if (lerptype == LERP_HSV) {
       auto lh = left->hsv[0], rh = right->hsv[0];
       double dh = rh - lh, adh = fabs(dh);
 
@@ -153,18 +163,11 @@ struct Gradient {
       if (h < 0.0) h += 1.0;
 
       // Perform color-space conversion
-      out = out.fromHSV(h, s, v);
+      out = out.fromHSV(units, h, s, v);
     } else {
-      // Default to RGB interpolation unless user explicitly requests HSV
-      float r = pd * right->rgb[0] + (1 - pd) * left->rgb[0];
-      float g = pd * right->rgb[1] + (1 - pd) * left->rgb[1];
-      float b = pd * right->rgb[2] + (1 - pd) * left->rgb[2];
-
-      // Perform color-space conversion
-      out = out.fromRGB(r, g, b);
+      throw std::runtime_error("Invalid interpolation type specified");
     }
 
-    out.units = units;
     return out;
   }
 };
