@@ -142,7 +142,8 @@ void GOESRImageHandler::handle(std::shared_ptr<const lrit::File> f) {
         ki = std::stoi(k);
         vf = std::stof(v);
         imageDataFunction_[ki] = vf;
-      } catch(std::exception &e) { }
+      } catch(std::invalid_argument &e) {
+      }
     }
   }
 
