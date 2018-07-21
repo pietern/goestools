@@ -102,6 +102,26 @@ void GOESRImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   if (f->hasHeader<lrit::ImageDataFunctionHeader>()) {
     auto h = f->getHeader<lrit::ImageDataFunctionHeader>();
 
+    // Sample IDF (ABI Channel 8), output with lritdump -v
+    //
+    // Image data function (3):
+    //  Data:
+    //    $HALFTONE:=8
+    //    _NAME:=toa_brightness_temperature
+    //    _UNIT:=K
+    //    255:=138.0500
+    //    254:=138.7260
+    //    253:=139.4020
+    //    252:=140.0780
+    //    251:=140.7540
+    // [...]
+    //    5:=307.0494
+    //    4:=307.7254
+    //    3:=308.4014
+    //    2:=309.0774
+    //    1:=309.7534
+    //    0:=310.4294
+
     const auto str = std::string((const char*) h.data.data(), h.data.size());
     std::istringstream iss(str);
     std::string line;
