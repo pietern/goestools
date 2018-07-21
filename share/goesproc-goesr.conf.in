@@ -33,6 +33,99 @@ format = "jpg"
   [handler.lut]
   path = "${CMAKE_INSTALL_PREFIX}/share/goestools/wxstar/wxstar_goes16_lut.png"
 
+# GOES-16 ABI RGB-enhanced
+[[handler]]
+type = "image"
+product = "goes16"
+regions = [ "fd", "m1", "m2" ]
+channels = [ "ch07", "ch08", "ch09", "ch13", "ch14", "ch15" ]
+directory = "./goes16/{region:short|lower}/{channel:short|lower}_enhanced/{time:%Y-%m-%d}"
+filename = "GOES16_{region:short}_{channel:short}_enhanced_{time:%Y%m%dT%H%M%SZ}"
+format = "jpg"
+
+  ## The following gradients are rough approximations of the 
+  ## McIDAS RGB enhancements used by NOAA/NESDIS/STAR on their site..
+  ##
+  ## For more info:
+  ##
+  ##   https://www.star.nesdis.noaa.gov/GOES/GOES16_FullDisk.php 
+  ##   http://cimss.ssec.wisc.edu/goes/visit/water_vapor_enhancement.html
+  ##   http://cimss.ssec.wisc.edu/goes/visit/enhanced_v_enhancements.html
+
+  ## Shortwave IR (Channel 7)
+  [handler.gradient.ch07]
+  points = [
+    { units = 400, color = "#000000" },
+    { units = 250, color = "#b9b9b9" },
+    { units = 249.999, color = "#00ffff" },
+    { units = 240, color = "#000080" },
+    { units = 230, color = "#00ff00" },
+    { units = 220, color = "#ffff00" },
+    { units = 210, color = "#ff0000" },
+    { units = 200, color = "#000000" },
+    { units = 190, color = "#ffffff" }
+  ]
+
+  ## Water Vapor (Channels 8 and 9)
+  [handler.gradient.ch08]
+  points = [
+    { units = 273, color = "#000000" },
+    { units = 272.9, color = "#ff0000" },
+    { units = 258, color = "#ffff00" },
+    { units = 243, color = "#000070" },
+    { units = 226, color = "#ffffff" },
+    { units = 198, color = "#408020" },
+    { units = 164, color = "#00ffff" }
+  ]
+  [handler.gradient.ch09]
+  points = [
+    { units = 273, color = "#000000" },
+    { units = 272.9, color = "#ff0000" },
+    { units = 258, color = "#ffff00" },
+    { units = 243, color = "#000070" },
+    { units = 226, color = "#ffffff" },
+    { units = 198, color = "#408020" },
+    { units = 164, color = "#00ffff" }
+  ]
+
+  ## Longwave IR (Channels 13, 14, and 15)
+  [handler.gradient.ch13]
+  points = [
+    { units = 333, color = "#000000" },
+    { units = 238, color = "#b9b9b9" },
+    { units = 237.999, color = "#00ffff" },
+    { units = 228, color = "#000080" },
+    { units = 218, color = "#00ff00" },
+    { units = 208, color = "#ffff00" },
+    { units = 198, color = "#ff0000" },
+    { units = 188, color = "#000000" },
+    { units = 178, color = "#ffffff" }
+  ]
+  [handler.gradient.ch14]
+  points = [
+    { units = 333, color = "#000000" },
+    { units = 238, color = "#b9b9b9" },
+    { units = 237.999, color = "#00ffff" },
+    { units = 228, color = "#000080" },
+    { units = 218, color = "#00ff00" },
+    { units = 208, color = "#ffff00" },
+    { units = 198, color = "#ff0000" },
+    { units = 188, color = "#000000" },
+    { units = 178, color = "#ffffff" }
+  ]
+  [handler.gradient.ch15]
+  points = [
+    { units = 333, color = "#000000" },
+    { units = 238, color = "#b9b9b9" },
+    { units = 237.999, color = "#00ffff" },
+    { units = 228, color = "#000080" },
+    { units = 218, color = "#00ff00" },
+    { units = 208, color = "#ffff00" },
+    { units = 198, color = "#ff0000" },
+    { units = 188, color = "#000000" },
+    { units = 178, color = "#ffffff" }
+  ]
+
 # GOES-17 ABI false color.
 [[handler]]
 type = "image"
