@@ -181,13 +181,13 @@ bool loadHandlers(const toml::Value& v, Config& out) {
                 r = ((ti & 0xFF0000) >> 16) / 255.0;
                 g = ((ti & 0xFF00) >> 8) / 255.0;
                 b = (ti & 0xFF) / 255.0;
-              } else if (red && green && blue) {
+              } else {
                 out.ok = false;
                 out.error = "Invalid hex color code in gradient point definition";
                 return false;
               }
             }
-          } else {
+          } else if (red && green && blue) {
             r = red->asNumber();
             g = green->asNumber();
             b = blue->asNumber();
