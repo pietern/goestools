@@ -173,15 +173,17 @@ void GOESRImageHandler::handleImage(Tuple t) {
   auto grad = config_.gradient.find(details.channel.nameShort);
   auto idf = imageDataFunction_.begin();
 
+  // If there's a parametric gradient set, use it to generate
+  // an RGB gradient map LUT, then apply it to the image
   if (grad != std::end(config_.gradient) && idf != imageDataFunction_.end()) {
-    cv::Mat tempMap(256, 1, CV_8UC3);
+    cv::Mat gradientMap(256, 1, CV_8UC3);
     for (auto i = idf; i != imageDataFunction_.end(); i++) {
       auto p = grad->second.interpolate(i->second, config_.lerptype);
-      tempMap.data[i->first * 3] = p.rgb[2] * 255;
-      tempMap.data[i->first * 3 + 1] = p.rgb[1] * 255;
-      tempMap.data[i->first * 3 + 2] = p.rgb[0] * 255;
+      gradientMap.data[i->first * 3] = p.rgb[2] * 255;
+      gradientMap.data[i->first * 3 + 1] = p.rgb[1] * 255;
+      gradientMap.data[i->first * 3 + 2] = p.rgb[0] * 255;
     }
-    auto raw = image->remap_rgb(tempMap);
+    auto raw = image->remap_rgb(gradientMap);
     auto path = fb.build(config_.filename, config_.format);
     fileWriter_->write(path, raw);
     return;
