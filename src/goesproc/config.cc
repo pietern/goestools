@@ -142,20 +142,14 @@ bool loadHandlers(const toml::Value& v, Config& out) {
           if (!color) color = point.find("c");
 
           // ... or RGB components (0-1 or 0-255)
-          auto red = point.find("red");
-          if (!red) red = point.find("r");
-          auto green = point.find("green");
-          if (!green) green = point.find("g");
-          auto blue = point.find("blue");
-          if (!blue) blue = point.find("b");
+          auto red = point.find("r");
+          auto green = point.find("g");
+          auto blue = point.find("b");
 
           // ... or HSV components (from 0-1 or 0-360[hue] and 0-100[sat/val])
-          auto hue = point.find("hue");
-          if (!hue) hue = point.find("h");
-          auto sat = point.find("saturation");
-          if (!sat) sat = point.find("s");
-          auto val = point.find("value");
-          if (!val) val = point.find("v");
+          auto hue = point.find("h");
+          auto sat = point.find("s");
+          auto val = point.find("v");
 
           float r, g, b;
           r = g = b = -1;
@@ -174,7 +168,8 @@ bool loadHandlers(const toml::Value& v, Config& out) {
             unsigned int ti;
 
             if (c.at(0) == '#') {
-              t << std::hex << c.substr(1); t >> ti;
+              t << std::hex << c.substr(1);
+              t >> ti;
 
               if (c.length() == 4) {
                 // #xxx style
@@ -186,12 +181,16 @@ bool loadHandlers(const toml::Value& v, Config& out) {
                 r = ((ti & 0xFF0000) >> 16) / 255.0;
                 g = ((ti & 0xFF00) >> 8) / 255.0;
                 b = (ti & 0xFF) / 255.0;
-              } else {
+              } else if (red && green && blue) {
                 out.ok = false;
                 out.error = "Invalid hex color code in gradient point definition";
                 return false;
               }
             }
+          } else {
+            r = red->asNumber();
+            g = green->asNumber();
+            b = blue->asNumber();
           }
 
           if (r >= 0 && g >= 0 && b >= 0) {
