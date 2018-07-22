@@ -81,4 +81,5 @@ protected:
   // with multiple regions concurrently they are indexed by their
   // region identifier.
   std::unordered_map<std::string, Tuple> falseColor_;
+  std::map<unsigned int, float> imageDataFunction_;
 };

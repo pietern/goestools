@@ -1,5 +1,6 @@
 #include "config.h"
 
+#include <sstream>
 #include <toml/toml.h>
 
 #include "lib/util.h"
@@ -95,7 +96,7 @@ bool loadHandlers(const toml::Value& v, Config& out) {
       for (const auto& it : trs) {
         auto channel = toUpper(it.first);
         auto path = it.second.get<std::string>("path");
-        auto img = cv::imread(path, CV_8UC1);
+        auto img = cv::imread(path, CV_LOAD_IMAGE_UNCHANGED);
         if (!img.data) {
           out.ok = false;
           out.error = "Unable to load image at: " + path;
@@ -107,7 +108,108 @@ bool loadHandlers(const toml::Value& v, Config& out) {
           return false;
         }
 
-        h.remap[toUpper(it.first)] = img;
+        h.remap[channel] = img;
+      }
+    }
+
+    auto gradient = th->find("gradient");
+    if (gradient) {
+      auto trs = gradient->as<toml::Table>();
+      for (const auto& it : trs) {
+        auto channel = toUpper(it.first);
+        auto interpolation = it.second.find("interpolation");
+
+        if (interpolation) {
+          if (0 == interpolation->as<std::string>().compare("hsv")) {
+            h.lerptype = LERP_HSV;
+          } else if (0 == interpolation->as<std::string>().compare("rgb")) {
+            h.lerptype = LERP_RGB;
+          } else {
+            out.ok = false;
+            out.error = "Unknown gradient interpolation type (supported types are \"rgb\" and \"hsv\")";
+            return false;
+          }
+        }
+
+        Gradient grad;
+        auto points = it.second.get<toml::Array>("points");
+        for (const auto& point : points) {
+          auto units = point.find("units");
+          if (!units) units = point.find("u");
+
+          // HTML-style #xxxxxx or #xxx color definition
+          auto color = point.find("color");
+          if (!color) color = point.find("c");
+
+          // ... or RGB components (0-1 or 0-255)
+          auto red = point.find("r");
+          auto green = point.find("g");
+          auto blue = point.find("b");
+
+          // ... or HSV components (from 0-1 or 0-360[hue] and 0-100[sat/val])
+          auto hue = point.find("h");
+          auto sat = point.find("s");
+          auto val = point.find("v");
+
+          float r, g, b;
+          r = g = b = -1;
+
+          if (!units || !units->isNumber()) {
+            out.ok = false;
+            out.error = "Expected numeric units field in gradient point";
+            return false;
+          }
+
+          // Hex color code takes precedence over individual RGB
+          //  color components.
+          if (color && color->is<std::string>()) {
+            auto c = color->as<std::string>();
+            std::stringstream t;
+            unsigned int ti;
+
+            if (c.at(0) == '#') {
+              t << std::hex << c.substr(1);
+              t >> ti;
+
+              if (c.length() == 4) {
+                // #xxx style
+                r = ((ti & 0xF00) >> 8) / 15.0;
+                g = ((ti & 0xF0) >> 4) / 15.0;
+                b = (ti & 0xF) / 15.0;
+              } else if (c.length() == 7) {
+                // #xxxxxx style
+                r = ((ti & 0xFF0000) >> 16) / 255.0;
+                g = ((ti & 0xFF00) >> 8) / 255.0;
+                b = (ti & 0xFF) / 255.0;
+              } else {
+                out.ok = false;
+                out.error = "Invalid hex color code in gradient point definition";
+                return false;
+              }
+            }
+          } else if (red && green && blue) {
+            r = red->asNumber();
+            g = green->asNumber();
+            b = blue->asNumber();
+          }
+
+          if (r >= 0 && g >= 0 && b >= 0) {
+            auto newpoint = GradientPoint::fromRGB(units->asNumber(), r, g, b);
+            grad.addPoint(newpoint);
+          } else if (hue && sat && val) {
+            // Use HSV components if defined and RGB not available
+            auto newpoint = GradientPoint::fromHSV(units->asNumber(),
+                                                   hue->asNumber(),
+                                                   sat->asNumber(),
+                                                   val->asNumber());
+            grad.addPoint(newpoint);
+          } else {
+            out.ok = false;
+            out.error = "Invalid color in gradient point";
+            return false;
+          }
+        }
+        h.gradient[channel] = grad;
       }
     }
 

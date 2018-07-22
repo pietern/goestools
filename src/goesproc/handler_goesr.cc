@@ -98,6 +98,55 @@ void GOESRImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   fb.region = details.region;
   fb.channel = details.channel;
 
+  // Process image data function
+  if (f->hasHeader<lrit::ImageDataFunctionHeader>()) {
+    auto h = f->getHeader<lrit::ImageDataFunctionHeader>();
+
+    // Sample IDF (ABI Channel 8), output with lritdump -v
+    //
+    // Image data function (3):
+    //  Data:
+    //    $HALFTONE:=8
+    //    _NAME:=toa_brightness_temperature
+    //    _UNIT:=K
+    //    255:=138.0500
+    //    254:=138.7260
+    //    253:=139.4020
+    //    252:=140.0780
+    //    251:=140.7540
+    // [...]
+    //    5:=307.0494
+    //    4:=307.7254
+    //    3:=308.4014
+    //    2:=309.0774
+    //    1:=309.7534
+    //    0:=310.4294
+
+    const auto str = std::string((const char*) h.data.data(), h.data.size());
+    std::istringstream iss(str);
+    std::string line;
+
+    long int ki;
+    float vf;
+
+    while (std::getline(iss, line, '\n')) {
+      std::istringstream lss(line);
+      std::string k, v;
+      std::getline(lss, k, '=');
+      std::getline(lss, v, '\n');
+      k.erase(k.end() - 1);
+
+      // Exceptions thrown for any non-numeric key/value pair, but
+      // we can just discard them.
+      try {
+        ki = std::stoi(k);
+        vf = std::stof(v);
+        imageDataFunction_[ki] = vf;
+      } catch(std::invalid_argument &e) {
+      }
+    }
+  }
+
   // If this is not a segmented image we can post process immediately
   if (!details.segmented) {
     auto image = Image::createFromFile(f);
@@ -155,6 +204,25 @@ void GOESRImageHandler::handleImage(Tuple t) {
   if (config_.lut.data) {
     handleImageForFalseColor(std::move(t));
     return;
+  }
+
+  // If there's a parametric gradient configured, use it in
+  // combination with the LRIT ImageDataFunction to map 
+  // CMIP grey levels to temperature units (Kelvin), then map
+  // those temperatures onto the RGB gradient.
+  auto grad = config_.gradient.find(details.channel.nameShort);
+  auto idf = imageDataFunction_.begin();
+
+  // This is stored in an 256x1 RGB matrix for use in Image::remap()
+  if (grad != std::end(config_.gradient) && idf != imageDataFunction_.end()) {
+    cv::Mat gradientMap(256, 1, CV_8UC3);
+    for (auto i = idf; i != imageDataFunction_.end(); i++) {
+      auto p = grad->second.interpolate(i->second, config_.lerptype);
+      gradientMap.data[i->first * 3] = p.rgb[2] * 255;
+      gradientMap.data[i->first * 3 + 1] = p.rgb[1] * 255;
+      gradientMap.data[i->first * 3 + 2] = p.rgb[0] * 255;
+    }
+    image->remap(gradientMap);
   }
 
   auto path = fb.build(config_.filename, config_.format);
