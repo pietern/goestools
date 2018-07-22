@@ -107,15 +107,8 @@ void RTLSDR::setTunerGain(int db) {
 
 void RTLSDR::setBiasTee(bool on) {
   assert(dev_ != nullptr);
-#ifdef RTLSDR_HAS_BIAS_TEE
   auto rv = rtlsdr_set_bias_tee(dev_, on ? 1 : 0);
   assert(rv >= 0);
-#else
-  if (on) {
-    throw std::invalid_argument(
-      "Need librtlsdr >= 0.5.4 to use bias tee.");
-  }
-#endif
 }
 
 static void rtlsdr_callback(unsigned char* buf, uint32_t len, void* ptr) {
