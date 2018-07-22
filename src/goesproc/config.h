@@ -7,6 +7,7 @@
 #include <opencv2/opencv.hpp>
 
 #include "area.h"
+#include "gradient.h"
 
 struct Config {
   struct Handler {
@@ -36,6 +37,11 @@ struct Config {
     // The lookup table must be loadable by OpenCV and must
     // have dimensions equal to either 1x256 or 256x1.
     std::map<std::string, cv::Mat> remap;
+
+    // Gradient defines a parametric RGB or luminance curve
+    // to be applied via the Image Data Function
+    std::map<std::string, Gradient> gradient;
+    enum GradientInterpolationType lerptype = LERP_UNDEFINED;
 
     // Lookup table to use to generate false color images
     cv::Mat lut;

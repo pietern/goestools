@@ -1,9 +1,13 @@
 #include "options.h"
 
-#include <stdlib.h>
 #include <getopt.h>
+#include <stdlib.h>
+#include <sys/stat.h>
 
+#include <algorithm>
 #include <iostream>
+
+#include "lib/dir.h"
 
 namespace {
 
@@ -116,6 +120,28 @@ Options parseOptions(int& argc, char**& argv) {
     if (opts.paths.empty()) {
       // This only works on Linux...
       opts.paths.push_back("/proc/self/fd/0");
+    } else {
+      // If we're running in packet mode and encounter a directory
+      // argument, it will be expanded into the list of *.raw files
+      // present inside that directory.
+      std::vector<std::string> files;
+      for (const auto& path : opts.paths) {
+        struct stat st;
+        auto rv = stat(path.c_str(), &st);
+        if (rv < 0) {
+          perror("stat");
+          exit(1);
+        }
+        if (S_ISDIR(st.st_mode)) {
+          Dir dir(path);
+          auto result = dir.matchFiles("*.raw");
+          std::sort(result.begin(), result.end());
+          files.insert(files.end(), result.begin(), result.end());
+        } else {
+          files.push_back(path);
+        }
+      }
+      opts.paths = std::move(files);
     }
   }
 

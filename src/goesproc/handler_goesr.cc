@@ -19,9 +19,9 @@ GOESRImageHandler::GOESRImageHandler(
   }
 
   if (config_.product == "goes16") {
-    productID_ = 16;
+    satelliteID_ = 16;
   } else if (config_.product == "goes17") {
-    productID_ = 17;
+    satelliteID_ = 17;
   } else {
     assert(false);
   }
@@ -34,8 +34,17 @@ void GOESRImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   }
 
   // Filter by product
+  //
+  // We assume that the NOAA product ID can be either 16 or 17,
+  // indicating GOES-16 and GOES-17. The latter has not yet been
+  // spotted in the wild as of July 2018. Even GOES-17 products
+  // still used product ID equal to 16 at this time.
+  //
+  // Actual filtering based on satellite is done based on the details
+  // encoded in the ancillary data field.
+  //
   auto nlh = f->getHeader<lrit::NOAALRITHeader>();
-  if (nlh.productID != productID_) {
+  if (nlh.productID != 16 && nlh.productID != 17) {
     return;
   }
 
@@ -54,6 +63,11 @@ void GOESRImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   }
 
   auto details = loadDetails(*f);
+
+  // Filter by satellite
+  if (satelliteID_ != details.satelliteID) {
+    return;
+  }
 
   // Filter by region
   if (!config_.regions.empty()) {
@@ -83,6 +97,55 @@ void GOESRImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   fb.time = details.frameStart;
   fb.region = details.region;
   fb.channel = details.channel;
+
+  // Process image data function
+  if (f->hasHeader<lrit::ImageDataFunctionHeader>()) {
+    auto h = f->getHeader<lrit::ImageDataFunctionHeader>();
+
+    // Sample IDF (ABI Channel 8), output with lritdump -v
+    //
+    // Image data function (3):
+    //  Data:
+    //    $HALFTONE:=8
+    //    _NAME:=toa_brightness_temperature
+    //    _UNIT:=K
+    //    255:=138.0500
+    //    254:=138.7260
+    //    253:=139.4020
+    //    252:=140.0780
+    //    251:=140.7540
+    // [...]
+    //    5:=307.0494
+    //    4:=307.7254
+    //    3:=308.4014
+    //    2:=309.0774
+    //    1:=309.7534
+    //    0:=310.4294
+
+    const auto str = std::string((const char*) h.data.data(), h.data.size());
+    std::istringstream iss(str);
+    std::string line;
+
+    long int ki;
+    float vf;
+
+    while (std::getline(iss, line, '\n')) {
+      std::istringstream lss(line);
+      std::string k, v;
+      std::getline(lss, k, '=');
+      std::getline(lss, v, '\n');
+      k.erase(k.end() - 1);
+
+      // Exceptions thrown for any non-numeric key/value pair, but
+      // we can just discard them.
+      try {
+        ki = std::stoi(k);
+        vf = std::stof(v);
+        imageDataFunction_[ki] = vf;
+      } catch(std::invalid_argument &e) {
+      }
+    }
+  }
 
   // If this is not a segmented image we can post process immediately
   if (!details.segmented) {
@@ -141,6 +204,25 @@ void GOESRImageHandler::handleImage(Tuple t) {
   if (config_.lut.data) {
     handleImageForFalseColor(std::move(t));
     return;
+  }
+
+  // If there's a parametric gradient configured, use it in
+  // combination with the LRIT ImageDataFunction to map 
+  // CMIP grey levels to temperature units (Kelvin), then map
+  // those temperatures onto the RGB gradient.
+  auto grad = config_.gradient.find(details.channel.nameShort);
+  auto idf = imageDataFunction_.begin();
+
+  // This is stored in an 256x1 RGB matrix for use in Image::remap()
+  if (grad != std::end(config_.gradient) && idf != imageDataFunction_.end()) {
+    cv::Mat gradientMap(256, 1, CV_8UC3);
+    for (auto i = idf; i != imageDataFunction_.end(); i++) {
+      auto p = grad->second.interpolate(i->second, config_.lerptype);
+      gradientMap.data[i->first * 3] = p.rgb[2] * 255;
+      gradientMap.data[i->first * 3 + 1] = p.rgb[1] * 255;
+      gradientMap.data[i->first * 3 + 2] = p.rgb[0] * 255;
+    }
+    image->remap(gradientMap);
   }
 
   auto path = fb.build(config_.filename, config_.format);
@@ -230,6 +312,14 @@ GOESRImageHandler::Details GOESRImageHandler::loadDetails(const lrit::File& f) {
 
     if (key == "Satellite") {
       details.satellite = value;
+
+      // First skip over non-digits.
+      // Expect a value of "G16" or "G17".
+      std::stringstream ss(value);
+      while (!isdigit(ss.peek())) {
+        ss.get();
+      }
+      ss >> details.satelliteID;
       continue;
     }
 
