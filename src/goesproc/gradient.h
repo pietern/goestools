@@ -1,7 +1,9 @@
 #pragma once
 
 #include <algorithm>
+#include <cmath>
 #include <iostream>
+#include <vector>
 
 struct GradientPoint {
   float units = 0;
