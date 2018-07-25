@@ -7,6 +7,7 @@ struct Options {
   std::string nanomsg;
   std::vector<std::string> files;
   bool dryrun = false;
+  std::string out = ".";
 
   // File types to include
   bool images = false;

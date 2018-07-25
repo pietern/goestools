@@ -12,6 +12,7 @@
 
 #include "lib/file_reader.h"
 #include "lib/nanomsg_reader.h"
+#include "lib/util.h"
 #include "options.h"
 
 bool filter(const Options& opts, std::unique_ptr<assembler::SessionPDU>& spdu) {
@@ -75,6 +76,9 @@ int main(int argc, char** argv) {
     return 1;
   }
 
+  // Make sure output directory exists
+  mkdirp(opts.out);
+
   // Pass packets to packet assembler
   assembler::Assembler assembler;
   std::array<uint8_t, 892> buf;
@@ -98,7 +102,7 @@ int main(int argc, char** argv) {
         std::cout << "Writing: ";
       }
 
-      const auto name = filename(spdu);
+      const auto name = opts.out + "/" + filename(spdu);
       std::cout << name << " ";
 
       if (!opts.dryrun) {

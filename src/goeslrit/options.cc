@@ -12,6 +12,7 @@ void usage(int argc, char** argv) {
   fprintf(stderr, "Options:\n");
   fprintf(stderr, "      --subscribe ADDR  Address of nanomsg publisher\n");
   fprintf(stderr, "  -n, --dry-run         Don't write files\n");
+  fprintf(stderr, "      --out DIR         Output directory\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "Filtering:\n");
   fprintf(stderr, "      --all             Include everything\n");
@@ -34,6 +35,7 @@ Options parseOptions(int argc, char** argv) {
     static struct option longOpts[] = {
       {"subscribe", required_argument, nullptr, 0x1001},
       {"dry-run",   no_argument,       nullptr, 'n'},
+      {"out",       required_argument, nullptr, 0x1003},
       {"all",       no_argument,       nullptr, 0x1100},
       {"images",    no_argument,       nullptr, 0x1101},
       {"messages",  no_argument,       nullptr, 0x1102},
@@ -57,6 +59,9 @@ Options parseOptions(int argc, char** argv) {
       break;
     case 'n':
       opts.dryrun = true;
+      break;
+    case 0x1003:
+      opts.out = optarg;
       break;
     case 0x1100:
       opts.images = true;
