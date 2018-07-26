@@ -20,6 +20,7 @@ void usage(int argc, char** argv) {
   fprintf(stderr, "  -m, --mode [packet|lrit]   Process stream of VCDU packets\n");
   fprintf(stderr, "                             or pre-assembled LRIT files\n");
   fprintf(stderr, "      --subscribe ADDR       Address of nanomsg publisher\n");
+  fprintf(stderr, "                             (implies --mode packet)\n");
   fprintf(stderr, "  -f  --force                Overwrite existing output files\n");
   fprintf(stderr, "      --help                 Show this help\n");
   fprintf(stderr, "\n");
@@ -74,14 +75,21 @@ Options parseOptions(int& argc, char**& argv) {
         auto tmp = std::string(optarg);
         if (tmp == "packet") {
           opts.mode = ProcessMode::PACKET;
-        }
-        if (tmp == "lrit") {
+        } else if (tmp == "lrit") {
           opts.mode = ProcessMode::LRIT;
+        } else {
+          fprintf(stderr, "%s: invalid argument '%s' for '--mode'\n", argv[0], tmp.c_str());
+          fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
+          exit(1);
         }
       }
       break;
     case 0x1001: // --subscribe
       opts.subscribe = std::string(optarg);
+      // Specifying subscription address implies packet processing mode
+      if (opts.mode == ProcessMode::UNDEFINED) {
+        opts.mode = ProcessMode::PACKET;
+      }
       break;
     case 'f':
       opts.force = true;
@@ -105,6 +113,13 @@ Options parseOptions(int& argc, char**& argv) {
   // Require process mode to be specified
   if (opts.mode == ProcessMode::UNDEFINED) {
     fprintf(stderr, "%s: no mode specified\n", argv[0]);
+    fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
+    exit(1);
+  }
+
+  // If subscription address is specified we must be in packet processing mode
+  if (!opts.subscribe.empty() && opts.mode != ProcessMode::PACKET) {
+    fprintf(stderr, "%s: use of '--subscribe' implies '--mode packet'\n", argv[0]);
     fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
     exit(1);
   }
