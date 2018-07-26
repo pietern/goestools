@@ -9,7 +9,7 @@ namespace {
 
 bool loadHandlers(const toml::Value& v, Config& out) {
   auto ths = v.find("handler");
-  if (ths->size() == 0) {
+  if (!ths || ths->size() == 0) {
     out.ok = false;
     out.error = "No handlers found";
     return false;
