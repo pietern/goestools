@@ -2,6 +2,7 @@
 
 #include <getopt.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 
 #include <algorithm>
@@ -108,6 +109,29 @@ Options parseOptions(int& argc, char**& argv) {
     fprintf(stderr, "%s: no configuration file specified\n", argv[0]);
     fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
     exit(1);
+  }
+
+  // Require configuration to be a regular file
+  {
+    struct stat st;
+    const char* error = nullptr;
+    auto rv = stat(opts.config.c_str(), &st);
+    if (rv < 0) {
+      error = strerror(errno);
+    } else {
+      if (!S_ISREG(st.st_mode)) {
+        error = "Not a file";
+      }
+    }
+    if (error != nullptr) {
+      fprintf(stderr,
+              "%s: invalid configuration file '%s': %s\n",
+              argv[0],
+              opts.config.c_str(),
+              error);
+      fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
+      exit(1);
+    }
   }
 
   // Require process mode to be specified
