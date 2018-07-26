@@ -8,6 +8,7 @@
 
 #include "lib/file_reader.h"
 #include "lib/nanomsg_reader.h"
+#include "lib/util.h"
 
 #include "config.h"
 #include "handler_emwin.h"
@@ -34,8 +35,11 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
+  // Make sure output directory exists
+  mkdirp(opts.out);
+
   // Handlers share a file writer instance
-  auto fileWriter = std::make_shared<FileWriter>();
+  auto fileWriter = std::make_shared<FileWriter>(opts.out);
   if (opts.force) {
     fileWriter->setForce(true);
   }

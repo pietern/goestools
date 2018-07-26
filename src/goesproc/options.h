@@ -22,6 +22,9 @@ struct Options {
   // Address of publisher to subscribe to (only relevant in packet mode)
   std::string subscribe;
 
+  // Output directory
+  std::string out = ".";
+
   // Paths specified as final argument(s)
   std::vector<std::string> paths;
 };

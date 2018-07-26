@@ -23,6 +23,7 @@ void usage(int argc, char** argv) {
   fprintf(stderr, "      --subscribe ADDR       Address of nanomsg publisher\n");
   fprintf(stderr, "                             (implies --mode packet)\n");
   fprintf(stderr, "  -f  --force                Overwrite existing output files\n");
+  fprintf(stderr, "      --out DIR              Output directory\n");
   fprintf(stderr, "      --help                 Show this help\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "If mode is set to packet, goesproc reads VCDU packets from the\n");
@@ -56,6 +57,7 @@ Options parseOptions(int& argc, char**& argv) {
       {"mode",      required_argument, nullptr, 'm'},
       {"subscribe", required_argument, nullptr, 0x1001},
       {"force",     no_argument,       nullptr, 'f'},
+      {"out",       required_argument, nullptr, 0x1003},
       {"help",      no_argument,       nullptr, 0x1337},
       {nullptr,     0,                 nullptr, 0},
     };
@@ -94,6 +96,9 @@ Options parseOptions(int& argc, char**& argv) {
       break;
     case 'f':
       opts.force = true;
+      break;
+    case 0x1003: // --out
+      opts.out = optarg;
       break;
     case 0x1337:
       usage(argc, argv);

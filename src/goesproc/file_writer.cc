@@ -6,14 +6,15 @@
 
 #include "lib/util.h"
 
-FileWriter::FileWriter() {
+FileWriter::FileWriter(const std::string& prefix) : prefix_(prefix) {
   force_ = false;
 }
 
 FileWriter::~FileWriter() {
 }
 
-void FileWriter::write(const std::string& path, const cv::Mat& mat) {
+void FileWriter::write(const std::string& tail, const cv::Mat& mat) {
+  auto path = buildPath(tail);
   if (!tryWrite(path)) {
     std::cout << "Skipping (file exists): " << path << std::endl;
     return;
@@ -23,7 +24,8 @@ void FileWriter::write(const std::string& path, const cv::Mat& mat) {
   cv::imwrite(path, mat);
 }
 
-void FileWriter::write(const std::string& path, const std::vector<char>& data) {
+void FileWriter::write(const std::string& tail, const std::vector<char>& data) {
+  auto path = buildPath(tail);
   if (!tryWrite(path)) {
     std::cout << "Skipping (file exists): " << path << std::endl;
     return;
@@ -48,4 +50,11 @@ bool FileWriter::tryWrite(const std::string& path) {
   }
 
   return force_;
+}
+
+std::string FileWriter::buildPath(const std::string& path) {
+  if (prefix_ == ".") {
+    return path;
+  }
+  return prefix_ + "/" + path;
 }
