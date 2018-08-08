@@ -27,7 +27,7 @@ protected:
       std::complex<float>* fo);
 
   int decimation_;
-  std::array<float, NTAPS + 1> taps_;
+  std::vector<float> taps_;
 
   Samples tmp_;
 
