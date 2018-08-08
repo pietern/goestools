@@ -1,5 +1,7 @@
 #include "source.h"
 
+#include <algorithm>
+
 #ifdef BUILD_AIRSPY
 #include "airspy_source.h"
 #endif
@@ -16,7 +18,16 @@ std::unique_ptr<Source> Source::build(
   if (type == "airspy") {
 #ifdef BUILD_AIRSPY
     auto airspy = Airspy::open();
-    airspy->setSampleRate(3000000);
+
+    // Use sample rate if set, otherwise default to lowest possible rate.
+    // This is 2.5MSPS for the R2 and 3M for the Mini.
+    if (config.airspy.sampleRate != 0) {
+      airspy->setSampleRate(config.airspy.sampleRate);
+    } else {
+      auto rates = airspy->getSampleRates();
+      std::sort(rates.begin(), rates.end());
+      airspy->setSampleRate(rates[0]);
+    }
     airspy->setFrequency(config.airspy.frequency);
     airspy->setGain(config.airspy.gain);
     airspy->setBiasTee(config.airspy.bias_tee);
@@ -34,7 +45,13 @@ std::unique_ptr<Source> Source::build(
   if (type == "rtlsdr") {
 #ifdef BUILD_RTLSDR
     auto rtlsdr = RTLSDR::open();
-    rtlsdr->setSampleRate(2400000);
+
+    // Use sample rate if set, otherwise default to 2.4MSPS.
+    if (config.rtlsdr.sampleRate != 0) {
+      rtlsdr->setSampleRate(config.rtlsdr.sampleRate);
+    } else {
+      rtlsdr->setSampleRate(2400000);
+    }
     rtlsdr->setFrequency(config.rtlsdr.frequency);
     rtlsdr->setTunerGain(config.rtlsdr.gain);
     rtlsdr->setBiasTee(config.rtlsdr.bias_tee);

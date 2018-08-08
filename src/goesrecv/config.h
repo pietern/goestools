@@ -35,6 +35,7 @@ struct Config {
 
   struct Airspy {
     uint32_t frequency = 0;
+    uint32_t sampleRate = 0;
 
     // Applies to the linearity gain setting
     uint8_t gain = 18;
@@ -49,6 +50,7 @@ struct Config {
 
   struct RTLSDR {
     uint32_t frequency = 0;
+    uint32_t sampleRate = 0;
 
     // Applies to the tuner gain setting
     uint8_t gain = 30;
@@ -62,14 +64,13 @@ struct Config {
   RTLSDR rtlsdr;
 
   struct Nanomsg {
+    uint32_t sampleRate = 0;
+
     // Address to connect to
     std::string connect;
 
     // Optional receive buffer size
     size_t receiveBuffer = 0;
-
-    // Required sample rate of stream
-    uint32_t sampleRate = 0;
 
     std::unique_ptr<SamplePublisher> samplePublisher;
   };

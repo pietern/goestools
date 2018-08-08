@@ -134,6 +134,11 @@ void loadAirspySource(Config::Airspy& out, const toml::Value& v) {
       continue;
     }
 
+    if (key == "sample_rate") {
+      out.sampleRate = value.as<int>();
+      continue;
+    }
+
     if (key == "gain") {
       out.gain = value.as<int>();
       continue;
@@ -164,6 +169,11 @@ void loadRTLSDRSource(Config::RTLSDR& out, const toml::Value& v) {
       continue;
     }
 
+    if (key == "sample_rate") {
+      out.sampleRate = value.as<int>();
+      continue;
+    }
+
     if (key == "gain") {
       out.gain = value.as<int>();
       continue;
@@ -189,6 +199,11 @@ void loadNanomsgSource(Config::Nanomsg& out, const toml::Value& v) {
     const auto& key = it.first;
     const auto& value = it.second;
 
+    if (key == "sample_rate") {
+      out.sampleRate = value.as<int>();
+      continue;
+    }
+
     if (key == "connect") {
       out.connect = value.as<std::string>();
       continue;
@@ -196,11 +211,6 @@ void loadNanomsgSource(Config::Nanomsg& out, const toml::Value& v) {
 
     if (key == "receive_buffer") {
       out.receiveBuffer = value.as<int>();
-      continue;
-    }
-
-    if (key == "sample_rate") {
-      out.sampleRate = value.as<int>();
       continue;
     }
 
