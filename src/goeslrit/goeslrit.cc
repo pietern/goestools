@@ -83,6 +83,13 @@ int main(int argc, char** argv) {
   assembler::Assembler assembler;
   std::array<uint8_t, 892> buf;
   while (reader->nextPacket(buf)) {
+    VCDU vcdu(buf);
+
+    // Don't process VCDU if VCID was not specified
+    if (!opts.vcids.empty() && opts.vcids.count(vcdu.getVCID()) == 0) {
+      continue;
+    }
+
     auto spdus = assembler.process(buf);
     for (auto& spdu : spdus) {
 

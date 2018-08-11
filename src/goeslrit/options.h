@@ -1,11 +1,13 @@
 #pragma once
 
+#include <set>
 #include <string>
 #include <vector>
 
 struct Options {
   std::string nanomsg;
   std::vector<std::string> files;
+  std::set<int> vcids;
   bool dryrun = false;
   std::string out = ".";
 

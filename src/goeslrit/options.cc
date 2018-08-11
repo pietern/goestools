@@ -21,6 +21,7 @@ void usage(int argc, char** argv) {
   fprintf(stderr, "      --text            Include text files\n");
   fprintf(stderr, "      --dcs             Include DCS files\n");
   fprintf(stderr, "      --emwin           Include EMWIN files\n");
+  fprintf(stderr, "      --vcid VCID       Process only specified VCIDs\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "If a nanomsg address to subscribe to is specified,\n");
   fprintf(stderr, "FILE arguments are not used.\n");
@@ -42,6 +43,7 @@ Options parseOptions(int argc, char** argv) {
       {"text",      no_argument,       nullptr, 0x1103},
       {"dcs",       no_argument,       nullptr, 0x1104},
       {"emwin",     no_argument,       nullptr, 0x1105},
+      {"vcid",      required_argument, nullptr, 0x1106},
       {"help",      no_argument,       nullptr, 0x1337},
       {nullptr,     0,                 nullptr, 0},
     };
@@ -84,6 +86,9 @@ Options parseOptions(int argc, char** argv) {
       break;
     case 0x1105:
       opts.emwin = true;
+      break;
+    case 0x1106:
+      opts.vcids.insert(std::stoi(optarg));
       break;
     case 0x1337:
       usage(argc, argv);
