@@ -1,0 +1,6 @@
+This directory contains the header file from the 3.2.0 release of
+https://github.com/nlohmann/json. Unlike the other directories this is
+not a submodule because of disk space concerns.
+
+Even a shallow repository checkout of this repository uses 250 MB of
+disk space due to large test assets and I find this a bit excessive.
