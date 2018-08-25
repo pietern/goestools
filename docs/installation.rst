@@ -29,7 +29,7 @@ Bundled dependencies (see vendor directory in repository):
 * libcorrect (currently a fork with CMake related fixes)
 * libaec
 * nanomsg
-* json11
+* json
 * tinytoml
 
 Building

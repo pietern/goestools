@@ -7,10 +7,12 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <json11.hpp>
 #include <nanomsg/nn.h>
 #include <nanomsg/pubsub.h>
+#include <nlohmann/json.hpp>
 #include <pthread.h>
+
+using namespace nlohmann;
 
 namespace {
 
@@ -156,7 +158,7 @@ void Monitor::loop() {
 
 void Monitor::process(const std::string& json) {
   std::string error;
-  auto data = json11::Json::parse(json, error);
+  auto data = json::parse(json);
   if (!error.empty()) {
     throw new std::runtime_error(error);
   }
@@ -164,39 +166,39 @@ void Monitor::process(const std::string& json) {
   // Accumulate statsd compatible payload
   std::stringstream statsd;
 
-  for (const auto& it : data.object_items()) {
-    const auto& key = it.first;
-    const auto& value = it.second;
+  for (json::iterator it = data.begin(); it != data.end(); ++it) {
+    const auto& key = it.key();
+    const auto& value = it.value();
 
     if (key == "gain") {
-      stats_.gain.push_back(value.number_value());
-      statsd << key << ":" << value.number_value() << "|g" << std::endl;
+      stats_.gain.push_back(value.get<double>());
+      statsd << key << ":" << value.get<double>() << "|g" << std::endl;
       continue;
     }
 
     if (key == "frequency") {
-      stats_.frequency.push_back(value.number_value());
+      stats_.frequency.push_back(value.get<double>());
       // First set to 0 to support negative values.
       // See: https://github.com/etsy/statsd/blob/master/docs/metric_types.md#gauges
       statsd << key << ":0|g" << std::endl;
-      statsd << key << ":" << value.number_value() << "|g" << std::endl;
+      statsd << key << ":" << value.get<double>() << "|g" << std::endl;
       continue;
     }
 
     if (key == "omega") {
-      stats_.omega.push_back(value.number_value());
-      statsd << key << ":" << value.number_value() << "|g" << std::endl;
+      stats_.omega.push_back(value.get<double>());
+      statsd << key << ":" << value.get<double>() << "|g" << std::endl;
       continue;
     }
 
     if (key == "viterbi_errors") {
-      stats_.viterbiErrors.push_back(value.int_value());
-      statsd << key << ":" << value.int_value() << "|h" << std::endl;
+      stats_.viterbiErrors.push_back(value.get<int>());
+      statsd << key << ":" << value.get<int>() << "|h" << std::endl;
       continue;
     }
 
     if (key == "reed_solomon_errors") {
-      const auto& v = value.int_value();
+      const auto& v = value.get<int>();
       if (v >= 0) {
         stats_.reedSolomonErrors.push_back(v);
         statsd << key << ":" << v << "|h" << std::endl;
@@ -205,7 +207,7 @@ void Monitor::process(const std::string& json) {
     }
 
     if (key == "ok") {
-      const auto& ok = value.int_value();
+      const auto& ok = value.get<int>();
       if (ok != 0) {
         stats_.totalOK++;
         statsd << "packets_ok:1|c" << std::endl;
