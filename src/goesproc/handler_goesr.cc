@@ -207,7 +207,7 @@ void GOESRImageHandler::handleImage(Tuple t) {
   }
 
   // If there's a parametric gradient configured, use it in
-  // combination with the LRIT ImageDataFunction to map 
+  // combination with the LRIT ImageDataFunction to map
   // CMIP grey levels to temperature units (Kelvin), then map
   // those temperatures onto the RGB gradient.
   auto grad = config_.gradient.find(details.channel.nameShort);
