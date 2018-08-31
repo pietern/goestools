@@ -7,6 +7,10 @@
 
 #include "string.h"
 
+#ifdef HAS_PROJ
+#include "map_drawer.h"
+#endif
+
 namespace {
 
 GOESRProduct::Details loadDetails(const lrit::File& f) {
@@ -386,8 +390,10 @@ void GOESRImageHandler::handleImage(GOESRProduct product) {
     image->remap(gradientMap);
   }
 
+  auto mat = image->getRawImage();
+  overlayMaps(product, mat);
   auto path = fb.build(config_.filename, config_.format);
-  fileWriter_->write(path, image->getRawImage());
+  fileWriter_->write(path, mat);
 }
 
 void GOESRImageHandler::handleImageForFalseColor(GOESRProduct p1) {
@@ -449,6 +455,28 @@ void GOESRImageHandler::handleImageForFalseColor(GOESRProduct p1) {
   i0.reset();
   i1.reset();
 
+  auto mat = out->getRawImage();
+  overlayMaps(p0, mat);
   auto path = fb.build(config_.filename, config_.format);
-  fileWriter_->write(path, out->getRawImage());
+  fileWriter_->write(path, mat);
+}
+
+void GOESRImageHandler::overlayMaps(const GOESRProduct& product, cv::Mat& mat) {
+#ifdef HAS_PROJ
+  if (config_.maps.empty()) {
+    return;
+  }
+
+  auto inh = product.getHeader<lrit::ImageNavigationHeader>();
+  auto lon = inh.getLongitude();
+
+  // GOES-16 reports -75.2 but is actually at -75.0
+  if (fabsf(lon - (-75.2)) < 1e-3) {
+    lon = -75.0;
+  }
+
+  // TODO: The map drawer should be cached by construction parameters.
+  auto drawer = MapDrawer(&config_, lon, inh);
+  drawer.draw(mat);
+#endif
 }

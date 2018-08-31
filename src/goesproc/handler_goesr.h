@@ -72,6 +72,8 @@ protected:
 
   void handleImageForFalseColor(GOESRProduct product);
 
+  void overlayMaps(const GOESRProduct& product, cv::Mat& mat);
+
   Config::Handler config_;
   std::shared_ptr<FileWriter> fileWriter_;
   int satelliteID_;

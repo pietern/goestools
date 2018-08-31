@@ -24,7 +24,7 @@ pkg_check_modules(OPENCV REQUIRED opencv)
 pkg_check_modules(PROJ proj)
 
 if(PROJ_FOUND)
-  list(APPEND GOESPROC_SRCS proj.cc)
+  list(APPEND GOESPROC_SRCS proj.cc map_drawer.cc)
 endif()
 
 add_executable(goesproc ${GOESPROC_SRCS})
@@ -32,6 +32,7 @@ add_sanitizers(goesproc)
 install(TARGETS goesproc COMPONENT goestools RUNTIME DESTINATION bin)
 target_link_libraries(goesproc lrit util assembler packet_reader dir)
 target_link_libraries(goesproc zip)
+target_link_libraries(goesproc nlohmann_json)
 
 if(OPENCV_FOUND)
   target_link_libraries(goesproc opencv_core opencv_highgui opencv_imgproc)

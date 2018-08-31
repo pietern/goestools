@@ -20,6 +20,8 @@ protected:
   std::string getBasename(const lrit::File& f) const;
   struct timespec getTime(const lrit::File& f) const;
 
+  void overlayMaps(const lrit::File& f, cv::Mat& mat);
+
   Config::Handler config_;
   std::shared_ptr<FileWriter> fileWriter_;
 
