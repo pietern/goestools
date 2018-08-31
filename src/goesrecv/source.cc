@@ -21,10 +21,23 @@ std::unique_ptr<Source> Source::build(
 
     // Use sample rate if set, otherwise default to lowest possible rate.
     // This is 2.5MSPS for the R2 and 3M for the Mini.
+    auto rates = airspy->getSampleRates();
     if (config.airspy.sampleRate != 0) {
-      airspy->setSampleRate(config.airspy.sampleRate);
+      auto rate = config.airspy.sampleRate;
+      auto pos = std::find(rates.begin(), rates.end(), rate);
+      if (pos == rates.end()) {
+        std::stringstream ss;
+        ss <<
+          "You configured the Airspy source to use an unsupported " <<
+          "sample rate equal to " << rate << ". " <<
+          "Supported sample rates are: " << std::endl;
+        for (size_t i = 0; i < rates.size(); i++) {
+          ss << " - " << rates[i] << std::endl;
+        }
+        throw std::runtime_error(ss.str());
+      }
+      airspy->setSampleRate(rate);
     } else {
-      auto rates = airspy->getSampleRates();
       std::sort(rates.begin(), rates.end());
       airspy->setSampleRate(rates[0]);
     }
