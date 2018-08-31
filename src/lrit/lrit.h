@@ -43,6 +43,9 @@ struct ImageNavigationHeader {
   uint32_t lineScaling;
   uint32_t columnOffset;
   uint32_t lineOffset;
+
+  // Converts projection name into floating point longitude.
+  float getLongitude() const;
 };
 
 struct ImageDataFunctionHeader {

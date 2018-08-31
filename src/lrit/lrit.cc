@@ -20,6 +20,16 @@ const int HeaderStructureRecordHeader::CODE = 130;
 const int RiceCompressionHeader::CODE = 131;
 const int DCSFileNameHeader::CODE = 132;
 
+float ImageNavigationHeader::getLongitude() const {
+  auto name = std::string(projectionName);
+  auto lpos = name.find('(');
+  auto rpos = name.find(')');
+  if (lpos == std::string::npos || rpos == std::string::npos) {
+    return 0.0;
+  }
+  return std::stof(name.substr(lpos + 1, rpos - (lpos + 1)));
+}
+
 // The days field in CCSDS time starts counting on January 1, 1958.
 // Unix time starts counting on January 1, 1970.
 constexpr auto ccsdsToUnixDaysOffset = 4383;
