@@ -7,6 +7,35 @@
 
 namespace {
 
+std::tuple<float, float, float> parseHexColor(const std::string& c) {
+  if (c.at(0) != '#') {
+    return std::make_tuple(1.0, 1.0, 1.0);
+  }
+
+  std::stringstream t;
+  unsigned int ti;
+  float r, g, b;
+
+  t << std::hex << c.substr(1);
+  t >> ti;
+
+  if (c.length() == 4) {
+    // #xxx style
+    r = ((ti & 0xF00) >> 8) / 15.0;
+    g = ((ti & 0xF0) >> 4) / 15.0;
+    b = (ti & 0xF) / 15.0;
+  } else if (c.length() == 7) {
+    // #xxxxxx style
+    r = ((ti & 0xFF0000) >> 16) / 255.0;
+    g = ((ti & 0xFF00) >> 8) / 255.0;
+    b = (ti & 0xFF) / 255.0;
+  } else {
+    throw std::runtime_error("Invalid hex color code: " + c);
+  }
+
+  return std::make_tuple(r, g, b);
+}
+
 bool loadHandlers(const toml::Value& v, Config& out) {
   auto ths = v.find("handler");
   if (!ths || ths->size() == 0) {
@@ -160,33 +189,9 @@ bool loadHandlers(const toml::Value& v, Config& out) {
             return false;
           }
 
-          // Hex color code takes precedence over individual RGB
-          //  color components.
+          // Hex color code takes precedence over individual RGB color components.
           if (color && color->is<std::string>()) {
-            auto c = color->as<std::string>();
-            std::stringstream t;
-            unsigned int ti;
-
-            if (c.at(0) == '#') {
-              t << std::hex << c.substr(1);
-              t >> ti;
-
-              if (c.length() == 4) {
-                // #xxx style
-                r = ((ti & 0xF00) >> 8) / 15.0;
-                g = ((ti & 0xF0) >> 4) / 15.0;
-                b = (ti & 0xF) / 15.0;
-              } else if (c.length() == 7) {
-                // #xxxxxx style
-                r = ((ti & 0xFF0000) >> 16) / 255.0;
-                g = ((ti & 0xFF00) >> 8) / 255.0;
-                b = (ti & 0xFF) / 255.0;
-              } else {
-                out.ok = false;
-                out.error = "Invalid hex color code in gradient point definition";
-                return false;
-              }
-            }
+            std::tie(r, g, b) = parseHexColor(color->as<std::string>());
           } else if (red && green && blue) {
             r = red->asNumber();
             g = green->asNumber();
