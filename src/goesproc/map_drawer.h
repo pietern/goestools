@@ -11,7 +11,7 @@ public:
     float longitude,
     lrit::ImageNavigationHeader inh);
 
-  void draw(cv::Mat& image);
+  cv::Mat draw(cv::Mat& in);
 
 protected:
   void generatePoints(

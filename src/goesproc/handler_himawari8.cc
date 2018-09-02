@@ -151,6 +151,6 @@ void Himawari8ImageHandler::overlayMaps(const lrit::File& f, cv::Mat& mat) {
 
   // TODO: The map drawer should be cached by construction parameters.
   auto drawer = MapDrawer(&config_, lon, inh);
-  drawer.draw(mat);
+  mat = drawer.draw(mat);
 #endif
 }

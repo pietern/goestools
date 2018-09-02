@@ -116,11 +116,20 @@ void MapDrawer::generatePoints(const Config::Map& map, std::vector<std::vector<c
   }
 }
 
-void MapDrawer::draw(cv::Mat& image) {
+cv::Mat MapDrawer::draw(cv::Mat& in) {
+  // Convert grayscale image to color image to
+  // accommodate colored map overlays.
+  cv::Mat out;
+  if (in.channels() == 1) {
+    cv::cvtColor(in, out, cv::COLOR_GRAY2RGB);
+  } else {
+    out = in;
+  }
+
   const auto& maps = config_->maps;
   for (size_t i = 0; i < maps.size(); i++) {
     cv::polylines(
-      image,
+      out,
       points_[i],
       false,
       maps[i].color,
@@ -128,4 +137,6 @@ void MapDrawer::draw(cv::Mat& image) {
       8,
       16);
   }
+
+  return out;
 }
