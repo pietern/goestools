@@ -41,6 +41,18 @@ std::tuple<float, float, float> parseHexColor(const std::string& c) {
 Config::Map loadMap(const toml::Value* v, Config& config) {
   Config::Map out;
 
+  // Check that goestools was compiled with proj support.
+#ifndef HAS_PROJ
+  throw std::runtime_error(
+    "The configuration file includes directives to add a map overlay, "
+    "but goesproc was compiled without the proj library. "
+    "Make sure to install the proj library before compiling goesproc, "
+    "and look for a message saying 'Found proj' when running cmake. "
+    "Install proj on Debian/Ubuntu/Raspbian by running: "
+    "'sudo apt-get install -y libproj-dev'."
+    );
+#endif
+
   auto path = v->find("path");
   if (path) {
     out.path = path->as<std::string>();
