@@ -133,6 +133,12 @@ if(${BUILD_GOESPROC})
     DIRECTORY share/wxstar
     DESTINATION share/goestools
     COMPONENT goestools)
+
+  # Install Natural Earth GeoJSON files for map overlays
+  install(
+    DIRECTORY share/ne
+    DESTINATION share/goestools
+    COMPONENT goestools)
 endif()
 
 option(BUILD_GOESPACKETS "Build goespackets" ON)
