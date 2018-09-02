@@ -125,7 +125,7 @@ void MapDrawer::draw(cv::Mat& image) {
       false,
       maps[i].color,
       1,
-      CV_AA,
+      8,
       16);
   }
 }
