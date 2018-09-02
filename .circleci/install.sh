@@ -9,4 +9,5 @@ apt-get install -y \
         cmake \
         git-core \
         libopencv-dev \
+        libproj-dev \
         zlib1g-dev
