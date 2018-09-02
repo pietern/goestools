@@ -46,6 +46,7 @@ Install system dependencies:
     cmake \
     git-core \
     libopencv-dev \
+    libproj-dev \
     zlib1g-dev
 
 If you want to run goesrecv on this machine, you also have to install

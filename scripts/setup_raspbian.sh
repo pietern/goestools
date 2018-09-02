@@ -28,6 +28,7 @@ urls() {
         zlib1g-dev \
         libopencv-dev \
         libopencv-highgui-dev \
+        libproj-dev \
         gcc-5 \
         g++-5
 }
