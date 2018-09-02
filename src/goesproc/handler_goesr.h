@@ -9,18 +9,14 @@
 #include "handler.h"
 #include "image.h"
 
-class GOESRImageHandler : public Handler {
+class GOESRProduct {
 public:
-  explicit GOESRImageHandler(
-    const Config::Handler& config,
-    const std::shared_ptr<FileWriter>& fileWriter);
+  GOESRProduct() = default;
 
-  virtual void handle(std::shared_ptr<const lrit::File> f);
+  explicit GOESRProduct(const std::shared_ptr<const lrit::File>& f);
 
-protected:
-  // The LRIT image files from GOES-16 contain key/value pairs in
-  // the ancillary text header. This struct is the interpreted version
-  // of that header.
+  // GOES-R LRIT image files contain key/value pairs in the ancillary
+  // text header. This struct lists the set of observed keys.
   struct Details {
     struct timespec frameStart;
     Region region;
@@ -33,46 +29,62 @@ protected:
     bool segmented;
   };
 
-  // Complete images are passed along together with any information we
-  // need from the source LRIT files without holding onto them.
-  // For example, the default filename comes from the LRIT header.
-  struct Tuple {
-    Tuple() {
-    }
+  Details details;
 
-    Tuple(
-      std::unique_ptr<Image> image,
-      Details details,
-      FilenameBuilder fb)
-      : image(std::move(image)),
-        details(std::move(details)),
-        fb(std::move(fb)) {
-    }
+  template <typename H>
+  bool hasHeader() const {
+    const auto& f = files_.front();
+    return f->template hasHeader<H>();
+  }
 
-    std::unique_ptr<Image> image;
-    Details details;
-    FilenameBuilder fb;
-  };
+  template <typename H>
+  H getHeader() const {
+    const auto& f = files_.front();
+    return f->template getHeader<H>();
+  }
 
-  void handleImage(Tuple t);
+  std::map<unsigned int, float> loadImageDataFunction() const;
 
-  void handleImageForFalseColor(Tuple t);
+  FilenameBuilder getFilenameBuilder(const Config::Handler& config) const;
 
-  Details loadDetails(const lrit::File& f);
+  uint16_t imageIdentifier() const;
+
+  void add(const std::shared_ptr<const lrit::File>& f);
+
+  bool isComplete() const;
+
+  std::unique_ptr<Image> getImage(const Config::Handler& config) const;
+
+protected:
+  std::vector<std::shared_ptr<const lrit::File>> files_;
+};
+
+class GOESRImageHandler : public Handler {
+public:
+  explicit GOESRImageHandler(
+    const Config::Handler& config,
+    const std::shared_ptr<FileWriter>& fileWriter);
+
+  virtual void handle(std::shared_ptr<const lrit::File> f);
+
+protected:
+  void handleImage(GOESRProduct product);
+
+  void handleImageForFalseColor(GOESRProduct product);
+
+  void overlayMaps(const GOESRProduct& product, cv::Mat& mat);
 
   Config::Handler config_;
   std::shared_ptr<FileWriter> fileWriter_;
   int satelliteID_;
-
-  using SegmentVector = std::vector<std::shared_ptr<const lrit::File>>;
 
   // Maintain a map of region and channel to list of segments.
   // This assumes that two images for the same region and channel are
   // never sent concurrently, but always in order.
   std::unordered_map<
     SegmentKey,
-    SegmentVector,
-    SegmentKeyHash> segments_;
+    GOESRProduct,
+    SegmentKeyHash> products_;
 
   // To generate false color images we have to keep the image of one
   // channel around while we wait for the other one to be received.
@@ -80,6 +92,5 @@ protected:
   // second-to-arrive channel is handled as it is received. To deal
   // with multiple regions concurrently they are indexed by their
   // region identifier.
-  std::unordered_map<std::string, Tuple> falseColor_;
-  std::map<unsigned int, float> imageDataFunction_;
+  std::unordered_map<std::string, GOESRProduct> falseColor_;
 };

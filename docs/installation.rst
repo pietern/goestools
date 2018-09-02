@@ -29,7 +29,7 @@ Bundled dependencies (see vendor directory in repository):
 * libcorrect (currently a fork with CMake related fixes)
 * libaec
 * nanomsg
-* json11
+* json
 * tinytoml
 
 Building
@@ -46,6 +46,7 @@ Install system dependencies:
     cmake \
     git-core \
     libopencv-dev \
+    libproj-dev \
     zlib1g-dev
 
 If you want to run goesrecv on this machine, you also have to install

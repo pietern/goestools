@@ -13,6 +13,3 @@
 [submodule "vendor/nanomsg"]
 	path = vendor/nanomsg
 	url = https://github.com/nanomsg/nanomsg.git
-[submodule "vendor/json11"]
-	path = vendor/json11
-	url = https://github.com/dropbox/json11.git

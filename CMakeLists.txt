@@ -58,7 +58,7 @@ endif()
 
 add_subdirectory(vendor/libcorrect EXCLUDE_FROM_ALL)
 add_subdirectory(vendor/libaec EXCLUDE_FROM_ALL)
-add_subdirectory(vendor/json11 EXCLUDE_FROM_ALL)
+add_subdirectory(vendor/json EXCLUDE_FROM_ALL)
 
 # Build nanomsg
 option(NN_STATIC_LIB "Build nanomsg as static library." ON)
@@ -131,6 +131,12 @@ if(${BUILD_GOESPROC})
   # Install contrast curve and false color LUT
   install(
     DIRECTORY share/wxstar
+    DESTINATION share/goestools
+    COMPONENT goestools)
+
+  # Install Natural Earth GeoJSON files for map overlays
+  install(
+    DIRECTORY share/ne
     DESTINATION share/goestools
     COMPONENT goestools)
 endif()

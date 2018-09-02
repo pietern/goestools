@@ -5,7 +5,83 @@
 
 #include "lib/util.h"
 
+using namespace nlohmann;
+
 namespace {
+
+std::tuple<float, float, float> parseHexColor(const std::string& c) {
+  if (c.at(0) != '#') {
+    return std::make_tuple(1.0, 1.0, 1.0);
+  }
+
+  std::stringstream t;
+  unsigned int ti;
+  float r, g, b;
+
+  t << std::hex << c.substr(1);
+  t >> ti;
+
+  if (c.length() == 4) {
+    // #xxx style
+    r = ((ti & 0xF00) >> 8) / 15.0;
+    g = ((ti & 0xF0) >> 4) / 15.0;
+    b = (ti & 0xF) / 15.0;
+  } else if (c.length() == 7) {
+    // #xxxxxx style
+    r = ((ti & 0xFF0000) >> 16) / 255.0;
+    g = ((ti & 0xFF00) >> 8) / 255.0;
+    b = (ti & 0xFF) / 255.0;
+  } else {
+    throw std::runtime_error("Invalid hex color code: " + c);
+  }
+
+  return std::make_tuple(r, g, b);
+}
+
+Config::Map loadMap(const toml::Value* v, Config& config) {
+  Config::Map out;
+
+  // Check that goestools was compiled with proj support.
+#ifndef HAS_PROJ
+  throw std::runtime_error(
+    "The configuration file includes directives to add a map overlay, "
+    "but goesproc was compiled without the proj library. "
+    "Make sure to install the proj library before compiling goesproc, "
+    "and look for a message saying 'Found proj' when running cmake. "
+    "Install proj on Debian/Ubuntu/Raspbian by running: "
+    "'sudo apt-get install -y libproj-dev'."
+    );
+#endif
+
+  auto path = v->find("path");
+  if (path) {
+    out.path = path->as<std::string>();
+  }
+
+  // Sanity check
+  if (out.path.empty()) {
+    throw std::runtime_error("Map does not specify a path");
+  }
+
+  // Load from cache or from disk
+  out.geo = config.loadJSON(out.path);
+
+  // Double check that this is a feature collection
+  if (out.geo->at("type") != "FeatureCollection") {
+    throw std::runtime_error("Expected GeoJSON to be of type FeatureCollection");
+  }
+
+  float r = 1.0;
+  float g = 1.0;
+  float b = 1.0;
+  auto color = v->find("color");
+  if (color) {
+    std::tie(r, g, b) = parseHexColor(color->as<std::string>());
+  }
+  out.color = cv::Scalar(255 * b, 255 * g, 255 * r);
+
+  return out;
+}
 
 bool loadHandlers(const toml::Value& v, Config& out) {
   auto ths = v.find("handler");
@@ -160,33 +236,9 @@ bool loadHandlers(const toml::Value& v, Config& out) {
             return false;
           }
 
-          // Hex color code takes precedence over individual RGB
-          //  color components.
+          // Hex color code takes precedence over individual RGB color components.
           if (color && color->is<std::string>()) {
-            auto c = color->as<std::string>();
-            std::stringstream t;
-            unsigned int ti;
-
-            if (c.at(0) == '#') {
-              t << std::hex << c.substr(1);
-              t >> ti;
-
-              if (c.length() == 4) {
-                // #xxx style
-                r = ((ti & 0xF00) >> 8) / 15.0;
-                g = ((ti & 0xF0) >> 4) / 15.0;
-                b = (ti & 0xF) / 15.0;
-              } else if (c.length() == 7) {
-                // #xxxxxx style
-                r = ((ti & 0xFF0000) >> 16) / 255.0;
-                g = ((ti & 0xFF00) >> 8) / 255.0;
-                b = (ti & 0xFF) / 255.0;
-              } else {
-                out.ok = false;
-                out.error = "Invalid hex color code in gradient point definition";
-                return false;
-              }
-            }
+            std::tie(r, g, b) = parseHexColor(color->as<std::string>());
           } else if (red && green && blue) {
             r = red->asNumber();
             g = green->asNumber();
@@ -244,6 +296,13 @@ bool loadHandlers(const toml::Value& v, Config& out) {
       }
     }
 
+    auto tmaps = th->find("map");
+    if (tmaps && tmaps->size() > 0) {
+      for (size_t j = 0; j < tmaps->size(); j++) {
+        h.maps.push_back(loadMap(tmaps->find(j), out));
+      }
+    }
+
     // Sanity check
     if (h.lut.data && h.channels.size() != 2) {
       out.ok = false;
@@ -269,13 +328,38 @@ Config Config::load(const std::string& file) {
     return out;
   }
 
-  const auto& v = pr.value;
-  if (!loadHandlers(v, out)) {
-    return out;
+  try {
+    loadHandlers(pr.value, out);
+  } catch (std::runtime_error& e) {
+    out.ok = false;
+    out.error = e.what();
   }
 
   return out;
 }
 
 Config::Config() : ok(true) {
+}
+
+std::shared_ptr<const json> Config::loadJSON(const std::string& path) {
+  auto it = json_.find(path);
+  if (it == json_.end()) {
+    // Open file
+    std::ifstream f(path);
+    if (!f.good()) {
+      std::stringstream ss;
+      ss << "Unable to open file at: " << path << " (" << strerror(errno) << ")";
+      throw std::runtime_error(ss.str());
+    }
+
+    // Load JSON from file
+    json object;
+    f >> object;
+
+    // Update cache
+    auto ptr = std::make_shared<const json>(std::move(object));
+    std::tie(it, std::ignore) = json_.emplace(path, std::move(ptr));
+  }
+
+  return it->second;
 }

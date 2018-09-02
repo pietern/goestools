@@ -51,7 +51,7 @@ add_executable(goesrecv goesrecv.cc config.cc options.cc decoder.cc demodulator.
 install(TARGETS goesrecv COMPONENT goestools RUNTIME DESTINATION bin)
 target_include_directories(goesrecv PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_link_libraries(goesrecv util)
-target_link_libraries(goesrecv json11)
+target_link_libraries(goesrecv nlohmann_json)
 target_link_libraries(goesrecv packetizer pthread)
 target_link_libraries(goesrecv agc)
 target_link_libraries(goesrecv rrc)
