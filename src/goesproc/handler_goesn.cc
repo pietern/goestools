@@ -113,8 +113,17 @@ void GOESNImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   // Ensure we can append this segment
   if (!vector.empty()) {
     const auto& t = vector.front();
-    auto tsih = t->getHeader<lrit::SegmentIdentificationHeader>();
-    if (tsih.imageIdentifier != sih.imageIdentifier) {
+
+    // Use "Time of frame start" field in ancillary text header to
+    // check that this segment belongs to the set of existing ones.
+    // Previously this was done with the segment identification
+    // header, but a ground station update in August 2018 introduced
+    // an error where segments of the same image often don't share the
+    // same image identification header. This is only the case for the
+    // GOES-16 (possibly also GOES-17) relay of GOES-15 on HRIT.
+    auto da = loadDetails(*f);
+    auto db = loadDetails(*t);
+    if (da.frameStart.tv_sec != db.frameStart.tv_sec) {
       vector.clear();
     }
   }
@@ -229,6 +238,11 @@ void GOESNImageHandler::overlayMaps(
 
   auto inh = f.getHeader<lrit::ImageNavigationHeader>();
   auto lon = inh.getLongitude();
+
+  // GOES-16 doing relay of GOES-15 reports -135.5 but is actually at -135.0
+  if (fabsf(lon - (-135.5)) < 1e-3) {
+    lon = -135.0;
+  }
 
   // If a crop was used, the column and line offsets need to be fixed.
   if (!crop.empty()) {
