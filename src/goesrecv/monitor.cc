@@ -193,7 +193,7 @@ void Monitor::process(const std::string& json) {
 
     if (key == "viterbi_errors") {
       stats_.viterbiErrors.push_back(value.get<int>());
-      statsd << key << ":" << value.get<int>() << "|h" << std::endl;
+      statsd << key << ":" << value.get<int>() << "|g" << std::endl;
       continue;
     }
 
@@ -201,7 +201,7 @@ void Monitor::process(const std::string& json) {
       const auto& v = value.get<int>();
       if (v >= 0) {
         stats_.reedSolomonErrors.push_back(v);
-        statsd << key << ":" << v << "|h" << std::endl;
+        statsd << key << ":" << v << "|g" << std::endl;
       }
       continue;
     }
