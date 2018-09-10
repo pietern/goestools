@@ -7,6 +7,10 @@
 #include "filename.h"
 #include "string.h"
 
+#ifdef HAS_PROJ
+#include "map_drawer.h"
+#endif
+
 namespace {
 
 // The "Time of frame start" pair in the ancillary header uses
@@ -26,6 +30,18 @@ bool goesnParseTime(const std::string& in, struct timespec* ts) {
   ts->tv_sec = t;
   ts->tv_nsec = 0;
   return true;
+}
+
+// Insert segment in vector such that the segments remain ordered.
+void insertSegment(
+    std::vector<std::shared_ptr<const lrit::File>>& files,
+    std::shared_ptr<const lrit::File> file) {
+  auto sih = file->getHeader<lrit::SegmentIdentificationHeader>();
+  auto pos = std::find_if(files.begin(), files.end(), [&sih] (auto& tf) {
+      auto tsih = tf->template getHeader<lrit::SegmentIdentificationHeader>();
+      return sih.segmentNumber < tsih.segmentNumber;
+    });
+  files.insert(pos, file);
 }
 
 } // namespace
@@ -103,7 +119,7 @@ void GOESNImageHandler::handle(std::shared_ptr<const lrit::File> f) {
     }
   }
 
-  vector.push_back(f);
+  insertSegment(vector, f);
   if (vector.size() == sih.maxSegment) {
     auto first = vector.front();
     auto image = Image::createFromFiles(vector);
@@ -127,6 +143,7 @@ void GOESNImageHandler::handle(std::shared_ptr<const lrit::File> f) {
       raw = image->getScaledImage(config_.crop, false);
     }
 
+    overlayMaps(*first, config_.crop, raw);
     auto path = fb.build(config_.filename, config_.format);
     fileWriter_->write(path, raw);
     return;
@@ -199,4 +216,36 @@ Channel GOESNImageHandler::loadChannel(const lrit::NOAALRITHeader& h) const {
     channel.nameLong = "Water Vapor";
   }
   return channel;
+}
+
+void GOESNImageHandler::overlayMaps(
+    const lrit::File& f,
+    const Area& crop,
+    cv::Mat& mat) {
+#ifdef HAS_PROJ
+  if (config_.maps.empty()) {
+    return;
+  }
+
+  auto inh = f.getHeader<lrit::ImageNavigationHeader>();
+  auto lon = inh.getLongitude();
+
+  // If a crop was used, the column and line offsets need to be fixed.
+  if (!crop.empty()) {
+    inh.columnOffset -= (crop.minColumn - -((int32_t) inh.columnOffset));
+    inh.lineOffset -= (crop.minLine - -(int32_t) inh.lineOffset);
+  }
+
+  // The image already has the aspect ratio fixed; do it here as well.
+  inh.lineOffset *= ((float) inh.columnScaling / (float) inh.lineScaling);
+  inh.lineScaling = inh.columnScaling;
+
+  // Smudge factor to make it visually match up better
+  inh.columnScaling *= 1.001;
+  inh.lineScaling *= 1.001;
+
+  // TODO: The map drawer should be cached by construction parameters.
+  auto drawer = MapDrawer(&config_, lon, inh);
+  mat = drawer.draw(mat);
+#endif
 }

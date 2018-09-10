@@ -31,6 +31,8 @@ protected:
   Region loadRegion(const lrit::NOAALRITHeader& h) const;
   Channel loadChannel(const lrit::NOAALRITHeader& h) const;
 
+  void overlayMaps(const lrit::File& f, const Area& crop, cv::Mat& mat);
+
   Config::Handler config_;
   std::shared_ptr<FileWriter> fileWriter_;
   uint16_t productID_;

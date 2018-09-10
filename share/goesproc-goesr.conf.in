@@ -220,6 +220,12 @@ filename = "GOES15_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
 crop = [ -2374, 2371, -1357, 1347 ]
 format = "jpg"
 
+  [[handler.map]]
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_0_countries_lakes.json"
+
+  [[handler.map]]
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_1_states_provinces_lakes.json"
+
 # Store relayed GOES-15 northern hemisphere region
 [[handler]]
 type = "image"
@@ -229,6 +235,12 @@ directory = "./goes15/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES15_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
 crop = [ -1864, 1447, -1357, -3 ]
 format = "jpg"
+
+  [[handler.map]]
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_0_countries_lakes.json"
+
+  [[handler.map]]
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_1_states_provinces_lakes.json"
 
 # Store relayed GOES-15 US region
 [[handler]]
@@ -240,6 +252,12 @@ filename = "GOES15_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
 crop = [ -1312, 1542, -1327, -345 ]
 format = "jpg"
 
+  [[handler.map]]
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_0_countries_lakes.json"
+
+  [[handler.map]]
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_1_states_provinces_lakes.json"
+
 # Store relayed GOES-15 special regions
 # No crop specified because it is expected to move around
 [[handler]]
@@ -249,6 +267,12 @@ regions = [ "si00", "si01", "si02", "si03", "si04" ]
 directory = "./goes15/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES15_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
 format = "jpg"
+
+  [[handler.map]]
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_0_countries_lakes.json"
+
+  [[handler.map]]
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_1_states_provinces_lakes.json"
 
 # The following handler takes the same crop from the FD, NH, and US
 # products to get more frequent imagery of a smaller area on the
@@ -262,3 +286,9 @@ crop = [ -1312, 1447, -1327, -345 ]
 directory = "./goes15/combine-north/{time:%Y-%m-%d}"
 filename = "GOES15_{channel:short}_{time:%Y%m%dT%H%M%SZ}_{region:short}"
 format = "jpg"
+
+  [[handler.map]]
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_0_countries_lakes.json"
+
+  [[handler.map]]
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_1_states_provinces_lakes.json"
