@@ -13,27 +13,51 @@ FileWriter::FileWriter(const std::string& prefix) : prefix_(prefix) {
 FileWriter::~FileWriter() {
 }
 
-void FileWriter::write(const std::string& tail, const cv::Mat& mat) {
-  auto path = buildPath(tail);
-  if (!tryWrite(path)) {
-    std::cout << "Skipping (file exists): " << path << std::endl;
-    return;
+void FileWriter::logTime(const Timer* t) {
+  if (t) {
+    std::cout
+      << std::fixed
+      << std::setprecision(3)
+      << " (took "
+      << t->elapsed().count()
+      << "s)"
+      << std::endl;
+  } else {
+    std::cout << std::endl;
   }
-
-  std::cout << "Writing: " << path << std::endl;
-  cv::imwrite(path, mat);
 }
 
-void FileWriter::write(const std::string& tail, const std::vector<char>& data) {
+void FileWriter::write(
+  const std::string& tail,
+  const cv::Mat& mat,
+  const Timer* t) {
   auto path = buildPath(tail);
   if (!tryWrite(path)) {
-    std::cout << "Skipping (file exists): " << path << std::endl;
+    std::cout << "Skipping (file exists): " << path;
+    logTime(t);
     return;
   }
 
-  std::cout << "Writing: " << path << std::endl;
+  std::cout << "Writing: " << path;
+  cv::imwrite(path, mat);
+  logTime(t);
+}
+
+void FileWriter::write(
+  const std::string& tail,
+  const std::vector<char>& data,
+  const Timer* t) {
+  auto path = buildPath(tail);
+  if (!tryWrite(path)) {
+    std::cout << "Skipping (file exists): " << path;
+    logTime(t);
+    return;
+  }
+
+  std::cout << "Writing: " << path;
   std::ofstream of(path);
   of.write(data.data(), data.size());
+  logTime(t);
 }
 
 bool FileWriter::tryWrite(const std::string& path) {

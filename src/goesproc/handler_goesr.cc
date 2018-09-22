@@ -3,6 +3,7 @@
 #include <cassert>
 #include <stdexcept>
 
+#include "lib/timer.h"
 #include "lib/util.h"
 
 #include "string.h"
@@ -360,6 +361,8 @@ void GOESRImageHandler::handle(std::shared_ptr<const lrit::File> f) {
 }
 
 void GOESRImageHandler::handleImage(GOESRProduct product) {
+  Timer t;
+
   // If this handler is configured to produce false color images
   // we pass the image to a separate handler.
   if (config_.lut.data) {
@@ -393,10 +396,12 @@ void GOESRImageHandler::handleImage(GOESRProduct product) {
   auto mat = image->getRawImage();
   overlayMaps(product, mat);
   auto path = fb.build(config_.filename, config_.format);
-  fileWriter_->write(path, mat);
+  fileWriter_->write(path, mat, &t);
 }
 
 void GOESRImageHandler::handleImageForFalseColor(GOESRProduct p1) {
+  Timer t;
+
   const auto key = p1.details.region.nameShort;
   if (falseColor_.find(key) == falseColor_.end()) {
     falseColor_[key] = std::move(p1);
@@ -458,7 +463,7 @@ void GOESRImageHandler::handleImageForFalseColor(GOESRProduct p1) {
   auto mat = out->getRawImage();
   overlayMaps(p0, mat);
   auto path = fb.build(config_.filename, config_.format);
-  fileWriter_->write(path, mat);
+  fileWriter_->write(path, mat, &t);
 }
 
 void GOESRImageHandler::overlayMaps(const GOESRProduct& product, cv::Mat& mat) {

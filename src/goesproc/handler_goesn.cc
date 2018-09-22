@@ -2,6 +2,7 @@
 
 #include <cassert>
 
+#include "lib/timer.h"
 #include "lib/util.h"
 
 #include "filename.h"
@@ -130,6 +131,8 @@ void GOESNImageHandler::handle(std::shared_ptr<const lrit::File> f) {
 
   insertSegment(vector, f);
   if (vector.size() == sih.maxSegment) {
+    Timer t;
+
     auto first = vector.front();
     auto image = Image::createFromFiles(vector);
     vector.clear();
@@ -154,7 +157,7 @@ void GOESNImageHandler::handle(std::shared_ptr<const lrit::File> f) {
 
     overlayMaps(*first, config_.crop, raw);
     auto path = fb.build(config_.filename, config_.format);
-    fileWriter_->write(path, raw);
+    fileWriter_->write(path, raw, &t);
     return;
   }
 }

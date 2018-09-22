@@ -33,6 +33,7 @@ install(TARGETS goesproc COMPONENT goestools RUNTIME DESTINATION bin)
 target_link_libraries(goesproc lrit util assembler packet_reader dir)
 target_link_libraries(goesproc zip)
 target_link_libraries(goesproc nlohmann_json)
+target_link_libraries(goesproc timer)
 
 if(OPENCV_FOUND)
   target_link_libraries(goesproc opencv_core opencv_highgui opencv_imgproc)

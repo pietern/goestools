@@ -5,6 +5,8 @@
 
 #include <opencv2/opencv.hpp>
 
+#include "lib/timer.h"
+
 // FileWriter writes files to disk.
 // This is where overwrite logic and logging is handled.
 class FileWriter {
@@ -16,14 +18,22 @@ public:
     force_ = force;
   }
 
-  void write(const std::string& path, const cv::Mat& mat);
+  void write(
+    const std::string& path,
+    const cv::Mat& mat,
+    const Timer* t = nullptr);
 
-  void write(const std::string& path, const std::vector<char>& data);
+  void write(
+    const std::string& path,
+    const std::vector<char>& data,
+    const Timer* t = nullptr);
 
 protected:
   bool tryWrite(const std::string& path);
 
   std::string buildPath(const std::string& path);
+
+  void logTime(const Timer* t);
 
   const std::string prefix_;
   bool force_;

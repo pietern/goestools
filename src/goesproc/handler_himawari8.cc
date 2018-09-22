@@ -2,6 +2,7 @@
 
 #include <cassert>
 
+#include "lib/timer.h"
 #include "lib/util.h"
 
 #include "filename.h"
@@ -84,6 +85,8 @@ void Himawari8ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
 
   vector.push_back(f);
   if (vector.size() == sih.maxSegment) {
+    Timer t;
+
     auto image = Image::createFromFiles(vector);
     vector.clear();
 
@@ -97,7 +100,7 @@ void Himawari8ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
     auto mat = image->getRawImage();
     overlayMaps(*f, mat);
     auto path = fb.build(config_.filename, config_.format);
-    fileWriter_->write(path, mat);
+    fileWriter_->write(path, mat, &t);
     return;
   }
 }
