@@ -7,6 +7,8 @@
 
 #include <iostream>
 
+#include "lib/version.h"
+
 void usage(int argc, char** argv) {
   fprintf(stderr, "Usage: %s [OPTIONS]\n", argv[0]);
   fprintf(stderr, "Demodulate and decode signal into packet stream.\n");
@@ -15,7 +17,10 @@ void usage(int argc, char** argv) {
   fprintf(stderr, "  -c, --config PATH          Path to configuration file\n");
   fprintf(stderr, "  -v, --verbose              Periodically show statistics\n");
   fprintf(stderr, "  -i, --interval SEC         Interval for --verbose\n");
-  fprintf(stderr, "      --help                 Show this help\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "Other:\n");
+  fprintf(stderr, "      --help     Display this help and exit\n");
+  fprintf(stderr, "      --version  Print version information and exit\n");
   fprintf(stderr, "\n");
   exit(0);
 }
@@ -29,6 +34,7 @@ Options parseOptions(int argc, char** argv) {
       {"verbose",  no_argument,       nullptr, 'v'},
       {"interval", required_argument, nullptr, 'i'},
       {"help",     no_argument,       nullptr, 0x1337},
+      {"version",  no_argument,       nullptr, 0x1338},
       {nullptr,    0,                 nullptr, 0},
     };
 
@@ -51,6 +57,10 @@ Options parseOptions(int argc, char** argv) {
       break;
     case 0x1337:
       usage(argc, argv);
+      break;
+    case 0x1338:
+      version(argc, argv);
+      exit(0);
       break;
     default:
       std::cerr << "Invalid option" << std::endl;

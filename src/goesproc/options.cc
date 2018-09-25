@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include "lib/dir.h"
+#include "lib/version.h"
 
 namespace {
 
@@ -24,7 +25,10 @@ void usage(int argc, char** argv) {
   fprintf(stderr, "                             (implies --mode packet)\n");
   fprintf(stderr, "  -f  --force                Overwrite existing output files\n");
   fprintf(stderr, "      --out DIR              Output directory\n");
-  fprintf(stderr, "      --help                 Show this help\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "Other:\n");
+  fprintf(stderr, "      --help     Display this help and exit\n");
+  fprintf(stderr, "      --version  Print version information and exit\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "If mode is set to packet, goesproc reads VCDU packets from the\n");
   fprintf(stderr, "specified path(s). To process real time data you can either setup a pipe\n");
@@ -59,6 +63,7 @@ Options parseOptions(int& argc, char**& argv) {
       {"force",     no_argument,       nullptr, 'f'},
       {"out",       required_argument, nullptr, 0x1003},
       {"help",      no_argument,       nullptr, 0x1337},
+      {"version",   no_argument,       nullptr, 0x1338},
       {nullptr,     0,                 nullptr, 0},
     };
 
@@ -102,6 +107,10 @@ Options parseOptions(int& argc, char**& argv) {
       break;
     case 0x1337:
       usage(argc, argv);
+      break;
+    case 0x1338:
+      version(argc, argv);
+      exit(0);
       break;
     default:
       std::cerr << "Invalid option" << std::endl;

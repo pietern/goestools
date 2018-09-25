@@ -34,6 +34,7 @@ target_link_libraries(goesproc lrit util assembler packet_reader dir)
 target_link_libraries(goesproc zip)
 target_link_libraries(goesproc nlohmann_json)
 target_link_libraries(goesproc timer)
+target_link_libraries(goesproc version)
 
 if(OPENCV_FOUND)
   target_link_libraries(goesproc opencv_core opencv_highgui opencv_imgproc)
