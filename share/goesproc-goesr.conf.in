@@ -242,6 +242,22 @@ format = "jpg"
   [[handler.map]]
   path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_1_states_provinces_lakes.json"
 
+# Store relayed GOES-15 southern hemisphere region
+[[handler]]
+type = "image"
+product = "goes15"
+regions = [ "sh" ]
+directory = "./goes15/{region:short|lower}/{time:%Y-%m-%d}"
+filename = "GOES15_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
+crop = [ -1864, 896, -19, 1043 ]
+format = "jpg"
+
+  [[handler.map]]
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_0_countries_lakes.json"
+
+  [[handler.map]]
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_1_states_provinces_lakes.json"
+
 # Store relayed GOES-15 US region
 [[handler]]
 type = "image"
@@ -284,6 +300,24 @@ product = "goes15"
 regions = [ "fd", "nh", "us" ]
 crop = [ -1312, 1447, -1327, -345 ]
 directory = "./goes15/combine-north/{time:%Y-%m-%d}"
+filename = "GOES15_{channel:short}_{time:%Y%m%dT%H%M%SZ}_{region:short}"
+format = "jpg"
+
+  [[handler.map]]
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_0_countries_lakes.json"
+
+  [[handler.map]]
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_1_states_provinces_lakes.json"
+
+# The following handler takes the same crop from the FD and SH
+# products to get more frequent imagery of a smaller area on the
+# southern hemisphere.
+[[handler]]
+type = "image"
+product = "goes15"
+regions = [ "fd", "sh" ]
+crop = [ -1864, 896, -19, 1043 ]
+directory = "./goes15/combine-south/{time:%Y-%m-%d}"
 filename = "GOES15_{channel:short}_{time:%Y%m%dT%H%M%SZ}_{region:short}"
 format = "jpg"
 
