@@ -17,24 +17,24 @@ NanomsgReader::NanomsgReader(const std::string& addr) {
     throw std::runtime_error(ss.str());
   }
 
+  // Fix receive buffer size to "plenty".
+  // HRIT packet stream is 50KB/sec so this gives us 5+ minutes
+  // before the buffer is full and nanomsg starts dropping messages.
+  int size = 16 * 1024 * 1024;
+  rv = nn_setsockopt(fd, NN_SOL_SOCKET, NN_RCVBUF, &size, sizeof(size));
+  if (rv < 0) {
+    nn_close(fd);
+    std::stringstream ss;
+    ss << "nn_setsockopt: " << nn_strerror(nn_errno());
+    throw std::runtime_error(ss.str());
+  }
+
   rv = nn_connect(fd, addr.c_str());
   if (rv < 0) {
     nn_close(fd);
     std::stringstream ss;
     ss << "nn_connect: " << nn_strerror(nn_errno());
     ss << " (" << addr << ")";
-    throw std::runtime_error(ss.str());
-  }
-
-  // Fix receive buffer size to "plenty".
-  // HRIT packet stream is 50KB/sec so this gives us 5+ minutes
-  // before the buffer is full and nanomsg starts dropping messages.
-  int size = 16 * 1024 * 1024;
-  rv = nn_setsockopt(fd, NN_SOL_SOCKET, NN_SNDBUF, &size, sizeof(size));
-  if (rv < 0) {
-    nn_close(fd);
-    std::stringstream ss;
-    ss << "nn_setsockopt: " << nn_strerror(nn_errno());
     throw std::runtime_error(ss.str());
   }
 
