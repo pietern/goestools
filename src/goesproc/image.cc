@@ -20,7 +20,7 @@ std::unique_ptr<Image> Image::createFromFile(
     // Pixel by pixel
     for (unsigned long i = 0; i < n; i += 8) {
       auto byte = line.get()[i / 8];
-      for (auto j = i; j < (i + 8); j++) {
+      for (auto j = i; j < (i + 8) && j < n; j++) {
         if (byte & 0x80) {
           ((char*)raw.data)[j] = (char)0xff;
         } else {
