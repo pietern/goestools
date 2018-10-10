@@ -1,7 +1,7 @@
 #pragma once
 
 extern "C" {
-#ifdef __SSE__
+#ifdef HAVE_SSE
 #include <correct-sse.h>
 #else
 #include <correct.h>
@@ -11,7 +11,7 @@ extern "C" {
 namespace decoder {
 
 class Viterbi {
-#ifdef __SSE__
+#ifdef HAVE_SSE
   using conv = correct_convolutional_sse;
 #else
   using conv = correct_convolutional;
@@ -23,7 +23,7 @@ public:
     // Polynomials are not referenced after creation
     // so can be referenced from the stack.
     uint16_t poly[2] = { (uint16_t)0x4f, (uint16_t)0x6d };
-#ifdef __SSE__
+#ifdef HAVE_SSE
     v_ = correct_convolutional_sse_create(2, 7, poly);
 #else
     v_ = correct_convolutional_create(2, 7, poly);
@@ -31,7 +31,7 @@ public:
   }
 
   ~Viterbi() {
-#ifdef __SSE__
+#ifdef HAVE_SSE
     correct_convolutional_sse_destroy(v_);
 #else
     correct_convolutional_destroy(v_);
@@ -39,7 +39,7 @@ public:
   }
 
   ssize_t decodeSoft(const uint8_t* encoded, size_t bits, uint8_t* msg) {
-#ifdef __SSE__
+#ifdef HAVE_SSE
     return correct_convolutional_sse_decode_soft(v_, encoded, bits, msg);
 #else
     return correct_convolutional_decode_soft(v_, encoded, bits, msg);
@@ -47,7 +47,7 @@ public:
   }
 
   ssize_t encodeLength(size_t len) {
-#ifdef __SSE__
+#ifdef HAVE_SSE
     return correct_convolutional_sse_encode_len(v_, len);
 #else
     return correct_convolutional_encode_len(v_, len);
@@ -55,7 +55,7 @@ public:
   }
 
   ssize_t encode(const uint8_t *msg, size_t len, uint8_t *encoded) {
-#ifdef __SSE__
+#ifdef HAVE_SSE
     return correct_convolutional_sse_encode(v_, msg, len, encoded);
 #else
     return correct_convolutional_encode(v_, msg, len, encoded);
