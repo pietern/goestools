@@ -20,7 +20,7 @@ class PacketProcessor {
 public:
   explicit PacketProcessor(std::vector<std::unique_ptr<Handler> > handlers);
 
-  void run(std::unique_ptr<PacketReader>& reader);
+  void run(std::unique_ptr<PacketReader>& reader, bool verbose);
 
 protected:
   std::vector<std::unique_ptr<Handler> > handlers_;

@@ -112,7 +112,9 @@ int main(int argc, char** argv) {
       reader = std::make_unique<FileReader>(opts.paths);
     }
 
-    p.run(reader);
+    // Run in verbose mode when stdout is a TTY.
+    bool verbose = isatty(fileno(stdout));
+    p.run(reader, verbose);
   }
 
   if (opts.mode == ProcessMode::LRIT) {
