@@ -9,7 +9,7 @@ class VCDU {
 
 public:
   // Allow implicit construction
-  VCDU(raw data)
+  VCDU(const raw& data)
     : data_(data) {
   };
 
@@ -38,5 +38,5 @@ public:
   }
 
 protected:
-  raw data_;
+  const raw& data_;
 };
