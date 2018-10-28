@@ -36,7 +36,7 @@ RTLSDR::RTLSDR(rtlsdr_dev_t* dev) : dev_(dev) {
 
   // Configure manual gain mode
   rv = rtlsdr_set_tuner_gain_mode(dev_, 1);
-  assert(rv > 0);
+  assert(rv >= 0);
 
   // Disable internal AGC
   rv = rtlsdr_set_agc_mode(dev_, 0);
@@ -48,7 +48,7 @@ RTLSDR::RTLSDR(rtlsdr_dev_t* dev) : dev_(dev) {
 
   // Disable offset tuning
   rv = rtlsdr_set_offset_tuning(dev_, 0);
-  assert(rv >= 0);
+  assert(rv == -2 || rv >= 0);
 
   // Tune to 100MHz to initialize.
   //
