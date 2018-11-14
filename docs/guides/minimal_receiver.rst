@@ -23,9 +23,9 @@ The bill of materials is as follows:
 
   * Available at NooElec__; $24 (NooElec NESDR SMArt)
 
-* NooElec SAWBird with bias tee (LNA and filter board)
+* NooElec SAWBird (or SAWBird+) with bias tee (LNA and filter board)
 
-  * Available at NooElec (send an email to support@nooelec.com); ~$25
+  * Available at NooElec__; ~$25 (or $35 for the SAWBird+)
 
 * L-Com 1.9 GHz Parabolic Grid Antenna
 
@@ -43,6 +43,7 @@ This sums up to about $200 excluding tax/shipping.
 
 .. __: http://www.newark.com/raspberry-pi/2773729/sbc-arm-cortex-a53-1gb-sdram/dp/49AC7637
 .. __: http://www.nooelec.com/store/sdr/sdr-receivers/nesdr/nesdr-smart-sdr.html
+.. __: http://www.nooelec.com/store/sawbird-goes.html
 .. __: http://www.l-com.com/wireless-antenna-hyperlink-brand-19-ghz-22-dbi-parabolic-grid-antenna
 .. __: http://www.l-com.com/coaxial-coaxial-adapter-n-male-sma-male
 .. __: http://www.nooelec.com/store/sdr/sdr-adapters-and-cables/sdr-cables/male-sma-to-male-sma-pigtail-rg316-0-5-length.html
@@ -59,13 +60,6 @@ pictures below).
 
    Additional items such as power supplies or mounting hardware
    are not listed here.
-
-.. note::
-
-   As of May 2018, the NooElec SAWbird is not yet listed in their
-   shop. You can contact the NooElec sales department directly to
-   order an engineering sample. The final units are expected to become
-   generally available later this year.
 
 .. important::
 
