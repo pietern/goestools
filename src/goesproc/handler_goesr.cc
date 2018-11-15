@@ -480,6 +480,11 @@ void GOESRImageHandler::overlayMaps(const GOESRProduct& product, cv::Mat& mat) {
     lon = -75.0;
   }
 
+  // GOES-17 reports -137.2 but is actually at -137.0
+  if (fabsf(lon - (-137.2)) < 1e-3) {
+    lon = -137.0;
+  }
+
   // TODO: The map drawer should be cached by construction parameters.
   auto drawer = MapDrawer(&config_, lon, inh);
   mat = drawer.draw(mat);
