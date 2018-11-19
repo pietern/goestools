@@ -6,20 +6,6 @@
 
 namespace lrit {
 
-const int PrimaryHeader::CODE = 0;
-const int ImageStructureHeader::CODE = 1;
-const int ImageNavigationHeader::CODE = 2;
-const int ImageDataFunctionHeader::CODE = 3;
-const int AnnotationHeader::CODE = 4;
-const int TimeStampHeader::CODE = 5;
-const int AncillaryTextHeader::CODE = 6;
-const int KeyHeader::CODE = 7;
-const int SegmentIdentificationHeader::CODE = 128;
-const int NOAALRITHeader::CODE = 129;
-const int HeaderStructureRecordHeader::CODE = 130;
-const int RiceCompressionHeader::CODE = 131;
-const int DCSFileNameHeader::CODE = 132;
-
 float ImageNavigationHeader::getLongitude() const {
   auto name = std::string(projectionName);
   auto lpos = name.find('(');
