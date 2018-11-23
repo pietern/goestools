@@ -20,6 +20,10 @@ public:
     return file_;
   }
 
+  const std::vector<uint8_t>& getHeaderBuffer() const {
+    return header_;
+  }
+
   const HeaderMap& getHeaderMap() const {
     return m_;
   }

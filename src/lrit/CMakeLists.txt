@@ -1,4 +1,5 @@
-add_library(lrit lrit.cc file.cc)
+add_library(lrit lrit.cc file.cc json.cc)
+target_link_libraries(lrit util nlohmann_json)
 
 add_executable(lritdump lritdump.cc)
 add_sanitizers(lritdump)

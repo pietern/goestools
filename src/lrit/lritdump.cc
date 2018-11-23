@@ -9,9 +9,11 @@
 #include <sstream>
 
 #include "file.h"
+#include "json.h"
 
 struct Options {
   bool extract = false;
+  bool json = false;
   bool verbose = false;
 };
 
@@ -204,12 +206,19 @@ int extract(const Options&, const std::string& name) {
   return 0;
 }
 
+int json(const Options& opts, const std::string& name) {
+  auto file = lrit::File(name);
+  std::cout << toJSON(file) << std::endl;
+  return 0;
+}
+
 void usage(int argc, char** argv) {
   fprintf(stderr, "Usage: %s [OPTIONS] FILE\n", argv[0]);
   fprintf(stderr, "Inspect LRIT files.\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "Options:\n");
   fprintf(stderr, "  -x, --extract  Print data section of file\n");
+  fprintf(stderr, "  -j, --json     Print header in JSON format\n");
   fprintf(stderr, "      --help     Show this help\n");
   fprintf(stderr, "\n");
   exit(0);
@@ -221,12 +230,13 @@ int main(int argc, char** argv) {
   while (1) {
     static struct option longOpts[] = {
       {"extract", no_argument, nullptr, 'x'},
+      {"json",    no_argument, nullptr, 'j'},
       {"verbose", no_argument, nullptr, 'v'},
       {"help",    no_argument, nullptr, 0x1337},
       {nullptr,   0,           nullptr, 0},
     };
 
-    auto c = getopt_long(argc, argv, "xv", longOpts, nullptr);
+    auto c = getopt_long(argc, argv, "xjv", longOpts, nullptr);
     if (c == -1) {
       break;
     }
@@ -236,6 +246,9 @@ int main(int argc, char** argv) {
       break;
     case 'x':
       opts.extract = true;
+      break;
+    case 'j':
+      opts.json = true;
       break;
     case 'v':
       opts.verbose = true;
@@ -261,6 +274,13 @@ int main(int argc, char** argv) {
         return rv;
       }
     } else {
+      if (opts.json) {
+        rv = json(opts, argv[i]);
+        if (rv != 0) {
+          return rv;
+        }
+        continue;
+      }
       rv = dump(opts, argv[i]);
       if (rv != 0) {
         return rv;
