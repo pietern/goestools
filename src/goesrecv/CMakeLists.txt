@@ -32,6 +32,9 @@ endif()
 add_library(nanomsg_source nanomsg_source.cc)
 target_link_libraries(nanomsg_source nanomsg publisher stdc++)
 
+add_library(file_source file_source.cc)
+target_link_libraries(file_source publisher stdc++)
+
 add_library(agc agc.cc)
 target_link_libraries(agc publisher m stdc++)
 
@@ -59,6 +62,7 @@ target_link_libraries(goesrecv costas)
 target_link_libraries(goesrecv clock_recovery)
 target_link_libraries(goesrecv quantize)
 target_link_libraries(goesrecv nanomsg_source)
+target_link_libraries(goesrecv file_source)
 target_link_libraries(goesrecv version)
 if(AIRSPY_FOUND)
   target_compile_definitions(goesrecv PUBLIC -DBUILD_AIRSPY)

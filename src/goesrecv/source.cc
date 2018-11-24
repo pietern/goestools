@@ -2,6 +2,9 @@
 
 #include <algorithm>
 
+#include "file_source.h"
+#include "nanomsg_source.h"
+
 #ifdef BUILD_AIRSPY
 #include "airspy_source.h"
 #endif
@@ -9,8 +12,6 @@
 #ifdef BUILD_RTLSDR
 #include "rtlsdr_source.h"
 #endif
-
-#include "nanomsg_source.h"
 
 std::unique_ptr<Source> Source::build(
     const std::string& type,
@@ -84,6 +85,12 @@ std::unique_ptr<Source> Source::build(
     nanomsg->setSampleRate(config.nanomsg.sampleRate);
     nanomsg->setSamplePublisher(std::move(config.nanomsg.samplePublisher));
     return std::unique_ptr<Source>(nanomsg.release());
+  }
+  if (type == "file") {
+    auto file = File::open(config);
+    file->setSampleRate(config.file.sampleRate);
+    file->setSamplePublisher(std::move(config.file.samplePublisher));
+    return std::unique_ptr<Source>(file.release());
   }
 
   throw std::runtime_error("Invalid source: " + type);

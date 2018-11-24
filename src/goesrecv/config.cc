@@ -229,6 +229,37 @@ void loadNanomsgSource(Config::Nanomsg& out, const toml::Value& v) {
   }
 }
 
+void loadFileSource(Config::File& out, const toml::Value& v) {
+  const auto& table = v.as<toml::Table>();
+  for (const auto& it : table) {
+    const auto& key = it.first;
+    const auto& value = it.second;
+
+    if (key == "sample_rate") {
+      out.sampleRate = value.as<int>();
+      continue;
+    }
+
+    if (key == "path") {
+      out.path = value.as<std::string>();
+      continue;
+    }
+
+    if (key == "sample_publisher") {
+      out.samplePublisher = createSamplePublisher(value);
+      continue;
+    }
+
+    throwInvalidKey(key);
+  }
+
+  if (out.sampleRate == 0) {
+    std::stringstream ss;
+    ss << "Key not set: sample_rate";
+    throw std::invalid_argument(ss.str());
+  }
+}
+
 void loadAGC(Config::AGC& out, const toml::Value& v) {
   const auto& table = v.as<toml::Table>();
   for (const auto& it : table) {
@@ -389,6 +420,11 @@ Config Config::load(const std::string& file) {
 
     if (key == "nanomsg") {
       loadNanomsgSource(out.nanomsg, value);
+      continue;
+    }
+
+    if (key == "file") {
+      loadFileSource(out.file, value);
       continue;
     }
 

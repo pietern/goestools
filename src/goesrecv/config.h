@@ -77,6 +77,17 @@ struct Config {
 
   Nanomsg nanomsg;
 
+  struct File {
+    uint32_t sampleRate = 0;
+
+    // Path to file
+    std::string path;
+
+    std::unique_ptr<SamplePublisher> samplePublisher;
+  };
+
+  File file;
+
   struct AGC {
     // Minimum gain
     float min = 1e-6f;
