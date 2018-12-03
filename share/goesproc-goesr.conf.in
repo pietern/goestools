@@ -8,6 +8,7 @@ product = "goes16"
 directory = "./goes16/{region:short|lower}/{channel:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES16_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
 format = "jpg"
+json = false
 
   [[handler.map]]
   path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_0_countries_lakes.json"
@@ -22,6 +23,7 @@ product = "goes17"
 directory = "./goes17/{region:short|lower}/{channel:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES17_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
 format = "jpg"
+json = false
 
   [[handler.map]]
   path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_0_countries_lakes.json"
@@ -38,6 +40,7 @@ channels = [ "ch02", "ch13" ]
 directory = "./goes16/{region:short|lower}/fc/{time:%Y-%m-%d}"
 filename = "GOES16_{region:short}_FC_{time:%Y%m%dT%H%M%SZ}"
 format = "jpg"
+json = false
 
   [handler.remap.ch02]
   path = "${CMAKE_INSTALL_PREFIX}/share/goestools/wxstar/wxstar_goes16_ch02_curve.png"
@@ -60,6 +63,7 @@ channels = [ "ch07", "ch08", "ch09", "ch13", "ch14", "ch15" ]
 directory = "./goes16/{region:short|lower}/{channel:short|lower}_enhanced/{time:%Y-%m-%d}"
 filename = "GOES16_{region:short}_{channel:short}_enhanced_{time:%Y%m%dT%H%M%SZ}"
 format = "jpg"
+json = false
 
   ## The following gradients are rough approximations of the 
   ## McIDAS RGB enhancements used by NOAA/NESDIS/STAR on their site..
@@ -159,6 +163,7 @@ channels = [ "ch02", "ch13" ]
 directory = "./goes17/{region:short|lower}/fc/{time:%Y-%m-%d}"
 filename = "GOES17_{region:short}_FC_{time:%Y%m%dT%H%M%SZ}"
 format = "jpg"
+json = false
 
   # This reuses the GOES-16 contrast curve assuming it is identical
   [handler.remap.ch02]
@@ -181,6 +186,7 @@ product = "himawari8"
 directory = "./himawari8/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "Himawari8_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
 format = "jpg"
+json = false
 
   [[handler.map]]
   path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_0_countries_lakes.json"
@@ -194,6 +200,7 @@ type = "text"
 product = "nws"
 directory = "./nws/{time:%Y-%m-%d}"
 filename = "{time:%Y%m%dT%H%M%SZ}_{awips:nnn}{awips:xxx}"
+json = false
 
 # NWS images.
 [[handler]]
@@ -202,6 +209,7 @@ product = "nws"
 directory = "./nws/{time:%Y-%m-%d}"
 filename = "{time:%Y%m%dT%H%M%SZ}_{filename}"
 format = "png"
+json = false
 
 # Miscellaneous text.
 [[handler]]
@@ -209,6 +217,7 @@ type = "text"
 product = "other"
 directory = "./text/{time:%Y-%m-%d}"
 filename = "{time:%Y%m%dT%H%M%SZ}_{filename}"
+json = false
 
 # Store relayed GOES-15 full disks
 [[handler]]
@@ -219,6 +228,7 @@ directory = "./goes15/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES15_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
 crop = [ -2374, 2371, -1357, 1347 ]
 format = "jpg"
+json = false
 
   [[handler.map]]
   path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_0_countries_lakes.json"
@@ -235,6 +245,7 @@ directory = "./goes15/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES15_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
 crop = [ -1864, 1447, -1357, -3 ]
 format = "jpg"
+json = false
 
   [[handler.map]]
   path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_0_countries_lakes.json"
@@ -251,6 +262,7 @@ directory = "./goes15/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES15_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
 crop = [ -1864, 896, -19, 1043 ]
 format = "jpg"
+json = false
 
   [[handler.map]]
   path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_0_countries_lakes.json"
@@ -267,6 +279,7 @@ directory = "./goes15/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES15_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
 crop = [ -1312, 1542, -1327, -345 ]
 format = "jpg"
+json = false
 
   [[handler.map]]
   path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_0_countries_lakes.json"
@@ -283,6 +296,7 @@ regions = [ "si00", "si01", "si02", "si03", "si04" ]
 directory = "./goes15/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES15_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
 format = "jpg"
+json = false
 
   [[handler.map]]
   path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_0_countries_lakes.json"
@@ -302,6 +316,7 @@ crop = [ -1312, 1447, -1327, -345 ]
 directory = "./goes15/combine-north/{time:%Y-%m-%d}"
 filename = "GOES15_{channel:short}_{time:%Y%m%dT%H%M%SZ}_{region:short}"
 format = "jpg"
+json = false
 
   [[handler.map]]
   path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_0_countries_lakes.json"
@@ -320,6 +335,7 @@ crop = [ -1864, 896, -19, 1043 ]
 directory = "./goes15/combine-south/{time:%Y-%m-%d}"
 filename = "GOES15_{channel:short}_{time:%Y%m%dT%H%M%SZ}_{region:short}"
 format = "jpg"
+json = false
 
   [[handler.map]]
   path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_0_countries_lakes.json"

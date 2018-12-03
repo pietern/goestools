@@ -139,6 +139,11 @@ bool loadHandlers(const toml::Value& v, Config& out) {
       h.format = "png";
     }
 
+    auto json = th->find("json");
+    if (json) {
+      h.json = json->as<bool>();
+    }
+
     auto crop = th->find("crop");
     if (crop) {
       auto vs = crop->as<std::vector<int>>();

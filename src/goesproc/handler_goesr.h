@@ -31,16 +31,18 @@ public:
 
   Details details;
 
+  const lrit::File& firstFile() const {
+    return *files_.front();
+  }
+
   template <typename H>
   bool hasHeader() const {
-    const auto& f = files_.front();
-    return f->template hasHeader<H>();
+    return firstFile().hasHeader<H>();
   }
 
   template <typename H>
   H getHeader() const {
-    const auto& f = files_.front();
-    return f->template getHeader<H>();
+    return firstFile().getHeader<H>();
   }
 
   std::map<unsigned int, float> loadImageDataFunction() const;

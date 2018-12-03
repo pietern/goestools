@@ -158,6 +158,9 @@ void GOESNImageHandler::handle(std::shared_ptr<const lrit::File> f) {
     overlayMaps(*first, config_.crop, raw);
     auto path = fb.build(config_.filename, config_.format);
     fileWriter_->write(path, raw, &t);
+    if (config_.json) {
+      fileWriter_->writeHeader(*first, path);
+    }
     return;
   }
 }

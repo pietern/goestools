@@ -41,6 +41,9 @@ struct Config {
     // Output format ("png", "jpg", ...)
     std::string format;
 
+    // Write LRIT header contents as JSON file.
+    bool json = false;
+
     // Crop (applied before scaling)
     Area crop;
 

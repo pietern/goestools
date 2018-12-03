@@ -110,12 +110,18 @@ void NWSImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   if (nlh.noaaSpecificCompression == 5) {
     auto path = fb.build(config_.filename, "gif");
     fileWriter_->write(path, f->read());
+    if (config_.json) {
+      fileWriter_->writeHeader(*f, path);
+    }
     return;
   }
 
   auto image = Image::createFromFile(f);
   auto path = fb.build(config_.filename, config_.format);
   fileWriter_->write(path, image->getRawImage());
+  if (config_.json) {
+    fileWriter_->writeHeader(*f, path);
+  }
   return;
 }
 

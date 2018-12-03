@@ -87,6 +87,7 @@ void Himawari8ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   if (vector.size() == sih.maxSegment) {
     Timer t;
 
+    auto first = vector.front();
     auto image = Image::createFromFiles(vector);
     vector.clear();
 
@@ -101,6 +102,9 @@ void Himawari8ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
     overlayMaps(*f, mat);
     auto path = fb.build(config_.filename, config_.format);
     fileWriter_->write(path, mat, &t);
+    if (config_.json) {
+      fileWriter_->writeHeader(*first, path);
+    }
     return;
   }
 }

@@ -397,6 +397,9 @@ void GOESRImageHandler::handleImage(GOESRProduct product) {
   overlayMaps(product, mat);
   auto path = fb.build(config_.filename, config_.format);
   fileWriter_->write(path, mat, &t);
+  if (config_.json) {
+    fileWriter_->writeHeader(product.firstFile(), path);
+  }
 }
 
 void GOESRImageHandler::handleImageForFalseColor(GOESRProduct p1) {
@@ -464,6 +467,9 @@ void GOESRImageHandler::handleImageForFalseColor(GOESRProduct p1) {
   overlayMaps(p0, mat);
   auto path = fb.build(config_.filename, config_.format);
   fileWriter_->write(path, mat, &t);
+  if (config_.json) {
+    fileWriter_->writeHeader(p0.firstFile(), path);
+  }
 }
 
 void GOESRImageHandler::overlayMaps(const GOESRProduct& product, cv::Mat& mat) {

@@ -94,4 +94,7 @@ void TextHandler::handle(std::shared_ptr<const lrit::File> f) {
   fb.time = time;
   auto path = fb.build(config_.filename, "txt");
   fileWriter_->write(path, f->read());
+  if (config_.json) {
+    fileWriter_->writeHeader(*f, path);
+  }
 }

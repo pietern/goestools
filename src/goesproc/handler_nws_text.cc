@@ -85,6 +85,9 @@ void NWSTextHandler::handle(std::shared_ptr<const lrit::File> f) {
   fb.awips = awips;
   auto path = fb.build(config_.filename, "txt");
   fileWriter_->write(path, f->read());
+  if (config_.json) {
+    fileWriter_->writeHeader(*f, path);
+  }
 }
 
 // Extract metadata from contents.

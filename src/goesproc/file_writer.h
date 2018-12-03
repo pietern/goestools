@@ -3,9 +3,11 @@
 #include <string>
 #include <vector>
 
+#include <nlohmann/json.hpp>
 #include <opencv2/opencv.hpp>
 
 #include "lib/timer.h"
+#include "lrit/file.h"
 
 // FileWriter writes files to disk.
 // This is where overwrite logic and logging is handled.
@@ -27,6 +29,15 @@ public:
     const std::string& path,
     const std::vector<char>& data,
     const Timer* t = nullptr);
+
+  void write(
+    const std::string& path,
+    const nlohmann::json& json,
+    const Timer* t = nullptr);
+
+  void writeHeader(
+    const lrit::File& file,
+    const std::string& path);
 
 protected:
   bool tryWrite(const std::string& path);
