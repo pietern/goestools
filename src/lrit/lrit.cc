@@ -6,6 +6,23 @@
 
 namespace lrit {
 
+// The header codes are defined and initialized in lrit.h.
+// They also need to be *declared* because they are odr-used via
+// std::map::find, which takes a reference argument.
+const int PrimaryHeader::CODE;
+const int ImageStructureHeader::CODE;
+const int ImageNavigationHeader::CODE;
+const int ImageDataFunctionHeader::CODE;
+const int AnnotationHeader::CODE;
+const int TimeStampHeader::CODE;
+const int AncillaryTextHeader::CODE;
+const int KeyHeader::CODE;
+const int SegmentIdentificationHeader::CODE;
+const int NOAALRITHeader::CODE;
+const int HeaderStructureRecordHeader::CODE;
+const int RiceCompressionHeader::CODE;
+const int DCSFileNameHeader::CODE;
+
 float ImageNavigationHeader::getLongitude() const {
   auto name = std::string(projectionName);
   auto lpos = name.find('(');
