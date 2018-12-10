@@ -44,8 +44,8 @@ RTLSDR::RTLSDR(rtlsdr_dev_t* dev) : dev_(dev) {
   ASSERT(rv >= 0);
 
   // Disable direct sampling
-  rv = rtlsdr_set_direct_sampling(dev_, 0);
-  ASSERT(rv >= 0);
+  // This is not supported by all dongles, ignore return value
+  rtlsdr_set_direct_sampling(dev_, 0);
 
   // Disable offset tuning
   rv = rtlsdr_set_offset_tuning(dev_, 0);
