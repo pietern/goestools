@@ -83,6 +83,7 @@ include_directories(BEFORE SYSTEM ${PROJECT_SOURCE_DIR}/vendor/libaec/src)
 include_directories(BEFORE SYSTEM ${PROJECT_SOURCE_DIR}/vendor/tinytoml/include)
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
+add_subdirectory(src/util)
 add_subdirectory(src/lib)
 add_subdirectory(src/lrit)
 add_subdirectory(src/dcs)

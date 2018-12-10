@@ -3,9 +3,10 @@
 #include <sstream>
 #include <toml/toml.h>
 
-#include "lib/util.h"
+#include <util/string.h>
 
 using namespace nlohmann;
+using namespace util;
 
 namespace {
 

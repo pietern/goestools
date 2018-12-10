@@ -8,12 +8,15 @@
 #include <string>
 #include <vector>
 
+#include <util/fs.h>
+
 #include "assembler/assembler.h"
 
 #include "lib/file_reader.h"
 #include "lib/nanomsg_reader.h"
-#include "lib/util.h"
 #include "options.h"
+
+using namespace util;
 
 bool filter(const Options& opts, std::unique_ptr<assembler::SessionPDU>& spdu) {
   // Per http://www.noaasis.noaa.gov/LRIT/pdf-files/LRIT_receiver-specs.pdf,

@@ -4,7 +4,9 @@
 #include <iostream>
 #include <vector>
 
-#include "lib/util.h"
+#include <util/fs.h>
+
+using namespace util;
 
 FileWriter::FileWriter(const std::string& pattern)
   : pattern_(pattern) {

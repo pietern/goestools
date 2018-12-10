@@ -3,14 +3,18 @@
 #include <cassert>
 #include <stdexcept>
 
+#include <util/string.h>
+#include <util/time.h>
+
 #include "lib/timer.h"
-#include "lib/util.h"
 
 #include "string.h"
 
 #ifdef HAS_PROJ
 #include "map_drawer.h"
 #endif
+
+using namespace util;
 
 namespace {
 

@@ -2,11 +2,14 @@
 
 #include <regex>
 
-#include "lib/util.h"
+#include <util/string.h>
+
 #include "lib/zip.h"
 
 #include "filename.h"
 #include "string.h"
+
+using namespace util;
 
 EMWINHandler::EMWINHandler(
   const Config::Handler& config,

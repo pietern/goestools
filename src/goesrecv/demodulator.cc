@@ -2,7 +2,9 @@
 
 #include <pthread.h>
 
-#include "lib/util.h"
+#include <util/time.h>
+
+using namespace util;
 
 Demodulator::Demodulator(Demodulator::Type t) {
   switch (t) {

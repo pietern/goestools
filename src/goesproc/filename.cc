@@ -3,7 +3,9 @@
 #include <functional>
 #include <stdexcept>
 
-#include "lib/util.h"
+#include <util/string.h>
+
+using namespace util;
 
 namespace {
 

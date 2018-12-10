@@ -1,8 +1,12 @@
 #include "json.h"
 
-#include <lib/util.h>
+#include <sstream>
+
+#include <util/string.h>
 
 using json = nlohmann::json;
+
+using namespace util;
 
 namespace lrit {
 

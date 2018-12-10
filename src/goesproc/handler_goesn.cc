@@ -2,8 +2,9 @@
 
 #include <cassert>
 
+#include <util/string.h>
+
 #include "lib/timer.h"
-#include "lib/util.h"
 
 #include "filename.h"
 #include "string.h"
@@ -11,6 +12,8 @@
 #ifdef HAS_PROJ
 #include "map_drawer.h"
 #endif
+
+using namespace util;
 
 namespace {
 

@@ -1,6 +1,8 @@
 #include "emwin.h"
 
-#include "lib/util.h"
+#include <util/string.h>
+
+using namespace util;
 
 namespace emwin {
 

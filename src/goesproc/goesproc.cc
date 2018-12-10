@@ -6,9 +6,10 @@
 #include <string>
 #include <vector>
 
+#include <util/fs.h>
+
 #include "lib/file_reader.h"
 #include "lib/nanomsg_reader.h"
-#include "lib/util.h"
 
 #include "config.h"
 #include "handler_emwin.h"
@@ -22,6 +23,8 @@
 
 #include "lrit_processor.h"
 #include "packet_processor.h"
+
+using namespace util;
 
 int main(int argc, char** argv) {
   // Dealing with time zones is a PITA even if you only care about UTC.

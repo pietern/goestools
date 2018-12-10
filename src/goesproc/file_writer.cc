@@ -5,9 +5,12 @@
 #include <fstream>
 #include <iomanip>
 
-#include "lib/util.h"
+#include <util/fs.h>
+
 #include "lrit/json.h"
 #include "string.h"
+
+using namespace util;
 
 FileWriter::FileWriter(const std::string& prefix) : prefix_(prefix) {
   force_ = false;

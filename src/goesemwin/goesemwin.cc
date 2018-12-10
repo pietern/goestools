@@ -10,15 +10,18 @@
 #include <string>
 #include <vector>
 
+#include <util/string.h>
+
 #include "assembler/assembler.h"
 #include "lib/file_reader.h"
 #include "lib/nanomsg_reader.h"
-#include "lib/util.h"
 #include "lib/zip.h"
 
 #include "emwin.h"
 #include "options.h"
 #include "qbt.h"
+
+using namespace util;
 
 template<typename T>
 std::string filename(const T& t);

@@ -4,7 +4,9 @@
 
 #include <cstring>
 
-#include "lib/util.h"
+#include <util/time.h>
+
+using namespace util;
 
 namespace {
 

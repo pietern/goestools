@@ -1,4 +1,3 @@
-add_library(util util.cc)
 add_library(dir dir.cc)
 add_library(zip zip.cc)
 add_library(timer timer.cc)
