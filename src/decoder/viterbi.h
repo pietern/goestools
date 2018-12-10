@@ -8,6 +8,8 @@ extern "C" {
 #endif
 }
 
+#include <util/error.h>
+
 namespace decoder {
 
 class Viterbi {
@@ -66,7 +68,7 @@ public:
     auto bits = encodeLength(bytes);
     tmp_.resize((bits + 7) / 8);
     auto rv = encode(msg, bytes, tmp_.data());
-    assert(rv == bits);
+    ASSERT(rv == bits);
 
     // Compare MSB of original (soft bits) with re-coded hard bit
     ssize_t errors = 0;

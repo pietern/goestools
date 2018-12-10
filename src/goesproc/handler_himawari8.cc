@@ -1,7 +1,6 @@
 #include "handler_himawari8.h"
 
-#include <cassert>
-
+#include <util/error.h>
 #include <util/string.h>
 
 #include "lib/timer.h"
@@ -50,7 +49,7 @@ void Himawari8ImageHandler::handle(std::shared_ptr<const lrit::File> f) {
 
   // Expect only full disk images
   Region region;
-  assert(nlh.productSubID % 2 == 1);
+  ASSERT(nlh.productSubID % 2 == 1);
   region.nameShort = "FD";
   region.nameLong = "Full Disk";
 
@@ -119,7 +118,7 @@ std::string Himawari8ImageHandler::getBasename(const lrit::File& f) const {
   // as identification for this segmented image.
   // Example annotation: IMG_DK01VIS_201712162250_003.lrit
   auto pos = findLast(text, '_');
-  assert(pos != std::string::npos);
+  ASSERT(pos != std::string::npos);
   return text.substr(0, pos);
 }
 

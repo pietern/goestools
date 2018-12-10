@@ -1,10 +1,11 @@
 #pragma once
 
-#include <cassert>
 #include <deque>
 #include <memory>
 #include <mutex>
 #include <condition_variable>
+
+#include <util/error.h>
 
 template <class T>
 class Queue {
@@ -34,7 +35,7 @@ public:
   // popForWrite returns existing item to write to
   std::unique_ptr<T> popForWrite() {
     std::unique_lock<std::mutex> lock(m_);
-    assert(!closed_);
+    ASSERT(!closed_);
 
     // Ensure there is an item to return
     if (write_.size() == 0) {
@@ -57,7 +58,7 @@ public:
   // pushWrite returns written item to read queue
   void pushWrite(std::unique_ptr<T> v) {
     std::unique_lock<std::mutex> lock(m_);
-    assert(!closed_);
+    ASSERT(!closed_);
 
     read_.push_back(std::move(v));
     cv_.notify_one();
@@ -83,7 +84,7 @@ public:
   // pushRead returns read item to write queue
   void pushRead(std::unique_ptr<T> v) {
     std::unique_lock<std::mutex> lock(m_);
-    assert(!closed_);
+    ASSERT(!closed_);
 
     write_.push_back(std::move(v));
     cv_.notify_one();

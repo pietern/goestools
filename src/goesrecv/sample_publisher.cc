@@ -1,10 +1,11 @@
 #include "sample_publisher.h"
 
-#include <cassert>
 #include <cmath>
 
 #include <nanomsg/nn.h>
 #include <nanomsg/pubsub.h>
+
+#include <util/error.h>
 
 std::unique_ptr<SamplePublisher> SamplePublisher::create(const std::string& endpoint) {
   auto fd = Publisher::bind(endpoint);
@@ -42,6 +43,6 @@ void SamplePublisher::publish(const Samples& samples) {
   auto rv = nn_send(fd_, tmp_.data(), tmp_.size() * sizeof(tmp_[0]), 0);
   if (rv < 0) {
     fprintf(stderr, "nn_send: %s\n", nn_strerror(nn_errno()));
-    assert(false);
+    ASSERT(false);
   }
 }

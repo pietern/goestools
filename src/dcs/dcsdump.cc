@@ -27,20 +27,20 @@ int main(int argc, char** argv) {
     auto ifs = file.getData();
     auto buf = std::make_unique<char[]>(nbytes);
     ifs->read(buf.get(), nbytes);
-    assert(*ifs);
+    ASSERT(*ifs);
     nread = 0;
 
     // Read DCS file header (container for multiple DCS payloads)
     dcs::FileHeader fh;
     rv = fh.readFrom(buf.get(), nbytes);
-    assert(rv > 0);
+    ASSERT(rv > 0);
     nread += rv;
 
     while (nread < nbytes) {
       // Read DCS header
       dcs::Header h;
       rv = h.readFrom(buf.get() + nread, nbytes - nread);
-      assert(rv > 0);
+      ASSERT(rv > 0);
       nread += rv;
 
       // Skip over actual data
@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
       nread += 14 + 1 + 14 + 4;
     }
 
-    assert(nread == nbytes);
+    ASSERT(nread == nbytes);
   }
 
   return 0;

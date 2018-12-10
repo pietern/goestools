@@ -3,6 +3,8 @@
 #include <cstring>
 #include <iostream>
 
+#include <util/error.h>
+
 namespace decoder {
 
 Packetizer::Packetizer(std::shared_ptr<Reader> reader)
@@ -29,7 +31,7 @@ bool Packetizer::read()  {
   if (rv == 0) {
     return false;
   }
-  assert(rv == nbytes);
+  ASSERT(rv == nbytes);
   symbolPos_ += nbytes;
   return true;
 }
@@ -120,7 +122,7 @@ bool Packetizer::nextPacket(std::array<uint8_t, 892>& out, Details* details) {
       } else if (syncType_ == LRIT_PHASE_000 || syncType_ == LRIT_PHASE_180) {
         symbolRate_ = 293883;
       } else {
-        assert(false);
+        ASSERT(false);
       }
     }
 

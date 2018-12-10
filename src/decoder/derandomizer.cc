@@ -1,6 +1,6 @@
 #include "derandomizer.h"
 
-#include <assert.h>
+#include <util/error.h>
 
 namespace decoder {
 
@@ -31,7 +31,7 @@ Derandomizer::Derandomizer() {
 }
 
 void Derandomizer::run(uint8_t* data, size_t len) {
-  assert(len == table_.size());
+  ASSERT(len == table_.size());
   for (unsigned i = 0; i < table_.size(); i++) {
     data[i] ^= table_[i];
   }

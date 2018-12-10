@@ -1,6 +1,6 @@
 #include "reed_solomon.h"
 
-#include <cassert>
+#include <util/error.h>
 
 namespace decoder {
 
@@ -60,7 +60,7 @@ int ReedSolomon::run(const uint8_t* data, size_t len, uint8_t* dst) {
   int err = 0;
 
   // Expect 4x 255 byte block (223 data + 32 parity)
-  assert(len == 1020);
+  ASSERT(len == 1020);
 
   // Process block by block
   for (auto i = 0; i < 4; i++) {

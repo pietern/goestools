@@ -1,8 +1,9 @@
 #include "dcs.h"
 
-#include <cassert>
 #include <cstring>
 #include <iostream>
+
+#include <util/error.h>
 
 namespace dcs {
 
@@ -12,7 +13,7 @@ int FileHeader::readFrom(const char* buf, size_t len) {
   // 32 bytes hold the DCS file name (and trailing spaces)
   {
     constexpr unsigned n = 32;
-    assert((len - nread) >= n);
+    ASSERT((len - nread) >= n);
     name = std::string(buf + nread, n);
     nread += n;
   }
@@ -20,7 +21,7 @@ int FileHeader::readFrom(const char* buf, size_t len) {
   // 8 bytes holding length of payload
   {
     constexpr unsigned n = 8;
-    assert((len - nread) >= n);
+    ASSERT((len - nread) >= n);
     length = std::stoi(std::string(buf + nread, n));
     nread += n;
   }
@@ -28,7 +29,7 @@ int FileHeader::readFrom(const char* buf, size_t len) {
   // 20 bytes holding some ASCII data
   {
     constexpr unsigned n = 20;
-    assert((len - nread) >= n);
+    ASSERT((len - nread) >= n);
     misc1 = std::string(buf + nread, n);
     nread += n;
   }
@@ -36,7 +37,7 @@ int FileHeader::readFrom(const char* buf, size_t len) {
   // 8 bytes holding some binary data
   {
     constexpr unsigned n = 8;
-    assert((len - nread) >= n);
+    ASSERT((len - nread) >= n);
     misc2.resize(n);
     memcpy(misc2.data(), &buf[nread], n);
     nread += n;
@@ -51,9 +52,9 @@ int Header::readFrom(const char* buf, size_t len) {
   // 8 hex digit DCP Address
   {
     constexpr unsigned n = 8;
-    assert((len - nread) >= 8);
+    ASSERT((len - nread) >= 8);
     auto rv = sscanf(buf + nread, "%08lx", &address);
-    assert(rv == 1);
+    ASSERT(rv == 1);
     nread += n;
   }
 
@@ -61,7 +62,7 @@ int Header::readFrom(const char* buf, size_t len) {
   // The day is represented as a three digit day of the year (julian day).
   {
     constexpr unsigned n = 11;
-    assert((len - nread) >= n);
+    ASSERT((len - nread) >= n);
     auto year = std::stoi(std::string(buf + nread, 2), nullptr, 10);
     nread += 2;
     auto day = std::stoi(std::string(buf + nread, 3), nullptr, 10);
@@ -87,7 +88,7 @@ int Header::readFrom(const char* buf, size_t len) {
   // 1 character failure code
   {
     constexpr unsigned n = 1;
-    assert((len - nread) >= n);
+    ASSERT((len - nread) >= n);
     failure = buf[nread];
     nread += n;
   }
@@ -95,7 +96,7 @@ int Header::readFrom(const char* buf, size_t len) {
   // 2 decimal digit signal strength
   {
     constexpr unsigned n = 2;
-    assert((len - nread) >= n);
+    ASSERT((len - nread) >= n);
     signalStrength = std::stoi(std::string(buf + nread, 2));
     nread += n;
   }
@@ -103,7 +104,7 @@ int Header::readFrom(const char* buf, size_t len) {
   // 2 decimal digit frequency offset
   {
     constexpr unsigned n = 2;
-    assert((len - nread) >= n);
+    ASSERT((len - nread) >= n);
     // This can be +A or -A; don't know what it means...
     if ((buf[nread] == '+' || buf[nread] == '-') && buf[nread+1] == 'A') {
       frequencyOffset = 0;
@@ -116,7 +117,7 @@ int Header::readFrom(const char* buf, size_t len) {
   // 1 character modulation index
   {
     constexpr unsigned n = 1;
-    assert((len - nread) >= n);
+    ASSERT((len - nread) >= n);
     modulationIndex = buf[nread];
     nread += n;
   }
@@ -124,7 +125,7 @@ int Header::readFrom(const char* buf, size_t len) {
   // 1 character data quality indicator
   {
     constexpr unsigned n = 1;
-    assert((len - nread) >= n);
+    ASSERT((len - nread) >= n);
     dataQuality = buf[nread];
     nread += n;
   }
@@ -132,7 +133,7 @@ int Header::readFrom(const char* buf, size_t len) {
   // 3 decimal digit GOES receive channel
   {
     constexpr unsigned n = 3;
-    assert((len - nread) >= n);
+    ASSERT((len - nread) >= n);
     receiveChannel = std::stoi(std::string(buf + nread, n));
     nread += n;
   }
@@ -140,7 +141,7 @@ int Header::readFrom(const char* buf, size_t len) {
   // 1 character GOES spacecraft indicator ('E' or 'W')
   {
     constexpr unsigned n = 1;
-    assert((len - nread) >= n);
+    ASSERT((len - nread) >= n);
     spacecraft = buf[nread];
     nread += n;
   }
@@ -148,7 +149,7 @@ int Header::readFrom(const char* buf, size_t len) {
   // 2 character data source code Data Source Code Table
   {
     constexpr unsigned n = 2;
-    assert((len - nread) >= n);
+    ASSERT((len - nread) >= n);
     memcpy(dataSourceCode, buf + nread, n);
     nread += n;
   }
@@ -156,7 +157,7 @@ int Header::readFrom(const char* buf, size_t len) {
   // 5 decimal digit message data length
   {
     constexpr unsigned n = 5;
-    assert((len - nread) >= n);
+    ASSERT((len - nread) >= n);
     dataLength = std::stoi(std::string(buf + nread, n));
     nread += n;
   }

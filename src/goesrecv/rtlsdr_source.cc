@@ -2,7 +2,6 @@
 
 #include <pthread.h>
 
-#include <cassert>
 #include <climits>
 #include <cmath>
 #include <iostream>
@@ -10,6 +9,8 @@
 #ifdef __ARM_NEON__
 #include <arm_neon.h>
 #endif
+
+#include <util/error.h>
 
 std::unique_ptr<RTLSDR> RTLSDR::open(uint32_t index) {
   rtlsdr_dev_t* dev = nullptr;
@@ -27,28 +28,28 @@ RTLSDR::RTLSDR(rtlsdr_dev_t* dev) : dev_(dev) {
 
   // First get the number of gain settings
   rv = rtlsdr_get_tuner_gains(dev_, nullptr);
-  assert(rv > 0);
+  ASSERT(rv > 0);
 
   // Now fill our vector with valid gain settings
   tunerGains_.resize(rv);
   rv = rtlsdr_get_tuner_gains(dev_, tunerGains_.data());
-  assert(rv >= 0);
+  ASSERT(rv >= 0);
 
   // Configure manual gain mode
   rv = rtlsdr_set_tuner_gain_mode(dev_, 1);
-  assert(rv >= 0);
+  ASSERT(rv >= 0);
 
   // Disable internal AGC
   rv = rtlsdr_set_agc_mode(dev_, 0);
-  assert(rv >= 0);
+  ASSERT(rv >= 0);
 
   // Disable direct sampling
   rv = rtlsdr_set_direct_sampling(dev_, 0);
-  assert(rv >= 0);
+  ASSERT(rv >= 0);
 
   // Disable offset tuning
   rv = rtlsdr_set_offset_tuning(dev_, 0);
-  assert(rv == -2 || rv >= 0);
+  ASSERT(rv == -2 || rv >= 0);
 
   // Tune to 100MHz to initialize.
   //
@@ -61,7 +62,7 @@ RTLSDR::RTLSDR(rtlsdr_dev_t* dev) : dev_(dev) {
   // our chances of being able to tune across the board.
   //
   rv = rtlsdr_set_center_freq(dev_, 100000000);
-  assert(rv >= 0);
+  ASSERT(rv >= 0);
 }
 
 RTLSDR::~RTLSDR() {
@@ -71,19 +72,19 @@ RTLSDR::~RTLSDR() {
 }
 
 void RTLSDR::setFrequency(uint32_t freq) {
-  assert(dev_ != nullptr);
+  ASSERT(dev_ != nullptr);
   auto rv = rtlsdr_set_center_freq(dev_, freq);
-  assert(rv >= 0);
+  ASSERT(rv >= 0);
 }
 
 void RTLSDR::setSampleRate(uint32_t rate) {
-  assert(dev_ != nullptr);
+  ASSERT(dev_ != nullptr);
   auto rv = rtlsdr_set_sample_rate(dev_, rate);
-  assert(rv >= 0);
+  ASSERT(rv >= 0);
 }
 
 uint32_t RTLSDR::getSampleRate() const {
-  assert(dev_ != nullptr);
+  ASSERT(dev_ != nullptr);
   return rtlsdr_get_sample_rate(dev_);
 }
 
@@ -102,14 +103,14 @@ void RTLSDR::setTunerGain(int db) {
   }
 
   rv = rtlsdr_set_tuner_gain(dev_, resultGain);
-  assert(rv >= 0);
+  ASSERT(rv >= 0);
 }
 
 void RTLSDR::setBiasTee(bool on) {
-  assert(dev_ != nullptr);
+  ASSERT(dev_ != nullptr);
 #ifdef RTLSDR_HAS_BIAS_TEE
   auto rv = rtlsdr_set_bias_tee(dev_, on ? 1 : 0);
-  assert(rv >= 0);
+  ASSERT(rv >= 0);
 #else
   if (on) {
     throw std::invalid_argument(
@@ -124,7 +125,7 @@ static void rtlsdr_callback(unsigned char* buf, uint32_t len, void* ptr) {
 }
 
 void RTLSDR::start(const std::shared_ptr<Queue<Samples> >& queue) {
-  assert(dev_ != nullptr);
+  ASSERT(dev_ != nullptr);
   rtlsdr_reset_buffer(dev_);
   queue_ = queue;
   thread_ = std::thread([&] {
@@ -138,9 +139,9 @@ void RTLSDR::start(const std::shared_ptr<Queue<Samples> >& queue) {
 }
 
 void RTLSDR::stop() {
-  assert(dev_ != nullptr);
+  ASSERT(dev_ != nullptr);
   auto rv = rtlsdr_cancel_async(dev_);
-  assert(rv >= 0);
+  ASSERT(rv >= 0);
 
   // Wait for thread to terminate
   thread_.join();
@@ -212,7 +213,7 @@ void RTLSDR::handle(unsigned char* buf, uint32_t len) {
   uint32_t nsamples = len / 2;
 
   // Expect multiple of 4
-  assert((nsamples & 0x3) == 0);
+  ASSERT((nsamples & 0x3) == 0);
 
   // Grab buffer from queue
   auto out = queue_->popForWrite();

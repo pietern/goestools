@@ -1,12 +1,13 @@
 #include "zip.h"
 
-#include <cassert>
 #include <iomanip>
 #include <sstream>
 #include <stdexcept>
 #include <vector>
 
 #include <zlib.h>
+
+#include <util/error.h>
 
 namespace {
 
@@ -45,7 +46,7 @@ Zip::Zip(std::unique_ptr<std::istream> is)
   // Load EOCD record
   is_->seekg(-(std::streampos) sizeof(eocd_), is_->end);
   is_->read((char*) &eocd_, sizeof(eocd_));
-  assert(is_->good());
+  ASSERT(is_->good());
   checkSignature(0x06054b50, eocd_.signature);
 
   // Expect only a single central directory header
@@ -58,13 +59,13 @@ Zip::Zip(std::unique_ptr<std::istream> is)
   // Load central directory file header
   is_->seekg(eocd_.centralDirectoryOffset);
   is_->read((char*) &cdfh_, sizeof(cdfh_));
-  assert(is_->good());
+  ASSERT(is_->good());
   checkSignature(0x02014b50, cdfh_.signature);
 
   // Load local file header
   is_->seekg(cdfh_.relativeOffsetOflocalHeader);
   is_->read((char*) &lfh_, sizeof(lfh_));
-  assert(is_->good());
+  ASSERT(is_->good());
   checkSignature(0x04034b50, lfh_.signature);
 
   // Load filename
@@ -101,7 +102,7 @@ std::vector<char> Zip::read() const {
 
     // Use negative window bits to indicate raw data
     rv = inflateInit2(&z, -MAX_WBITS);
-    assert(rv == Z_OK);
+    ASSERT(rv == Z_OK);
 
     // Inflate entire file
     z.avail_in = in.size();
@@ -109,8 +110,8 @@ std::vector<char> Zip::read() const {
     z.avail_out = out.size();
     z.next_out = (unsigned char*) out.data();
     rv = inflate(&z, Z_FINISH);
-    assert(rv == Z_STREAM_END);
-    assert(z.avail_out == 0);
+    ASSERT(rv == Z_STREAM_END);
+    ASSERT(z.avail_out == 0);
 
     // Finalize
     inflateEnd(&z);

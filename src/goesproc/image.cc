@@ -1,6 +1,6 @@
 #include "image.h"
 
-#include <cassert>
+#include <util/error.h>
 
 std::unique_ptr<Image> Image::createFromFile(
     std::shared_ptr<const lrit::File> f) {
@@ -15,7 +15,7 @@ std::unique_ptr<Image> Image::createFromFile(
     // Round up to nearest multiple of 8 because we're reading bytes
     auto line = std::make_unique<char[]>((n + 7) / 8);
     ifs->read(line.get(), (n + 7) / 8);
-    assert(*ifs);
+    ASSERT(*ifs);
 
     // Pixel by pixel
     for (unsigned long i = 0; i < n; i += 8) {
@@ -31,10 +31,10 @@ std::unique_ptr<Image> Image::createFromFile(
     }
   } else if (ish.bitsPerPixel == 8) {
     ifs->read((char*)raw.data, raw.size().width * raw.size().height);
-    assert(ifs);
+    ASSERT(ifs);
   } else {
     std::cerr << "bitsPerPixel == " << ish.bitsPerPixel << std::endl;
-    assert(false);
+    ASSERT(false);
   }
 
   return std::make_unique<Image>(raw, Area());
@@ -125,7 +125,7 @@ std::unique_ptr<Image> Image::createFromFiles(
     char* chunk = (char*) raw.data + offset;
     auto ifs = f->getData();
     ifs->read(chunk, length);
-    assert(*ifs);
+    ASSERT(*ifs);
   }
 
   auto image = std::make_unique<Image>(raw, area);

@@ -1,20 +1,21 @@
 #include "time.h"
 
 #include <array>
-#include <cassert>
+
+#include <util/error.h>
 
 namespace util {
 
 std::string stringTime() {
   struct timespec ts;
   auto rv = clock_gettime(CLOCK_REALTIME, &ts);
-  assert(rv >= 0);
+  ASSERT(rv >= 0);
   std::array<char, 128> tsbuf;
   auto len = strftime(
       tsbuf.data(), tsbuf.size(), "%Y-%m-%dT%H:%M:%S.", gmtime(&ts.tv_sec));
   len += snprintf(
       tsbuf.data() + len, tsbuf.size() - len, "%03ldZ", ts.tv_nsec / 1000000);
-  assert(len < tsbuf.size());
+  ASSERT(len < tsbuf.size());
   return std::string(tsbuf.data(), len);
 }
 

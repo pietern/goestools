@@ -1,7 +1,8 @@
 #include "virtual_channel.h"
 
-#include <cassert>
 #include <iostream>
+
+#include <util/error.h>
 
 namespace assembler {
 
@@ -221,7 +222,7 @@ void VirtualChannel::process(
       }
     }
   } else {
-    assert(flag == 0 || flag == 2);
+    ASSERT(flag == 0 || flag == 2);
 
     auto it = apidSessionPDU_.find(apid);
     if (it == apidSessionPDU_.end()) {

@@ -77,7 +77,7 @@ void Nanomsg::loop() {
     int8_t* fi = (int8_t*) buf;
 
     // Expect multiple of 4
-    assert((nsamples & 0x3) == 0);
+    ASSERT((nsamples & 0x3) == 0);
 
     // Grab buffer from queue
     auto out = queue_->popForWrite();

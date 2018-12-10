@@ -1,9 +1,10 @@
-#include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
 
 #include <array>
 #include <vector>
+
+#include <util/error.h>
 
 #include "viterbi.h"
 
@@ -45,7 +46,7 @@ int main(int argc, char** argv) {
   auto len = v.encodeLength(syncWord.size());
   std::vector<uint8_t> buf(len);
   auto rv = v.encode(syncWord.data(), syncWord.size(), buf.data());
-  assert(rv == len);
+  ASSERT(rv == len);
 
   // 0 degree phase shift
   printf("LRIT:   phase 0: 0x");
@@ -69,7 +70,7 @@ int main(int argc, char** argv) {
     auto len = v.encodeLength(nrzmSyncWord.size());
     std::vector<uint8_t> buf(len);
     auto rv = v.encode(nrzmSyncWord.data(), nrzmSyncWord.size(), buf.data());
-    assert(rv == len);
+    ASSERT(rv == len);
 
     if (i == 0) {
       // 0 degree phase shift

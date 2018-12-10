@@ -8,6 +8,8 @@ extern "C" {
 #include <szlib.h>
 }
 
+#include <util/error.h>
+
 #include "lrit/lrit.h"
 
 #include "transport_pdu.h"
@@ -19,8 +21,8 @@ template <unsigned int N>
 int diffWithWrap(unsigned int a, unsigned int b) {
   int skip;
 
-  assert(a < N);
-  assert(b < N);
+  ASSERT(a < N);
+  ASSERT(b < N);
 
   if (a <= b) {
     skip = b - a;

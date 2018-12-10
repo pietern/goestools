@@ -1,8 +1,8 @@
 #include "handler_goesr.h"
 
-#include <cassert>
 #include <stdexcept>
 
+#include <util/error.h>
 #include <util/string.h>
 #include <util/time.h>
 
@@ -25,13 +25,13 @@ GOESRProduct::Details loadDetails(const lrit::File& f) {
   auto pairs = split(text, ';');
   for (const auto& pair : pairs) {
     auto elements = split(pair, '=');
-    assert(elements.size() == 2);
+    ASSERT(elements.size() == 2);
     auto key = trimRight(elements[0]);
     auto value = trimLeft(elements[1]);
 
     if (key == "Time of frame start") {
       auto ok = parseTime(value, &details.frameStart);
-      assert(ok);
+      ASSERT(ok);
       continue;
     }
 
@@ -57,7 +57,7 @@ GOESRProduct::Details loadDetails(const lrit::File& f) {
       std::array<char, 32> buf;
       size_t len;
       auto num = std::stoi(value);
-      assert(num >= 1 && num <= 16);
+      ASSERT(num >= 1 && num <= 16);
       len = snprintf(buf.data(), buf.size(), "CH%02d", num);
       details.channel.nameShort = std::string(buf.data(), len);
       len = snprintf(buf.data(), buf.size(), "Channel %d", num);
@@ -87,14 +87,14 @@ GOESRProduct::Details loadDetails(const lrit::File& f) {
     }
 
     std::cerr << "Unhandled key in ancillary text: " << key << std::endl;
-    assert(false);
+    ASSERT(false);
   }
 
   // Tell apart the two mesoscale sectors
   {
     auto fileName = f.getHeader<lrit::AnnotationHeader>().text;
     auto parts = split(fileName, '-');
-    assert(parts.size() >= 4);
+    ASSERT(parts.size() >= 4);
     if (parts[2] == "CMIPF") {
       details.region.nameLong = "Full Disk";
       details.region.nameShort = "FD";
@@ -106,7 +106,7 @@ GOESRProduct::Details loadDetails(const lrit::File& f) {
       details.region.nameShort = "M2";
     } else {
       std::cerr << "Unable to derive region from: " << parts[2] << std::endl;
-      assert(false);
+      ASSERT(false);
     }
   }
 
@@ -253,7 +253,7 @@ GOESRImageHandler::GOESRImageHandler(
   } else if (config_.product == "goes17") {
     satelliteID_ = 17;
   } else {
-    assert(false);
+    ASSERT(false);
   }
 }
 
@@ -450,7 +450,7 @@ void GOESRImageHandler::handleImageForFalseColor(GOESRProduct p1) {
   //
   auto parts = split(fb.filename, '_');
   auto pos = parts[1].rfind('C');
-  assert(pos != std::string::npos);
+  ASSERT(pos != std::string::npos);
   parts[1] = parts[1].substr(0, pos) + "CFC";
   fb.filename = join(parts, '_');
 

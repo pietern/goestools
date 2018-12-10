@@ -4,6 +4,8 @@
 
 #include <time.h>
 
+#include <util/error.h>
+
 namespace lrit {
 
 namespace {
@@ -99,12 +101,12 @@ private:
 File::File(const std::string& file)
   : file_(file) {
   std::ifstream ifs(file_.c_str());
-  assert(ifs);
+  ASSERT(ifs);
 
   // First 16 bytes hold the primary header
   header_.resize(16);
   ifs.read(reinterpret_cast<char*>(&header_[0]), header_.size());
-  assert(ifs);
+  ASSERT(ifs);
 
   // Parse primary header
   ph_ = lrit::getHeader<lrit::PrimaryHeader>(header_, 0);
@@ -112,7 +114,7 @@ File::File(const std::string& file)
   // Read remaining headers
   header_.resize(ph_.totalHeaderLength);
   ifs.read(reinterpret_cast<char*>(&header_[16]), ph_.totalHeaderLength - 16);
-  assert(ifs);
+  ASSERT(ifs);
 
   // Build header map
   m_ = lrit::getHeaderMap(header_);
@@ -148,9 +150,9 @@ std::string File::getTime() const {
 
 std::unique_ptr<std::istream> File::getDataFromFile() const {
   auto ifs = std::make_unique<offsetifstream>(file_);
-  assert(*ifs);
+  ASSERT(*ifs);
   ifs->seekg(ph_.totalHeaderLength);
-  assert(*ifs);
+  ASSERT(*ifs);
 
   // Because of a bug in goesdec, LRIT image files that used
   // compression have an initial bogus line, followed by the real
@@ -169,7 +171,7 @@ std::unique_ptr<std::istream> File::getDataFromFile() const {
     auto delta = (fpos2 - fpos1) - ((int) ((ph_.dataLength + 7) / 8));
     if (delta > 0) {
       ifs->seekg(delta, ifs->cur);
-      assert(*ifs);
+      ASSERT(*ifs);
     }
   }
 
@@ -194,7 +196,7 @@ std::unique_ptr<std::istream> File::getData() const {
   if (!buf_.empty()) {
     return getDataFromBuffer();
   }
-  assert(nullptr);
+  ERROR("unreachable");
 }
 
 std::vector<char> File::read() const {

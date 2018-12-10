@@ -1,11 +1,12 @@
 #include "rrc.h"
 
-#include <cassert>
 #include <cstring>
 
 #ifdef __ARM_NEON__
 #include <arm_neon.h>
 #endif
+
+#include <util/error.h>
 
 namespace {
 
@@ -143,10 +144,10 @@ void RRC::work(
 
   auto output = qout->popForWrite();
   auto nsamples = input->size();
-  assert((nsamples % decimation_) == 0);
+  ASSERT((nsamples % decimation_) == 0);
   output->resize(nsamples / decimation_);
   tmp_.insert(tmp_.end(), input->begin(), input->end());
-  assert(tmp_.size() == input->size() + NTAPS);
+  ASSERT(tmp_.size() == input->size() + NTAPS);
 
   // Return read buffer (it has been copied into tmp_)
   qin->pushRead(std::move(input));
@@ -158,7 +159,7 @@ void RRC::work(
 
   // Keep final NTAPS samples around
   tmp_.erase(tmp_.begin(), tmp_.end() - NTAPS);
-  assert(tmp_.size() == NTAPS);
+  ASSERT(tmp_.size() == NTAPS);
 
   // Publish output if applicable
   if (samplePublisher_) {

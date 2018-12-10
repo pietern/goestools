@@ -2,6 +2,7 @@
 
 #include <sstream>
 
+#include <util/error.h>
 #include <util/string.h>
 
 using json = nlohmann::json;
@@ -101,7 +102,7 @@ void to_json(json& j, const AncillaryTextHeader& h) {
   auto pairs = split(h.text, ';');
   for (const auto& pair : pairs) {
     auto elements = split(pair, '=');
-    assert(elements.size() == 2);
+    ASSERT(elements.size() == 2);
     auto key = trimRight(elements[0]);
     auto value = trimLeft(elements[1]);
     j[key] = value;

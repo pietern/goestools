@@ -1,9 +1,11 @@
 #include "dir.h"
 
+#include <util/error.h>
+
 Dir::Dir(const std::string& path)
     : path_(path) {
   dir_ = opendir(path.c_str());
-  assert(dir_ != nullptr);
+  ASSERT(dir_ != nullptr);
 }
 
 Dir::~Dir() {

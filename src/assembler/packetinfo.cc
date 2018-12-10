@@ -1,13 +1,14 @@
 #include <array>
-#include <cassert>
 #include <fstream>
 #include <iostream>
+
+#include <util/error.h>
 
 #include "vcdu.h"
 
 int main(int argc, char** argv) {
   std::ifstream f(argv[1]);
-  assert(f.good());
+  ASSERT(f.good());
 
   std::array<uint8_t, 892> buf;
   for (;;) {

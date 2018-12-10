@@ -1,11 +1,12 @@
 #include "nanomsg_writer.h"
 
-#include <cassert>
 #include <sstream>
 #include <stdexcept>
 
 #include <nanomsg/nn.h>
 #include <nanomsg/pubsub.h>
+
+#include <util/error.h>
 
 NanomsgWriter::NanomsgWriter(const std::vector<std::string>& endpoints) {
   auto fd = nn_socket(AF_SP, NN_PUB);

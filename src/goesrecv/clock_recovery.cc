@@ -1,6 +1,5 @@
 #include "clock_recovery.h"
 
-#include <cassert>
 #include <cmath>
 
 static constexpr int NUM_TAPS = 8;

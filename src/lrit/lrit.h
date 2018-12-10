@@ -1,11 +1,12 @@
 #pragma once
 
-#include <cassert>
 #include <cstdint>
 #include <ctime>
 #include <map>
 #include <string>
 #include <vector>
+
+#include <util/error.h>
 
 namespace lrit {
 
@@ -161,7 +162,7 @@ H getHeader(const Buffer& b, int pos);
 template <typename H>
 H getHeader(const Buffer& b, const HeaderMap& m) {
   auto it = m.find(H::CODE);
-  assert(it != m.end());
+  ASSERT(it != m.end());
   return getHeader<H>(b, it->second);
 }
 

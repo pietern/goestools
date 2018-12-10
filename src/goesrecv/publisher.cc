@@ -1,6 +1,5 @@
 #include "publisher.h"
 
-#include <cassert>
 #include <sstream>
 #include <stdexcept>
 

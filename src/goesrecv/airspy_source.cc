@@ -2,9 +2,10 @@
 
 #include <pthread.h>
 
-#include <cassert>
 #include <cstring>
 #include <iostream>
+
+#include <util/error.h>
 
 std::unique_ptr<Airspy> Airspy::open(uint32_t index) {
   struct airspy_device* dev = nullptr;
@@ -26,7 +27,7 @@ Airspy::Airspy(struct airspy_device* dev) : dev_(dev) {
 
   // We produce floats so let the airspy library take care of it
   auto rv = airspy_set_sample_type(dev_, AIRSPY_SAMPLE_FLOAT32_IQ);
-  assert(rv == 0);
+  ASSERT(rv == 0);
 }
 
 Airspy::~Airspy() {
@@ -40,25 +41,25 @@ std::vector<uint32_t> Airspy::loadSampleRates() {
 
   uint32_t count;
   rv = airspy_get_samplerates(dev_, &count, 0);
-  assert(rv == 0);
+  ASSERT(rv == 0);
 
   std::vector<uint32_t> rates(count);
   rv = airspy_get_samplerates(dev_, rates.data(), rates.size());
-  assert(rv == 0);
+  ASSERT(rv == 0);
 
   return rates;
 }
 
 void Airspy::setFrequency(uint32_t freq) {
-  assert(dev_ != nullptr);
+  ASSERT(dev_ != nullptr);
   auto rv = airspy_set_freq(dev_, freq);
-  assert(rv >= 0);
+  ASSERT(rv >= 0);
 }
 
 void Airspy::setSampleRate(uint32_t rate) {
-  assert(dev_ != nullptr);
+  ASSERT(dev_ != nullptr);
   auto rv = airspy_set_samplerate(dev_, rate);
-  assert(rv >= 0);
+  ASSERT(rv >= 0);
   sampleRate_ = rate;
 }
 
@@ -67,15 +68,15 @@ uint32_t Airspy::getSampleRate() const {
 }
 
 void Airspy::setGain(int gain) {
-  assert(dev_ != nullptr);
+  ASSERT(dev_ != nullptr);
   auto rv = airspy_set_linearity_gain(dev_, gain);
-  assert(rv >= 0);
+  ASSERT(rv >= 0);
 }
 
 void Airspy::setBiasTee(bool on) {
-  assert(dev_ != nullptr);
+  ASSERT(dev_ != nullptr);
   auto rv = airspy_set_rf_bias(dev_, on ? 1 : 0);
-  assert(rv >= 0);
+  ASSERT(rv >= 0);
 }
 
 static int airspy_callback(airspy_transfer* transfer) {
@@ -85,11 +86,11 @@ static int airspy_callback(airspy_transfer* transfer) {
 }
 
 void Airspy::start(const std::shared_ptr<Queue<Samples> >& queue) {
-  assert(dev_ != nullptr);
+  ASSERT(dev_ != nullptr);
   queue_ = queue;
   thread_ = std::thread([&] {
       auto rv = airspy_start_rx(dev_, &airspy_callback, this);
-      assert(rv == 0);
+      ASSERT(rv == 0);
     });
 #ifdef __APPLE__
   pthread_setname_np("airspy");
@@ -99,9 +100,9 @@ void Airspy::start(const std::shared_ptr<Queue<Samples> >& queue) {
 }
 
 void Airspy::stop() {
-  assert(dev_ != nullptr);
+  ASSERT(dev_ != nullptr);
   auto rv = airspy_stop_rx(dev_);
-  assert(rv >= 0);
+  ASSERT(rv >= 0);
 
   // Wait for thread to terminate
   thread_.join();

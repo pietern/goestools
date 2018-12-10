@@ -1,7 +1,6 @@
 #include "handler_goesn.h"
 
-#include <cassert>
-
+#include <util/error.h>
 #include <util/string.h>
 
 #include "lib/timer.h"
@@ -67,7 +66,7 @@ GOESNImageHandler::GOESNImageHandler(
   } else if (config_.product == "goes15") {
     productID_ = 15;
   } else {
-    assert(false);
+    ASSERT(false);
   }
 }
 
@@ -176,13 +175,13 @@ GOESNImageHandler::Details GOESNImageHandler::loadDetails(
   auto pairs = split(text, ';');
   for (const auto& pair : pairs) {
     auto elements = split(pair, '=');
-    assert(elements.size() == 2);
+    ASSERT(elements.size() == 2);
     auto key = trimRight(elements[0]);
     auto value = trimLeft(elements[1]);
 
     if (key == "Time of frame start") {
       auto ok = goesnParseTime(value, &details.frameStart);
-      assert(ok);
+      ASSERT(ok);
       continue;
     }
 

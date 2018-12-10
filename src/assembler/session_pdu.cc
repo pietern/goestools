@@ -1,6 +1,5 @@
 #include "session_pdu.h"
 
-#include <cassert>
 #include <iostream>
 
 namespace assembler {
@@ -33,7 +32,7 @@ void SessionPDU::skipLines(int skip) {
   // so the number of bytes in excess of the header must be greater
   // than or equal to 0.
   auto bytes = buf_.size() - ph_.totalHeaderLength;
-  assert(bytes >= 0);
+  ASSERT(bytes >= 0);
 
   // Insert black line if there is no contents yet
   if (bytes == 0) {

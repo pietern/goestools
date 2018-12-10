@@ -1,9 +1,9 @@
 #include "stats_publisher.h"
 
-#include <cassert>
-
 #include <nanomsg/nn.h>
 #include <nanomsg/pubsub.h>
+
+#include <util/error.h>
 
 std::unique_ptr<StatsPublisher> StatsPublisher::create(
     const std::vector<std::string>& endpoints) {
@@ -26,6 +26,6 @@ void StatsPublisher::publish(const std::string& str) {
   auto rv = nn_send(fd_, str.data(), str.size(), 0);
   if (rv < 0) {
     fprintf(stderr, "nn_send: %s\n", nn_strerror(nn_errno()));
-    assert(false);
+    ASSERT(false);
   }
 }

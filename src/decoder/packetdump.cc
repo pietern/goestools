@@ -1,10 +1,11 @@
 #include <unistd.h>
 
-#include <cassert>
 #include <ctime>
 #include <fstream>
 #include <iostream>
 #include <memory>
+
+#include <util/error.h>
 
 #include "packetizer.h"
 #include "reader.h"
@@ -66,7 +67,7 @@ public:
       fileName_ = timeToFileName(t);
       fileTime_ = t;
       of_.open(fileName_, std::ofstream::out | std::ofstream::app);
-      assert(of_.good());
+      ASSERT(of_.good());
 
       std::cout
         << "Writing to file: "

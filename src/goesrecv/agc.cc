@@ -1,6 +1,5 @@
 #include "agc.h"
 
-#include <cassert>
 #include <cmath>
 
 #ifdef __ARM_NEON__

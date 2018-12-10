@@ -1,10 +1,11 @@
 #include "packet_publisher.h"
 
 #include <array>
-#include <cassert>
 
 #include <nanomsg/nn.h>
 #include <nanomsg/pubsub.h>
+
+#include <util/error.h>
 
 std::unique_ptr<PacketPublisher> PacketPublisher::create(const std::string& endpoint) {
   auto fd = Publisher::bind(endpoint);
@@ -26,6 +27,6 @@ void PacketPublisher::publish(const std::array<uint8_t, 892>& packet) {
   auto rv = nn_send(fd_, packet.data(), packet.size() * sizeof(packet[0]), 0);
   if (rv < 0) {
     fprintf(stderr, "nn_send: %s\n", nn_strerror(nn_errno()));
-    assert(false);
+    ASSERT(false);
   }
 }
