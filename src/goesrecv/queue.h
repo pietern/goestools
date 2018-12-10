@@ -84,10 +84,10 @@ public:
   // pushRead returns read item to write queue
   void pushRead(std::unique_ptr<T> v) {
     std::unique_lock<std::mutex> lock(m_);
-    ASSERT(!closed_);
-
-    write_.push_back(std::move(v));
-    cv_.notify_one();
+    if (!closed_) {
+      write_.push_back(std::move(v));
+      cv_.notify_one();
+    }
   }
 
 protected:
