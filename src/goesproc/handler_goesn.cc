@@ -252,6 +252,14 @@ void GOESNImageHandler::overlayMaps(
     lon = -135.0;
   }
 
+  // GOES-15 drift completed on November 7, 2018 at 1900 UTC.
+  // GOES-16 and GOES-17 are reporting its previous location
+  // in the headers of the relayed LRITs.
+  auto ts = f.getHeader<lrit::TimeStampHeader>().getUnix();
+  if ((fabsf(lon - (-135.0)) < 1e-3) && ts.tv_sec >= 1541617200) {
+    lon = -128.0;
+  }
+
   // If a crop was used, the column and line offsets need to be fixed.
   if (!crop.empty()) {
     inh.columnOffset -= (crop.minColumn - -((int32_t) inh.columnOffset));
