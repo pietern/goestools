@@ -106,7 +106,7 @@ bool SessionPDU::append(const TransportPDU& tpdu) {
 
     // Can't skip if we need to skip more lines than remaining
     auto ish = getHeader<lrit::ImageStructureHeader>();
-    auto remaining = ish.lines - linesDone_;
+    auto remaining = (int) ish.lines - (int) linesDone_;
     if (skip > remaining) {
       return false;
     }
