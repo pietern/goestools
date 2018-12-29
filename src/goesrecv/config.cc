@@ -189,6 +189,11 @@ void loadRTLSDRSource(Config::RTLSDR& out, const toml::Value& v) {
       continue;
     }
 
+    if (key == "device_index") {
+      out.deviceIndex = value.as<int>();
+      continue;
+    }
+
     throwInvalidKey(key);
   }
 }

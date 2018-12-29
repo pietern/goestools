@@ -58,6 +58,9 @@ struct Config {
     // Enable/disable bias tee
     bool bias_tee = 0;
 
+    // Optional device index (if you have multiple devices)
+    uint32_t deviceIndex = 0;
+
     std::unique_ptr<SamplePublisher> samplePublisher;
   };
 
