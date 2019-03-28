@@ -1,0 +1,19 @@
+# Goesproc service for systemd
+
+[Unit]
+Description=goesproc decoding for the GOES-R satellites
+Documentation=https://pietern.github.io/goestools/
+Wants=network.target
+After=network.target goesrecv.service
+
+[Service]
+WorkingDirectory=/home/pi/incoming
+ExecStart=/usr/local/bin/goesproc -c /home/pi/goesproc-goesr.conf -m packet --subscribe tcp://127.0.0.1:5004
+StandardOutput=null
+Type=simple
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=default.target
+
