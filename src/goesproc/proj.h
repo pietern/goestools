@@ -1,7 +1,7 @@
 #pragma once
 
-#if PROJ_VERSION_MAJOR != 4
-#error "proj version 4 required"
+#if PROJ_VERSION_MAJOR < 4 || PROJ_VERSION_MAJOR > 5
+#error "proj version 4 or 5 required"
 #endif
 
 #include <map>
