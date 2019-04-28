@@ -2,7 +2,7 @@
 
 #include <cstring>
 
-#ifdef __ARM_NEON__
+#ifdef __ARM_NEON
 #include <arm_neon.h>
 #endif
 
@@ -75,7 +75,7 @@ RRC::RRC(int decimation, int sampleRate, int symbolRate) :
   tmp_.resize(NTAPS);
 }
 
-#ifdef __ARM_NEON__
+#ifdef __ARM_NEON
 
 void RRC::work(
     size_t nsamples,

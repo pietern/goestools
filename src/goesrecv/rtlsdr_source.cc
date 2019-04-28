@@ -6,7 +6,7 @@
 #include <cmath>
 #include <iostream>
 
-#ifdef __ARM_NEON__
+#ifdef __ARM_NEON
 #include <arm_neon.h>
 #endif
 
@@ -153,7 +153,7 @@ void RTLSDR::stop() {
   queue_.reset();
 }
 
-#ifdef __ARM_NEON__
+#ifdef __ARM_NEON
 
 void RTLSDR::process(
     size_t nsamples,
