@@ -37,13 +37,13 @@ public:
 
   virtual void stop() override;
 
-  void stream(Soapy device, std::shared_ptr<Queue<Samples>>& queue);
-  void handle(const int nsamples, std::complex<double>* buff);
+  void handle(std::shared_ptr<Queue<Samples>>& queue, const int nsamples, std::complex<double>* buff);
 
 protected:
   struct SoapySDRDevice * dev_;
   struct SoapySDRStream * rxStream_;
 
+  void stream(std::shared_ptr<Queue<Samples>>& queue);
   std::vector<uint32_t> loadSampleRates();
   std::vector<uint32_t> sampleRates_;
   std::uint32_t sampleRate_;
@@ -52,7 +52,7 @@ protected:
   std::thread thread_;
 
   // Set on start; cleared on stop
-  std::shared_ptr<Queue<Samples> > queue_;
+  std::shared_ptr<Queue<Samples>> queue_;
 
   // Optional publisher for samples
   std::unique_ptr<SamplePublisher> samplePublisher_;

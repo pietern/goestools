@@ -49,7 +49,7 @@ std::vector<uint32_t> Soapy::loadSampleRates() {
 
 void Soapy::setFrequency(uint32_t freq) {
   ASSERT(dev_ != nullptr);
-  auto rv = (int)SoapySDRDevice_setFrequency(dev_, SOAPY_SDR_RX, 0, (double)freq, NULL);
+  auto rv = (int)SoapySDRDevice_setFrequency(dev_, SOAPY_SDR_RX, 0, (double)freq, nullptr);
   ASSERT(rv == 0);
 }
 
@@ -70,48 +70,49 @@ void Soapy::setGain(int gain) {
   ASSERT(rv == 0);
 }
 
+void Soapy::stream(std::shared_ptr<Queue<Samples>>& queue)
+{
+    std::cout << "Setting up stream" << std::endl;
+    if (SoapySDRDevice_setupStream(dev_, &rxStream_, SOAPY_SDR_RX, SOAPY_SDR_CF32, nullptr, 0, nullptr) != 0)
+    {
+        std::cerr
+                << "Failed to set up stream: "
+                << SoapySDRDevice_lastError()
+                << std::endl;
+        exit(1);
+    }
+    std::cout << "Activating stream" << std::endl;
+    if (SoapySDRDevice_activateStream(dev_, rxStream_, 0, 0, 8192) != 0) {
+        std::cerr
+                << "Failed to activate stream"
+                << std::endl;
+        exit(1);
+    }
+    std::cout << "Starting read loop" << std::endl;
+    std::complex<double> buff[2048];
+    while (!queue->closed())
+    {
+        void *buffs[] = {buff}; //array of buffers
+        int flags; //flags set by receive operation
+        long long timeNs; //timestamp for receive buffer
+        int ret = SoapySDRDevice_readStream(dev_, rxStream_, buffs, 2048, &flags, &timeNs, 100000);
+
+        if (ret < 0) {
+//            std::cerr
+//                    << "Failed to read stream: "
+//                    << ret
+//                    << std::endl;
+//            exit(1);
+        }
+
+        this->handle(queue, 2048, buff);
+    }
+}
+
 void Soapy::start(const std::shared_ptr<Queue<Samples> >& queue) {
   ASSERT(dev_ != nullptr);
   queue_ = queue;
-  thread_ = std::thread([&] {
-      std::cout << "Setting up stream" << std::endl;
-      if (SoapySDRDevice_setupStream(dev_, &rxStream_, SOAPY_SDR_RX, SOAPY_SDR_CF32, nullptr, 0, nullptr) != 0)
-      {
-          std::cerr
-                  << "Failed to set up stream: "
-                  << SoapySDRDevice_lastError()
-                  << std::endl;
-          exit(1);
-      }
-      std::cout << "Activating stream" << std::endl;
-      if (SoapySDRDevice_activateStream(dev_, rxStream_, 0, 0, 0) != 0) {
-          std::cerr
-                  << "Failed to activate stream"
-                  << std::endl;
-          exit(1);
-      }
-      std::cout << "Starting read loop" << std::endl;
-      std::complex<double> buff[1024];
-      while (!queue_->closed())
-      {
-          void *buffs[] = {buff}; //array of buffers
-          int flags; //flags set by receive operation
-          long long timeNs; //timestamp for receive buffer
-          int ret = SoapySDRDevice_readStream(dev_, rxStream_, buffs, 1024, &flags, &timeNs, 100000);
-
-          if (ret < 0) {
-              std::cerr
-                      << "Failed to read stream: "
-                      << ret
-                      << std::endl;
-              exit(1);
-          }
-
-          this->handle(ret, buff);
-      }
-    });
-  // TODO: nothing works if the handle method doesn't get called on the main thread, but join blocks the exec path
-    thread_.join();
+  thread_ = std::thread(&Soapy::stream, this, std::ref(queue_));
 #ifdef __APPLE__
   pthread_setname_np("soapy");
 #else
@@ -129,10 +130,10 @@ void Soapy::stop() {
     queue_.reset();
 }
 
-void Soapy::handle(const int nsamples, std::complex<double>* buff) {
-  auto out = queue_->popForWrite();
+void Soapy::handle(std::shared_ptr<Queue<Samples>>& queue, const int nsamples, std::complex<double>* buff) {
+  auto out = queue->popForWrite();
   out->resize(nsamples);
-  std::complex<float> fBuff[1024];
+  std::complex<float> fBuff[2048];
   std::transform(buff, buff + nsamples, fBuff, [](std::complex<double> x) -> std::complex<float>{
       return std::complex<float>(x);
   });
@@ -143,5 +144,5 @@ void Soapy::handle(const int nsamples, std::complex<double>* buff) {
     samplePublisher_->publish(*out);
   }
 
-  queue_->pushWrite(std::move(out));
+    queue->pushWrite(std::move(out));
 }
