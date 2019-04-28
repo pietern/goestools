@@ -19,7 +19,7 @@ endmacro()
 if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "^arm")
   # Enable NEON
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfpu=neon")
-  set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -mfpu=neon")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpu=neon")
 
   # Assume Raspbian if we're cross compiling for ARM
   if(CMAKE_CROSSCOMPILING)
