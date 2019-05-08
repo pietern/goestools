@@ -4,7 +4,7 @@
 
 #include <util/error.h>
 
-#ifdef __ARM_NEON__
+#ifdef __ARM_NEON
 #include "./neon/neon_mathfun.h"
 #endif
 
@@ -20,7 +20,7 @@ Costas::Costas() {
   maxDeviation_ = M_2PI;
 }
 
-#ifdef __ARM_NEON__
+#ifdef __ARM_NEON
 
 void Costas::work(
     size_t nsamples,
