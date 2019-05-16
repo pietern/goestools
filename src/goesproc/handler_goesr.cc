@@ -63,7 +63,7 @@ GOESRProduct::Details loadDetails(const lrit::File& f) {
       } catch(std::invalid_argument &e) {
         num = nlh.productSubID;
       }
-      ASSERT(num >= 1 && num <= 16);
+      ASSERTM(num >= 1 && num <= 16, "num = ", num);
       len = snprintf(buf.data(), buf.size(), "CH%02d", num);
       details.channel.nameShort = std::string(buf.data(), len);
       len = snprintf(buf.data(), buf.size(), "Channel %d", num);
