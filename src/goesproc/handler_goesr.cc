@@ -22,6 +22,7 @@ GOESRProduct::Details loadDetails(const lrit::File& f) {
   GOESRProduct::Details details;
 
   auto text = f.getHeader<lrit::AncillaryTextHeader>().text;
+  auto nlh = f.getHeader<lrit::NOAALRITHeader>();
   auto pairs = split(text, ';');
   for (const auto& pair : pairs) {
     auto elements = split(pair, '=');
@@ -56,7 +57,12 @@ GOESRProduct::Details loadDetails(const lrit::File& f) {
     if (key == "Channel") {
       std::array<char, 32> buf;
       size_t len;
-      auto num = std::stoi(value);
+      int num = -1;
+      try {
+        num = std::stoi(value);
+      } catch(std::invalid_argument &e) {
+        num = nlh.productSubID;
+      }
       ASSERT(num >= 1 && num <= 16);
       len = snprintf(buf.data(), buf.size(), "CH%02d", num);
       details.channel.nameShort = std::string(buf.data(), len);
