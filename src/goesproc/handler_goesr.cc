@@ -18,11 +18,23 @@ using namespace util;
 
 namespace {
 
+int getChannelFromFileName(const std::string& fileName) {
+  const auto parts = split(fileName, '-');
+  ASSERT(parts.size() >= 4);
+  int mode = -1;
+  int channel = -1;
+  auto rv = sscanf(parts[3].c_str(), "M%dC%02d", &mode, &channel);
+  ASSERTM(
+    rv == 2,
+    "Expected to extract mode and channel from file name (", fileName, ")");
+  return channel;
+}
+
 GOESRProduct::Details loadDetails(const lrit::File& f) {
   GOESRProduct::Details details;
 
+  const auto fileName = f.getHeader<lrit::AnnotationHeader>().text;
   auto text = f.getHeader<lrit::AncillaryTextHeader>().text;
-  auto nlh = f.getHeader<lrit::NOAALRITHeader>();
   auto pairs = split(text, ';');
   for (const auto& pair : pairs) {
     auto elements = split(pair, '=');
@@ -61,7 +73,7 @@ GOESRProduct::Details loadDetails(const lrit::File& f) {
       try {
         num = std::stoi(value);
       } catch(std::invalid_argument &e) {
-        num = nlh.productSubID;
+        num = getChannelFromFileName(fileName);
       }
       ASSERTM(num >= 1 && num <= 16, "num = ", num);
       len = snprintf(buf.data(), buf.size(), "CH%02d", num);
@@ -98,7 +110,6 @@ GOESRProduct::Details loadDetails(const lrit::File& f) {
 
   // Tell apart the two mesoscale sectors
   {
-    auto fileName = f.getHeader<lrit::AnnotationHeader>().text;
     auto parts = split(fileName, '-');
     ASSERT(parts.size() >= 4);
     if (parts[2] == "CMIPF") {
