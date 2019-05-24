@@ -12,6 +12,7 @@ set(GOESPROC_SRCS
   handler_nws_image.cc
   handler_nws_text.cc
   handler_text.cc
+  handler_dcs.cc
   image.cc
   lrit_processor.cc
   options.cc

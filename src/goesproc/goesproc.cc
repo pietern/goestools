@@ -19,6 +19,7 @@
 #include "handler_nws_image.h"
 #include "handler_nws_text.h"
 #include "handler_text.h"
+#include "handler_dcs.h"
 #include "options.h"
 
 #include "lrit_processor.h"
@@ -84,7 +85,9 @@ int main(int argc, char** argv) {
         std::unique_ptr<Handler>(
           new EMWINHandler(handler, fileWriter)));
     } else if (handler.type == "dcs") {
-      // TODO
+      handlers.push_back(
+        std::unique_ptr<Handler>(
+          new DCSHandler(handler, fileWriter)));
     } else if (handler.type == "text") {
       if (handler.product == "nws") {
         handlers.push_back(
