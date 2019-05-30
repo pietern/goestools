@@ -36,22 +36,22 @@ bool goesrParseDCSTime(const std::string& name, struct timespec& time) {
   return true;
 }
 
-int bytes_to_uint(char* arr,size_t len) {
-  int result = 0;
-  for (unsigned int i = 0; i < len; i++) {
-    result += int((unsigned char)arr[i] << (i*8)); 
+unsigned int bytes_to_uint(std::vector<char>::iterator iter, size_t len) {
+  unsigned int result = 0;
+  for (size_t i = 0; i < len; i++) {
+    result += uint8_t(*(iter + i)) << (i*8); 
   }
   return result;
 }
 
-std::string bytes_to_time(const char* arr) {
+std::string bytes_to_time(std::vector<char>::iterator iter) {
   std::stringstream tmp;
   std::string s;
   char tmpout[20];
   struct tm tm;
 
   for (unsigned int i = 0; i < 7; i++)
-    tmp << int(arr[i] & 0xF) << int(arr[i] >> 4);
+    tmp << int(*(iter+i) & 0xF) << int(*(iter+i) >> 4);
   s = tmp.str();
   std::reverse(s.begin(),s.end());
   
@@ -62,10 +62,10 @@ std::string bytes_to_time(const char* arr) {
   return s;
 }
 
-std::string pseudo_decode(const char* arr,size_t len) {
+std::string pseudo_decode(std::vector<char>::iterator iter,size_t len) {
   std::string s;
   for (unsigned int i = 0; i < len; i++)
-    s += char(arr[i] & 0x7F);
+    s += char(*(iter + i) & 0x7F);
   return s;
 }
 
@@ -78,48 +78,49 @@ DCSHandler::DCSHandler(
     fileWriter_(fileWriter) {
 }
 
-void DCSHandler::getHeader(char *const buf) {
-  size_t nread = 0;
+void DCSHandler::getHeader(std::vector<char> &vec) {
+  std::vector<char>::iterator iter;
+  iter = vec.begin();
   // 32 bytes hold the DCS file name (and trailing spaces)
   {
     constexpr unsigned n = 32;
-    header.filename = std::string(buf + nread, n);
-    nread += n;
+    header.filename = std::string(iter, iter + n);
+    iter += n;
   }
 
   // 8 bytes holding length of payload
   {
     constexpr unsigned n = 8;
-    header.file_size = std::stoi(std::string(buf + nread, n));
-    nread += n;
+    header.file_size = std::stoi(std::string(iter, iter + n));
+    iter += n;
   }
 
   // 4 bytes holding the file's source (WCDA or NSOF)
   {
     constexpr unsigned n = 4;
-    header.file_source = std::string(buf + nread, n);
-    nread += n;
+    header.file_source = std::string(iter, iter + n);
+    iter += n;
   }
 
   // 4 bytes holding the file type, should be DCSH (DCS HRIT)
   {
     constexpr unsigned n = 4;
-    header.file_type = std::string(buf + nread, n);
-    nread += n;
+    header.file_type = std::string(iter, iter + n);
+    iter += n;
   }
 
   // 12 bytes holding spaces, reserved for future usage, should be all spaces
   {
     constexpr unsigned n = 12;
-    header.exp_fill = std::string(buf + nread, n);
-    nread += n;
+    header.exp_fill = std::string(iter, iter + n);
+    iter += n;
   }
 
   // 4 bytes holding the CRC32 of the header, little-endian
   {
     constexpr unsigned n = 4;
     
-    nread += n;
+    iter += n;
   }
 
 }
@@ -145,9 +146,10 @@ void DCSHandler::handle(std::shared_ptr<const lrit::File> f) {
 
   // Pointer to beginning of the DCS file's data
   char *const buf = (f->read()).data();
-  
+  std::vector<char> vec = f->read();
+
   // Parse the DCS file's header
-  DCSHandler::getHeader(buf);
+  DCSHandler::getHeader(vec);
 
   // Create the output data by sending text into a stream
   std::stringstream output_text;
@@ -158,118 +160,169 @@ void DCSHandler::handle(std::shared_ptr<const lrit::File> f) {
   output_text << "File Type: " << header.file_type << std::endl;
   output_text << "Header CRC32: " << std::hex << header.crc32 << std::endl << std::endl;
 
-  size_t offset = 64;
-  size_t nread = 0;
-  while(offset < header.file_size-4) {
-    nread = 0;
-    DCPBlock block;
+  std::vector<char>::iterator iter;
+  DCPBlock block;
+
+  iter = vec.begin() + 0x40;
+  while(iter < vec.end() - 4) {
+    block = DCPBlock();
+    auto block_begin = iter - vec.begin();
 
     { // Block Type
       constexpr unsigned n = 1;
-      block.type = bytes_to_uint(buf + offset + nread, n);
-      nread += n;
+      block.type = bytes_to_uint(iter, n);
+      iter += n;
     }
     { // Block Length
       constexpr unsigned n = 2;
-      block.size = bytes_to_uint(buf + offset + nread, n);
-      nread += n;
+      block.size = bytes_to_uint(iter, n);
+      iter += n;
     }
     if (block.type == 1) {
       { // Sequence Number
         constexpr unsigned n = 3;
-        block.num = bytes_to_uint(buf + offset + nread, n);
-        nread += n;
+        block.num = bytes_to_uint(iter, n);
+        iter += n;
       }
       { // Flags (Includes Baud Rate, Platform Type and Parity Error)
         constexpr unsigned n = 1;
         const int bauds[4] = {0,100,300,1200};
-        block.flags = bytes_to_uint(buf + offset + nread, n);
+        block.flags = bytes_to_uint(iter, n);
         block.baud = bauds[(block.flags & 0x7)];
         block.platform = ((block.flags & 8) >> 3) + 1;
-        nread += n;
+        iter += n;
       }
       { // ARM Flags (Abnormal Received Message)
         constexpr unsigned n = 1;
-        block.arm = bytes_to_uint(buf + offset + nread, n);
-        nread += n;
+        block.arm = bytes_to_uint(iter, n);
+        iter += n;
       }
       { // Platform Address, this can be searched at https://dcs1.noaa.gov/Account/FieldTest
         // Sometimes these addresses can be searched for on the web for more info on the data
         constexpr unsigned n = 4;
-        block.address = bytes_to_uint(buf + offset + nread, n);
-        nread += n;
+        block.address = bytes_to_uint(iter, n);
+        iter += n;
       }
       { // Carrier Start Time, converted to YYYY-MM-DD HH:MM:SS
         constexpr unsigned n = 7;
-        block.start = bytes_to_time(buf + offset + nread);
-        nread += n;
+        block.start = bytes_to_time(iter);
+        iter += n;
       }
       { // Carrier End Time, converted to YYYY-MM-DD HH:MM:SS 
         constexpr unsigned n = 7;
-        block.end = bytes_to_time(buf + offset + nread);
-        nread += n;
+        block.end = bytes_to_time(iter);
+        iter += n;
       }
       { // Signal Strength in dBm EIRP
         constexpr unsigned n = 2;
-        block.strength = bytes_to_uint(buf + offset + nread,n) & 0x03FF;
+        block.strength = bytes_to_uint(iter,n) & 0x03FF;
         block.strength = block.strength / 10.0f;
-        nread += n;
+        iter += n;
       }
       { // Frequency offset in Hz
         constexpr unsigned n = 2;
-        block.offset = bytes_to_uint(buf + offset + nread,n) & 0x3FFF;
+        block.offset = bytes_to_uint(iter,n) & 0x3FFF;
         if (block.offset > 8191)  // Signed 2's complement, so let's fix that
           block.offset = block.offset - 16384;
         block.offset = block.offset / 10.0f;
-        nread += n;
+        iter += n;
       }
       { // Signal Noise in deg RMS, as well as the modulation index
         constexpr unsigned n = 2;
-        uint16_t num = bytes_to_uint(buf + offset + nread,n);
+        uint16_t num = bytes_to_uint(iter,n);
         block.noise = num & 0x0FFF;
         block.noise = block.noise / 100.0f;
         
         uint16_t i = (num & 0xC000) >> 14;
         const char indicies[5] = "XNHL";
         block.mod_index = indicies[i];
-        nread += n;
+        iter += n;
       }
       { // Phase Score, represents the signal quality 0-100%
         constexpr unsigned n = 1;
-        block.good_phase = bytes_to_uint(buf + offset + nread,n) & 0x3FFF;
+        block.good_phase = bytes_to_uint(iter,n) & 0x3FFF;
         block.good_phase = block.good_phase / 2.0f;
-        nread += n;
+        iter += n;
       }
       { // Channel Number and the Spacecraft ID: GOES-East, GOES-West, GOES-Central, GOES-Test
         constexpr unsigned n = 2;
-        uint16_t num = bytes_to_uint(buf + offset + nread,n);
+        uint16_t num = bytes_to_uint(iter,n);
         block.channel = num & 0x03FF;
 
         const char spcrft[6] = "XEWCT";
         uint16_t i = (num & 0xF000) >> 12;
         block.spacecraft = spcrft[i];
-        nread += n;
+        iter += n;
       }
       { // DRGS Source Code, see https://dcs1.noaa.gov/documents/HRIT%20DCS%20File%20Format%20Rev1.pdf
         // Table is on page 8
         constexpr unsigned n = 2;
-        block.source_code = std::string(buf + offset + nread, n);
-        nread += n;
+        block.source_code = std::string(iter, iter + n);
+        iter += n;
       }
       { // Source Secondary information, currently unused
         constexpr unsigned n = 2;
-        block.source_sec = std::string(buf + offset + nread, n);
-        nread += n;
+        block.source_sec = std::string(iter, iter + n);
+        iter += n;
       }
       { // Data converted from Pseudo-Binary to an ASCII string
         const unsigned int n = block.size - 41;
-        block.data = pseudo_decode(buf + offset + nread,n);
-        nread += n;
+        block.data = pseudo_decode(iter,n);
+        iter += n;
+      }
+      { // Block CRC16
+        constexpr unsigned n = 2;
+        iter += n;
+      }
+    }
+
+    if (block.type == 2) {
+      { // Sequence Number
+        constexpr unsigned n = 3;
+        block.num = bytes_to_uint(iter, n);
+        iter += n;
+      }
+      { // Flags (Includes Baud Rate, Platform Type and Parity Error)
+        constexpr unsigned n = 1;
+        const int bauds[4] = {0,100,300,1200};
+        block.flags = bytes_to_uint(iter, n);
+        block.baud = bauds[(block.flags & 0x7)];
+        iter += n;
+      }
+      { // Platform Address, this can be searched at https://dcs1.noaa.gov/Account/FieldTest
+        // Sometimes these addresses can be searched for on the web for more info on the data
+        constexpr unsigned n = 4;
+        block.address = bytes_to_uint(iter, n);
+        iter += n;
+      }
+      { // Window Start Time, converted to YYYY-MM-DD HH:MM:SS
+        constexpr unsigned n = 7;
+        block.start = bytes_to_time(iter);
+        iter += n;
+      }
+      { // Window End Time, converted to YYYY-MM-DD HH:MM:SS 
+        constexpr unsigned n = 7;
+        block.end = bytes_to_time(iter);
+        iter += n;
+      }
+      { // Channel Number and the Spacecraft ID
+        constexpr unsigned n = 2;
+        uint16_t num = bytes_to_uint(iter,n);
+        block.channel = num & 0x03FF;
+
+        const char spcrft[6] = "XEWCT";
+        uint16_t i = (num & 0xF000) >> 12;
+        block.spacecraft = spcrft[i];
+        iter += n;
+      }
+      { // Block CRC16
+        constexpr unsigned n = 2;
+        iter += n;
       }
     }
     
-    if (block.type == 0x01) {
-      output_text << "[DCP Block]" << std::endl;
+    if (block.type == 1) {
+      output_text << "[DCP Block] " << std::endl;
       output_text << "Block Size: " << std::dec << block.size << " Bytes" << std::endl;
       output_text << "Sequence Number: " << std::dec << block.num << std::endl;
       output_text << "Address: 0x" << std::hex << block.address << std::endl;
@@ -286,10 +339,19 @@ void DCSHandler::handle(std::shared_ptr<const lrit::File> f) {
       output_text << "Source Code: " << block.source_code << std::endl;
       output_text << "Data: " << block.data << std::endl;
     }
+
+    if (block.type == 2) {
+      output_text << "[Missed Message Block]" << std::endl;
+      output_text << "Block Size: " << std::dec << block.size << " Bytes" << std::endl;
+      output_text << "Sequence Number: " << std::dec << block.num << std::endl;
+      output_text << "Address: 0x" << std::hex << block.address << std::endl;
+      output_text << "Window Start: " << block.start << std::endl;
+      output_text << "Window End: " << block.end << std::endl;
+      output_text << "Channel: " << std::dec << block.channel << std::endl;
+      output_text << "Spacecraft: " << block.spacecraft << std::endl;
+    } 
     
     output_text << std::endl;
-
-    offset += block.size;
 
   }
 
@@ -306,6 +368,7 @@ void DCSHandler::handle(std::shared_ptr<const lrit::File> f) {
   fb.time = time;
   auto path = fb.build(config_.filename, "dcs");
   fileWriter_->write(path, output_vec);
+  fileWriter_->write(path + "_raw", f->read());
   if (config_.json) {
     fileWriter_->writeHeader(*f, path);
   }

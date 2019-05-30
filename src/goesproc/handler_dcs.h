@@ -21,7 +21,7 @@ public:
   };
 
   Header header;
-  void getHeader(char *const buf);
+  void getHeader(std::vector<char>& vec);
 
   struct DCPBlock {
     unsigned int type;
