@@ -368,7 +368,6 @@ void DCSHandler::handle(std::shared_ptr<const lrit::File> f) {
   fb.time = time;
   auto path = fb.build(config_.filename, "dcs");
   fileWriter_->write(path, output_vec);
-  fileWriter_->write(path + "_raw", f->read());
   if (config_.json) {
     fileWriter_->writeHeader(*f, path);
   }
