@@ -331,7 +331,7 @@ void DCSHandler::handle(std::shared_ptr<const lrit::File> f) {
       output_text << "Message End: " << block.end << std::endl;
       output_text << "Signal Strength: " << block.strength << " dBm EIRP" << std::endl;
       output_text << "Frequency Offset: " << block.offset << " Hz" << std::endl;
-      output_text << "Phase Noise: " << block.noise << "\260 RMS" << std::endl;
+      output_text << "Phase Noise: " << block.noise << "\xB0 RMS" << std::endl;
       output_text << "Modulation Index: " << block.mod_index << std::endl;
       output_text << "Good Phase: " << block.good_phase << "%" << std::endl;
       output_text << "Channel: " << std::dec << block.channel << std::endl;
