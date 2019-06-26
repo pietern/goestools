@@ -44,9 +44,29 @@ struct Config {
     bool bias_tee = 0;
 
     std::unique_ptr<SamplePublisher> samplePublisher;
- };
+  };
 
   Airspy airspy;
+
+  struct HackRF {
+    uint32_t frequency = 0;
+    uint32_t sampleRate = 0;
+
+    // Applies to the tuner IF gain setting
+    uint8_t if_gain = 8;
+
+    // Applies to the tuner BB gain setting
+    uint8_t bb_gain = 30;
+
+    // Enables or disables the RF amplifier
+    bool rf_amp_enabled = 0;
+
+    bool bias_tee = 0;
+
+    std::unique_ptr<SamplePublisher> samplePublisher;
+  };
+
+  HackRF hackrf;
 
   struct RTLSDR {
     uint32_t frequency = 0;
