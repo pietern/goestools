@@ -13,17 +13,19 @@ Demodulate and decode signal into packet stream.
    See :ref:`minimal_receiver` for an example setup.
 
 You can use goesrecv with an RTL-SDR_ (make sure you have one with the
-R820T tuner chip), or an Airspy_ (confirmed to work with the Mini).
-The raw signal is then processed by the demodulator and turned into a
-stream of 1s and 0s. This is then passed to the decoder where the
-bitstream is synchronized and error correction is applied. Every valid
-packet is then forwarded to downstream tools (e.g. goeslrit or
-goesproc).
+R820T tuner chip), an Airspy_ (confirmed to work with the Mini), or a
+HackRF_ (confirmed to work with a HackRF One). The raw signal is then
+processed by the demodulator and turned into a stream of 1s and 0s. This
+is then passed to the decoder where the bitstream is synchronized and
+error correction is applied. Every valid packet is then forwarded to
+downstream tools (e.g. goeslrit or goesproc).
 
 .. _rtl-sdr:
   https://rtlsdr.org/
 .. _airspy:
   https://airspy.com/
+.. _hackrf:
+  https://greatscottgadgets.com/hackrf/
 
 Options
 =======

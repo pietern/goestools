@@ -23,6 +23,7 @@ urls() {
     scripts/list_raspbian_urls.py \
         librtlsdr-dev \
         libairspy-dev \
+        libhackrf-dev \
         libusb-1.0-0-dev \
         libudev1 \
         zlib1g-dev \
