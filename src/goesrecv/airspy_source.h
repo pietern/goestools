@@ -29,6 +29,8 @@ public:
 
   void setGain(int gain);
 
+  void setGainDetailed(int lnaGain, int mixGain, int vgaGain);
+
   void setBiasTee(bool on);
 
   void setSamplePublisher(std::unique_ptr<SamplePublisher> samplePublisher) {

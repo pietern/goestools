@@ -144,6 +144,22 @@ void loadAirspySource(Config::Airspy& out, const toml::Value& v) {
       continue;
     }
 
+    if (key == "lna_gain")
+    {
+      out.lna_gain = value.as<int>();
+      continue;
+    }
+    if (key == "vga_gain")
+    {
+      out.vga_gain = value.as<int>();
+      continue;
+    }
+    if (key == "mix_gain")
+    {
+      out.mix_gain = value.as<int>();
+      continue;
+    }
+
     if (key == "sample_publisher") {
       out.samplePublisher = createSamplePublisher(value);
       continue;

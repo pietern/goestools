@@ -73,6 +73,16 @@ void Airspy::setGain(int gain) {
   ASSERT(rv >= 0);
 }
 
+void Airspy::setGainDetailed(int lnaGain, int mixGain, int vgaGain) {
+  ASSERT(dev_ != nullptr);
+  auto rv1 = airspy_set_lna_gain(dev_, lnaGain);
+  ASSERT(rv1 >= 0);
+  auto rv2 = airspy_set_mixer_gain(dev_, mixGain);
+  ASSERT(rv2 >= 0);
+  auto rv3 = airspy_set_vga_gain(dev_, vgaGain);
+  ASSERT(rv3 >= 0);
+}
+
 void Airspy::setBiasTee(bool on) {
   ASSERT(dev_ != nullptr);
   auto rv = airspy_set_rf_bias(dev_, on ? 1 : 0);

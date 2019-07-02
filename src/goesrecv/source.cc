@@ -42,7 +42,14 @@ std::unique_ptr<Source> Source::build(
       airspy->setSampleRate(rates[0]);
     }
     airspy->setFrequency(config.airspy.frequency);
-    airspy->setGain(config.airspy.gain);
+    if(config.airspy.lna_gain > 0 || config.airspy.mix_gain > 0 || config.airspy.vga_gain > 0)
+    {
+      airspy->setGainDetailed(config.airspy.lna_gain, config.airspy.mix_gain, config.airspy.vga_gain);
+    }
+    else
+    {
+      airspy->setGain(config.airspy.gain);
+    }
     airspy->setBiasTee(config.airspy.bias_tee);
     airspy->setSamplePublisher(std::move(config.airspy.samplePublisher));
     return std::unique_ptr<Source>(airspy.release());

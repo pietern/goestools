@@ -40,6 +40,11 @@ struct Config {
     // Applies to the linearity gain setting
     uint8_t gain = 18;
 
+   // separate gain values for more control - override linearity setting, if any is set > 0
+    uint8_t  lna_gain = 0;
+    uint8_t  vga_gain = 0;
+    uint8_t  mix_gain = 0;
+
     // Enable/disable bias tee
     bool bias_tee = 0;
 
