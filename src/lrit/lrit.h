@@ -39,7 +39,7 @@ struct ImageNavigationHeader {
 
   uint8_t headerType;
   uint16_t headerLength;
-  char projectionName[32];
+  std::string projectionName;
   uint32_t columnScaling;
   uint32_t lineScaling;
   uint32_t columnOffset;

@@ -4,6 +4,7 @@
 #include <cstring>
 
 #include <util/error.h>
+#include <util/string.h>
 
 namespace lrit {
 
@@ -185,7 +186,16 @@ template<>
 ImageNavigationHeader getHeader(const Buffer& b, int pos) {
   auto r = HeaderReader<ImageNavigationHeader>(b, pos);
   auto h = r.getHeader();
-  r.read(h.projectionName, sizeof(h.projectionName));
+
+  // Read 32 bytes for the projection name
+  char projectionName[32];
+  r.read(projectionName, sizeof(projectionName));
+
+  // Convert to std::string for return value
+  h.projectionName = util::trimRight(std::string(
+      projectionName,
+      std::min(strlen(projectionName), sizeof(projectionName))));
+
   r.read(&h.columnScaling);
   r.read(&h.lineScaling);
   r.read(&h.columnOffset);
