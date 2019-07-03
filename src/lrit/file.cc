@@ -2,6 +2,7 @@
 
 #include <array>
 
+#include <string.h>
 #include <time.h>
 
 #include <util/error.h>
@@ -101,7 +102,7 @@ private:
 File::File(const std::string& file)
   : file_(file) {
   std::ifstream ifs(file_.c_str());
-  ASSERT(ifs);
+  ASSERTM(ifs, "Unable to open ", file_, ": ", strerror(errno));
 
   // First 16 bytes hold the primary header
   header_.resize(16);
