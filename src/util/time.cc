@@ -23,7 +23,7 @@ bool parseTime(const std::string& in, struct timespec* ts) {
   const char* buf = in.c_str();
   struct tm tm;
 
-  //initialize tm struct to 0s before using it, otherwise mktime will behave unpredictably - Kons
+  // Initialize tm struct to 0s before using it, otherwise mktime will behave unpredictably - Kons
   memset(&tm, 0x0, sizeof(tm));
 
   long int tv_nsec = 0;
@@ -47,7 +47,7 @@ bool parseTime(const std::string& in, struct timespec* ts) {
 
   auto t = mktime(&tm);
 
-  //the resulting t should always be greater 0, otherwise there was a problem with date conversion
+  // The resulting t should always be greater 0, otherwise there was a problem with date conversion
   ASSERT(t > 0);
 
   ts->tv_sec = t;
