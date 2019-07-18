@@ -24,10 +24,11 @@ int getChannelFromFileName(const std::string& fileName) {
   int mode = -1;
   int channel = -1;
   auto rv = sscanf(parts[3].c_str(), "M%dC%02d", &mode, &channel);
-  ASSERTM(
-    rv == 2,
-    "Expected to extract mode and channel from file name (", fileName, ")");
-  return channel;
+  // if we can't get a mode, use channel 0
+  if (rv == 2)
+    return channel;
+  else
+    return 0;
 }
 
 GOESRProduct::Details loadDetails(const lrit::File& f) {
@@ -75,7 +76,7 @@ GOESRProduct::Details loadDetails(const lrit::File& f) {
       } catch(std::invalid_argument &e) {
         num = getChannelFromFileName(fileName);
       }
-      ASSERTM(num >= 1 && num <= 16, "num = ", num);
+      ASSERTM(num >= 0 && num <= 16, "num = ", num);
       len = snprintf(buf.data(), buf.size(), "CH%02d", num);
       details.channel.nameShort = std::string(buf.data(), len);
       len = snprintf(buf.data(), buf.size(), "Channel %d", num);
@@ -122,8 +123,11 @@ GOESRProduct::Details loadDetails(const lrit::File& f) {
       details.region.nameLong = "Mesoscale 2";
       details.region.nameShort = "M2";
     } else {
-      std::cerr << "Unable to derive region from: " << parts[2] << std::endl;
-      ASSERT(false);
+        // non CMIP products don't have a channel number
+        details.region.nameLong = "Full Disk";
+        details.region.nameShort = "FD";
+        details.channel.nameShort = parts[2];
+        details.channel.nameLong = parts[2];
     }
   }
 
