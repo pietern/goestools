@@ -24,10 +24,10 @@ int getChannelFromFileName(const std::string& fileName) {
   int mode = -1;
   int channel = -1;
   auto rv = sscanf(parts[3].c_str(), "M%dC%02d", &mode, &channel);
-  ASSERTM(
-    rv == 2,
-    "Expected to extract mode and channel from file name (", fileName, ")");
-  return channel;
+  if (rv == 2) {
+    return channel;
+  }
+  return -1;
 }
 
 GOESRProduct::Details loadDetails(const lrit::File& f) {
@@ -70,16 +70,23 @@ GOESRProduct::Details loadDetails(const lrit::File& f) {
       std::array<char, 32> buf;
       size_t len;
       int num = -1;
-      try {
-        num = std::stoi(value);
-      } catch(std::invalid_argument &e) {
+      // The ancillary text header may include the integer channel number.
+      // If it doesn't (e.g. it is "N/A"), extract it from the filename.
+      // See https://github.com/pietern/goestools/issues/48 for an example
+      // situation where we had to fall back to extracting the channel
+      // number from the file name for perfectly valid CMIP files.
+      auto rv = sscanf(value.c_str(), "%d", &num);
+      if (rv != 1) {
         num = getChannelFromFileName(fileName);
       }
-      ASSERTM(num >= 1 && num <= 16, "num = ", num);
-      len = snprintf(buf.data(), buf.size(), "CH%02d", num);
-      details.channel.nameShort = std::string(buf.data(), len);
-      len = snprintf(buf.data(), buf.size(), "Channel %d", num);
-      details.channel.nameLong = std::string(buf.data(), len);
+      // Populate channel number only if it is valid.
+      if (num > 0) {
+        ASSERTM(num >= 1 && num <= 16, "num = ", num);
+        len = snprintf(buf.data(), buf.size(), "CH%02d", num);
+        details.channel.nameShort = std::string(buf.data(), len);
+        len = snprintf(buf.data(), buf.size(), "Channel %d", num);
+        details.channel.nameLong = std::string(buf.data(), len);
+      }
       continue;
     }
 
