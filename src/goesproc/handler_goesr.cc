@@ -34,6 +34,8 @@ GOESRProduct::Details loadDetails(const lrit::File& f) {
   GOESRProduct::Details details;
 
   const auto fileName = f.getHeader<lrit::AnnotationHeader>().text;
+  const auto fileNameParts = split(fileName, '-');
+  ASSERT(fileNameParts.size() >= 4);
   auto text = f.getHeader<lrit::AncillaryTextHeader>().text;
   auto pairs = split(text, ';');
   for (const auto& pair : pairs) {
@@ -96,8 +98,26 @@ GOESRProduct::Details loadDetails(const lrit::File& f) {
     }
 
     if (key == "Region") {
-      // Ignore; this needs to be derived from the file name
-      // because the mesoscale sector is not included here.
+      if (value == "Full Disk") {
+        details.region.nameLong = "Full Disk";
+        details.region.nameShort = "FD";
+      } else if (value == "Mesoscale") {
+        // The mesoscale sector number is not included in the ancillary
+        // text header. If this is a CMIP file, we know which chunk of the
+        // file name to check to figure out the mesoscale region. We don't
+        // know if there will ever be non-CMIP mesoscale images.
+        if (fileNameParts[2] == "CMIPM1") {
+          details.region.nameLong = "Mesoscale 1";
+          details.region.nameShort = "M1";
+        } else if (fileNameParts[2] == "CMIPM2") {
+          details.region.nameLong = "Mesoscale 2";
+          details.region.nameShort = "M2";
+        } else {
+          ASSERTM(false, "Unable to derive region from: ", fileNameParts[2]);
+        }
+      } else {
+        ASSERTM(false, "Unable to derive region from: ", value);
+      }
       continue;
     }
 
@@ -113,25 +133,6 @@ GOESRProduct::Details loadDetails(const lrit::File& f) {
 
     std::cerr << "Unhandled key in ancillary text: " << key << std::endl;
     ASSERT(false);
-  }
-
-  // Tell apart the two mesoscale sectors
-  {
-    auto parts = split(fileName, '-');
-    ASSERT(parts.size() >= 4);
-    if (parts[2] == "CMIPF") {
-      details.region.nameLong = "Full Disk";
-      details.region.nameShort = "FD";
-    } else if (parts[2] == "CMIPM1") {
-      details.region.nameLong = "Mesoscale 1";
-      details.region.nameShort = "M1";
-    } else if (parts[2] == "CMIPM2") {
-      details.region.nameLong = "Mesoscale 2";
-      details.region.nameShort = "M2";
-    } else {
-      std::cerr << "Unable to derive region from: " << parts[2] << std::endl;
-      ASSERT(false);
-    }
   }
 
   return details;
