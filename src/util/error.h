@@ -25,3 +25,14 @@
           ::util::str(__VA_ARGS__));          \
     }                                         \
   } while (0)
+
+#define FAILM(...)                 \
+  do {                             \
+    ERROR(                         \
+        "Failure at ",             \
+        __FILE__,                  \
+        ":",                       \
+        __LINE__,                  \
+        ", ",                      \
+        ::util::str(__VA_ARGS__)); \
+  } while (0)

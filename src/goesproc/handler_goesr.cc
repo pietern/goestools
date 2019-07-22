@@ -113,10 +113,13 @@ GOESRProduct::Details loadDetails(const lrit::File& f) {
           details.region.nameLong = "Mesoscale 2";
           details.region.nameShort = "M2";
         } else {
-          ASSERTM(false, "Unable to derive region from: ", fileNameParts[2]);
+          FAILM(
+              "Unable to derive product region from value \"",
+              fileNameParts[2],
+              "\"");
         }
       } else {
-        ASSERTM(false, "Unable to derive region from: ", value);
+        FAILM("Unable to derive product region from value \"", value, "\"");
       }
       continue;
     }
@@ -131,8 +134,7 @@ GOESRProduct::Details loadDetails(const lrit::File& f) {
       continue;
     }
 
-    std::cerr << "Unhandled key in ancillary text: " << key << std::endl;
-    ASSERT(false);
+    FAILM("Unhandled key in ancillary text \"", key, "\"");
   }
 
   return details;
