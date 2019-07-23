@@ -19,6 +19,12 @@ struct AWIPS {
   std::string qq;
 };
 
+// Image product (e.g. CMIP/Cloud and Moisture Imagery Product)
+struct Product {
+  std::string nameShort;
+  std::string nameLong;
+};
+
 // Image region (e.g. FD/Full Disk or NH/Northern Hemisphere)
 struct Region {
   std::string nameShort;

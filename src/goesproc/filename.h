@@ -9,6 +9,7 @@ struct FilenameBuilder {
 
   struct timespec time;
   AWIPS awips;
+  Product product;
   Region region;
   Channel channel;
 

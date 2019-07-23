@@ -29,6 +29,12 @@ struct Config {
     // "goes16", "himawari8", "nws", ...
     std::string origin;
 
+    // For image handlers, this field is only used to filter GOES-R
+    // ABI Level 2+ files. For non-GOES-R files, it is unused.
+    //
+    // Example: "cmip", "sst", "rrqpe", ...
+    //
+    std::vector<std::string> products;
 
     // "fd", "m1", "m2", "nh", "us", ...
     std::vector<std::string> regions;

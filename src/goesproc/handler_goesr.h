@@ -45,6 +45,8 @@ public:
 
   bool matchSatelliteID(int satelliteID) const;
 
+  bool matchProduct(const std::vector<std::string>& products) const;
+
   bool matchRegion(const std::vector<std::string>& regions) const;
 
   bool matchChannel(const std::vector<std::string>& regions) const;
@@ -53,6 +55,10 @@ public:
 
   const struct timespec getFrameStart() const {
     return frameStart_;
+  }
+
+  const Product& getProduct() const {
+    return product_;
   }
 
   const Region& getRegion() const {
@@ -70,6 +76,7 @@ protected:
   // text header. These fields list the set of observed keys, as well
   // as other information describing the nature of the file(s).
   struct timespec frameStart_;
+  Product product_;
   Region region_;
   Channel channel_;
   std::string satellite_;

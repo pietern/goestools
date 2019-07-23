@@ -124,6 +124,14 @@ bool loadHandlers(const toml::Value& v, Config& out) {
       }
     }
 
+    {
+      // Plural products is used for GOES-R ABI Level 2+ product files.
+      auto products = th->find("products");
+      if (products) {
+        h.products = products->as<std::vector<std::string>>();
+      }
+    }
+
     // Singular region is the old way to filter
     auto region = th->find("region");
     if (region) {
@@ -335,6 +343,11 @@ bool loadHandlers(const toml::Value& v, Config& out) {
       out.ok = false;
       out.error = "Using a false color table requires selecting 2 channels";
       return false;
+    }
+
+    // Default the products filter to "cmip" for backwards compatibility.
+    if (h.products.empty()) {
+      h.products.emplace_back("cmip");
     }
 
     out.handlers.push_back(h);

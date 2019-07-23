@@ -99,6 +99,17 @@ void replace(std::string& str, const struct timespec& ts) {
     });
 }
 
+void replace(std::string& str, const Product& product) {
+  replace(str, "product", [&] (const std::string& in) {
+      if (in == "short") {
+        return product.nameShort;
+      } else if (in == "long") {
+        return product.nameLong;
+      }
+      return std::string();
+    });
+}
+
 void replace(std::string& str, const Region& region) {
   replace(str, "region", [&] (const std::string& in) {
       if (in == "short") {
@@ -166,6 +177,9 @@ std::string FilenameBuilder::build(
 
   // Replace {awips:XXX}
   replace(out, awips);
+
+  // Replace {product:XXX}
+  replace(out, product);
 
   // Replace {region:XXX}
   replace(out, region);

@@ -137,6 +137,27 @@ GOESRProduct::GOESRProduct(const std::shared_ptr<const lrit::File>& f)
 
     FAILM("Unhandled key in ancillary text \"", key, "\"");
   }
+
+  // The product name is encoded in the file name only.
+  // For example: OR_ABI-L2-ACHTF-M6_G16_[...].lrit.
+  // The samples I've seen all have a suffix equal to the
+  // short hand of the region, e.g. "F" or "M1".
+  {
+    const auto tmp = fileNameParts[2];
+    const auto s1 = tmp.substr(tmp.size() - 1);
+    const auto s2 = tmp.substr(tmp.size() - 2);
+    if (s1 == "F") {
+      product_.nameShort = tmp.substr(0, tmp.size() - s1.size());
+    } else if (s2 == "M1" || s2 == "M2") {
+      product_.nameShort = tmp.substr(0, tmp.size() - s2.size());
+    } else {
+      product_.nameShort = tmp;
+    }
+
+    // We can fix a mapping from the abbreviation to the long name
+    // for all the products, but for now, make them equivalent.
+    product_.nameLong = product_.nameShort;
+  }
 }
 
 // Add file to list of segments such that the list remains sorted by
@@ -213,6 +234,7 @@ FilenameBuilder GOESRProduct::getFilenameBuilder(const Config::Handler& config) 
   fb.dir = config.dir;
   fb.filename = removeSuffix(getHeader<lrit::AnnotationHeader>().text);
   fb.time = frameStart_;
+  fb.product = product_;
   fb.region = region_;
   fb.channel = channel_;
   return fb;
@@ -263,6 +285,17 @@ bool GOESRProduct::matchSatelliteID(int satelliteID) const {
   return satelliteID == satelliteID_;
 }
 
+bool GOESRProduct::matchProduct(const std::vector<std::string>& products) const {
+  if (products.empty()) {
+    return true;
+  }
+
+  const auto begin = std::begin(products);
+  const auto end = std::end(products);
+  const auto it = std::find(begin, end, product_.nameShort);
+  return it != end;
+}
+
 bool GOESRProduct::matchRegion(const std::vector<std::string>& regions) const {
   if (regions.empty()) {
     return true;
@@ -295,6 +328,9 @@ GOESRImageHandler::GOESRImageHandler(
   const std::shared_ptr<FileWriter>& fileWriter)
   : config_(config),
     fileWriter_(fileWriter) {
+  for (auto& product : config_.products) {
+    product = toUpper(product);
+  }
   for (auto& region : config_.regions) {
     region = toUpper(region);
   }
@@ -350,6 +386,7 @@ void GOESRImageHandler::handle(std::shared_ptr<const lrit::File> f) {
 
   // Filter by product details
   if (!tmp.matchSatelliteID(satelliteID_) ||
+      !tmp.matchProduct(config_.products) ||
       !tmp.matchRegion(config_.regions) ||
       !tmp.matchChannel(config_.channels)) {
     return;
