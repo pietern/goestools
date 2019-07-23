@@ -290,10 +290,28 @@ bool GOESRProduct::matchProduct(const std::vector<std::string>& products) const 
     return true;
   }
 
+  // Check for a positive match.
   const auto begin = std::begin(products);
   const auto end = std::end(products);
   const auto it = std::find(begin, end, product_.nameShort);
-  return it != end;
+  if (it != end) {
+    return true;
+  }
+
+  // Check for a negative match.
+  bool performed_negative_check = false;
+  for (const auto& product : products) {
+    if (product.empty() || product.at(0) != '^') {
+      continue;
+    }
+    // Compare the sub-string after the negation character.
+    performed_negative_check = true;
+    if (product.substr(1) == product_.nameShort) {
+      return false;
+    }
+  }
+
+  return performed_negative_check;
 }
 
 bool GOESRProduct::matchRegion(const std::vector<std::string>& regions) const {
