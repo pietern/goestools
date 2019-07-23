@@ -469,7 +469,14 @@ void GOESRImageHandler::handleImage(GOESRProduct product) {
   // combination with the LRIT ImageDataFunction to map
   // CMIP grey levels to temperature units (Kelvin), then map
   // those temperatures onto the RGB gradient.
-  auto grad = config_.gradient.find(product.getChannel().nameShort);
+  const auto& productName = product.getProduct().nameShort;
+  auto grad = config_.gradient.find(productName);
+
+  // For CMIP files we use the channel name to find the gradient.
+  if (grad == std::end(config_.gradient) && productName == "CMIP") {
+    grad = config_.gradient.find(product.getChannel().nameShort);
+  }
+
   auto idf = product.loadImageDataFunction();
 
   // This is stored in an 256x1 RGB matrix for use in Image::remap()
