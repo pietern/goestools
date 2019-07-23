@@ -30,13 +30,14 @@ int getChannelFromFileName(const std::string& fileName) {
   return -1;
 }
 
-GOESRProduct::Details loadDetails(const lrit::File& f) {
-  GOESRProduct::Details details;
+} // namespace
 
-  const auto fileName = f.getHeader<lrit::AnnotationHeader>().text;
+GOESRProduct::GOESRProduct(const std::shared_ptr<const lrit::File>& f)
+    : files_({f}) {
+  const auto fileName = f->getHeader<lrit::AnnotationHeader>().text;
   const auto fileNameParts = split(fileName, '-');
   ASSERT(fileNameParts.size() >= 4);
-  auto text = f.getHeader<lrit::AncillaryTextHeader>().text;
+  auto text = f->getHeader<lrit::AncillaryTextHeader>().text;
   auto pairs = split(text, ';');
   for (const auto& pair : pairs) {
     auto elements = split(pair, '=');
@@ -45,13 +46,13 @@ GOESRProduct::Details loadDetails(const lrit::File& f) {
     auto value = trimLeft(elements[1]);
 
     if (key == "Time of frame start") {
-      auto ok = parseTime(value, &details.frameStart);
+      auto ok = parseTime(value, &frameStart_);
       ASSERT(ok);
       continue;
     }
 
     if (key == "Satellite") {
-      details.satellite = value;
+      satellite_ = value;
 
       // First skip over non-digits.
       // Expect a value of "G16" or "G17".
@@ -59,12 +60,12 @@ GOESRProduct::Details loadDetails(const lrit::File& f) {
       while (!isdigit(ss.peek())) {
         ss.get();
       }
-      ss >> details.satelliteID;
+      ss >> satelliteID_;
       continue;
     }
 
     if (key == "Instrument") {
-      details.instrument = value;
+      instrument_ = value;
       continue;
     }
 
@@ -85,33 +86,33 @@ GOESRProduct::Details loadDetails(const lrit::File& f) {
       if (num > 0) {
         ASSERTM(num >= 1 && num <= 16, "num = ", num);
         len = snprintf(buf.data(), buf.size(), "CH%02d", num);
-        details.channel.nameShort = std::string(buf.data(), len);
+        channel_.nameShort = std::string(buf.data(), len);
         len = snprintf(buf.data(), buf.size(), "Channel %d", num);
-        details.channel.nameLong = std::string(buf.data(), len);
+        channel_.nameLong = std::string(buf.data(), len);
       }
       continue;
     }
 
     if (key == "Imaging Mode") {
-      details.imagingMode = value;
+      imagingMode_ = value;
       continue;
     }
 
     if (key == "Region") {
       if (value == "Full Disk") {
-        details.region.nameLong = "Full Disk";
-        details.region.nameShort = "FD";
+        region_.nameLong = "Full Disk";
+        region_.nameShort = "FD";
       } else if (value == "Mesoscale") {
         // The mesoscale sector number is not included in the ancillary
         // text header. If this is a CMIP file, we know which chunk of the
         // file name to check to figure out the mesoscale region. We don't
         // know if there will ever be non-CMIP mesoscale images.
         if (fileNameParts[2] == "CMIPM1") {
-          details.region.nameLong = "Mesoscale 1";
-          details.region.nameShort = "M1";
+          region_.nameLong = "Mesoscale 1";
+          region_.nameShort = "M1";
         } else if (fileNameParts[2] == "CMIPM2") {
-          details.region.nameLong = "Mesoscale 2";
-          details.region.nameShort = "M2";
+          region_.nameLong = "Mesoscale 2";
+          region_.nameShort = "M2";
         } else {
           FAILM(
               "Unable to derive product region from value \"",
@@ -125,26 +126,30 @@ GOESRProduct::Details loadDetails(const lrit::File& f) {
     }
 
     if (key == "Resolution") {
-      details.resolution = value;
+      resolution_ = value;
       continue;
     }
 
     if (key == "Segmented") {
-      details.segmented = (value == "yes");
+      segmented_ = (value == "yes");
       continue;
     }
 
     FAILM("Unhandled key in ancillary text \"", key, "\"");
   }
-
-  return details;
 }
 
-} // namespace
-
-GOESRProduct::GOESRProduct(const std::shared_ptr<const lrit::File>& f)
-  : details(loadDetails(*f)) {
-  files_.push_back(f);
+// Add file to list of segments such that the list remains sorted by
+// segment number. There are no guarantees that segment files are
+// transmitted in the order they should be processed in, so we must
+// take care they are re-ordered here.
+void GOESRProduct::add(const std::shared_ptr<const lrit::File>& f) {
+  auto s = f->getHeader<lrit::SegmentIdentificationHeader>();
+  auto pos = std::find_if(files_.begin(), files_.end(), [&s](auto tf) {
+    auto ts = tf->template getHeader<lrit::SegmentIdentificationHeader>();
+    return s.segmentNumber < ts.segmentNumber;
+  });
+  files_.insert(pos, f);
 }
 
 std::map<unsigned int, float> GOESRProduct::loadImageDataFunction() const {
@@ -207,9 +212,9 @@ FilenameBuilder GOESRProduct::getFilenameBuilder(const Config::Handler& config) 
   FilenameBuilder fb;
   fb.dir = config.dir;
   fb.filename = removeSuffix(getHeader<lrit::AnnotationHeader>().text);
-  fb.time = details.frameStart;
-  fb.region = details.region;
-  fb.channel = details.channel;
+  fb.time = frameStart_;
+  fb.region = region_;
+  fb.channel = channel_;
   return fb;
 }
 
@@ -221,21 +226,12 @@ uint16_t GOESRProduct::imageIdentifier() const {
   return sih.imageIdentifier;
 }
 
-// Add file to list of segments such that the list remains sorted by
-// segment number. There are no guarantees that segment files are
-// transmitted in the order they should be processed in, so we must
-// take care they are re-ordered here.
-void GOESRProduct::add(const std::shared_ptr<const lrit::File>& f) {
-  auto s = f->getHeader<lrit::SegmentIdentificationHeader>();
-  auto pos = std::find_if(files_.begin(), files_.end(), [&s] (auto tf) {
-      auto ts = tf->template getHeader<lrit::SegmentIdentificationHeader>();
-      return s.segmentNumber < ts.segmentNumber;
-    });
-  files_.insert(pos, f);
+bool GOESRProduct::isSegmented() const {
+  return segmented_;
 }
 
 bool GOESRProduct::isComplete() const {
-  if (!details.segmented) {
+  if (!isSegmented()) {
     return true;
   }
 
@@ -255,12 +251,43 @@ std::unique_ptr<Image> GOESRProduct::getImage(const Config::Handler& config) con
   image->fillSides();
 
   // Remap image values if configured for this channel
-  auto it = config.remap.find(details.channel.nameShort);
+  auto it = config.remap.find(channel_.nameShort);
   if (it != std::end(config.remap)) {
     image->remap(it->second);
   }
 
   return image;
+}
+
+bool GOESRProduct::matchSatelliteID(int satelliteID) const {
+  return satelliteID == satelliteID_;
+}
+
+bool GOESRProduct::matchRegion(const std::vector<std::string>& regions) const {
+  if (regions.empty()) {
+    return true;
+  }
+
+  const auto begin = std::begin(regions);
+  const auto end = std::end(regions);
+  const auto it = std::find(begin, end, region_.nameShort);
+  return it != end;
+}
+
+bool GOESRProduct::matchChannel(
+    const std::vector<std::string>& channels) const {
+  if (channels.empty()) {
+    return true;
+  }
+
+  const auto begin = std::begin(channels);
+  const auto end = std::end(channels);
+  const auto it = std::find(begin, end, channel_.nameShort);
+  return it != end;
+}
+
+std::pair<std::string, std::string> GOESRProduct::generateKey() const {
+  return std::make_pair(region_.nameShort, channel_.nameShort);
 }
 
 GOESRImageHandler::GOESRImageHandler(
@@ -320,35 +347,16 @@ void GOESRImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   }
 
   auto tmp = GOESRProduct(f);
-  auto& details = tmp.details;
 
-  // Filter by satellite
-  if (satelliteID_ != details.satelliteID) {
+  // Filter by product details
+  if (!tmp.matchSatelliteID(satelliteID_) ||
+      !tmp.matchRegion(config_.regions) ||
+      !tmp.matchChannel(config_.channels)) {
     return;
   }
 
-  // Filter by region
-  if (!config_.regions.empty()) {
-    auto begin = std::begin(config_.regions);
-    auto end = std::end(config_.regions);
-    auto it = std::find(begin, end, details.region.nameShort);
-    if (it == end) {
-      return;
-    }
-  }
-
-  // Filter by channel
-  if (!config_.channels.empty()) {
-    auto begin = std::begin(config_.channels);
-    auto end = std::end(config_.channels);
-    auto it = std::find(begin, end, details.channel.nameShort);
-    if (it == end) {
-      return;
-    }
-  }
-
   // If this is not a segmented image we can post process immediately
-  if (!details.segmented) {
+  if (!tmp.isSegmented()) {
     handleImage(std::move(tmp));
     return;
   }
@@ -360,9 +368,7 @@ void GOESRImageHandler::handle(std::shared_ptr<const lrit::File> f) {
     return;
   }
 
-  const auto& regionShort = details.region.nameShort;
-  const auto& channelShort = details.channel.nameShort;
-  const auto key = std::make_pair(regionShort, channelShort);
+  const auto key = tmp.generateKey();
 
   // Find existing product with this region and channel
   auto it = products_.find(key);
@@ -401,7 +407,6 @@ void GOESRImageHandler::handleImage(GOESRProduct product) {
     return;
   }
 
-  const auto& details = product.details;
   auto image = product.getImage(config_);
   auto fb = product.getFilenameBuilder(config_);
 
@@ -409,7 +414,7 @@ void GOESRImageHandler::handleImage(GOESRProduct product) {
   // combination with the LRIT ImageDataFunction to map
   // CMIP grey levels to temperature units (Kelvin), then map
   // those temperatures onto the RGB gradient.
-  auto grad = config_.gradient.find(details.channel.nameShort);
+  auto grad = config_.gradient.find(product.getChannel().nameShort);
   auto idf = product.loadImageDataFunction();
 
   // This is stored in an 256x1 RGB matrix for use in Image::remap()
@@ -436,7 +441,7 @@ void GOESRImageHandler::handleImage(GOESRProduct product) {
 void GOESRImageHandler::handleImageForFalseColor(GOESRProduct p1) {
   Timer t;
 
-  const auto key = p1.details.region.nameShort;
+  const auto key = p1.getRegion().nameShort;
   if (falseColor_.find(key) == falseColor_.end()) {
     falseColor_[key] = std::move(p1);
     return;
@@ -448,20 +453,20 @@ void GOESRImageHandler::handleImageForFalseColor(GOESRProduct p1) {
   falseColor_.erase(key);
 
   // Verify that observation time is identical.
-  if (p0.details.frameStart.tv_sec != p1.details.frameStart.tv_sec) {
+  if (p0.getFrameStart().tv_sec != p1.getFrameStart().tv_sec) {
     falseColor_[key] = std::move(p1);
     return;
   }
 
   // If the channels are the same, there has been duplication on the
   // packet stream and we can ignore the latest one.
-  if (p0.details.channel.nameShort == p1.details.channel.nameShort) {
+  if (p0.getChannel().nameShort == p1.getChannel().nameShort) {
     falseColor_[key] = std::move(p0);
     return;
   }
 
   // Swap if ordering of products doesn't match ordering of channels
-  if (p0.details.channel.nameShort != config_.channels.front()) {
+  if (p0.getChannel().nameShort != config_.channels.front()) {
     std::swap(p0, p1);
   }
 

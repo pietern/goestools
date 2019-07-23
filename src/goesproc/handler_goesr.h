@@ -15,25 +15,11 @@ public:
 
   explicit GOESRProduct(const std::shared_ptr<const lrit::File>& f);
 
-  // GOES-R LRIT image files contain key/value pairs in the ancillary
-  // text header. This struct lists the set of observed keys.
-  struct Details {
-    struct timespec frameStart;
-    Region region;
-    Channel channel;
-    std::string satellite;
-    int satelliteID;
-    std::string instrument;
-    std::string imagingMode;
-    std::string resolution;
-    bool segmented;
-  };
-
-  Details details;
-
   const lrit::File& firstFile() const {
     return *files_.front();
   }
+
+  void add(const std::shared_ptr<const lrit::File>& f);
 
   template <typename H>
   bool hasHeader() const {
@@ -51,14 +37,47 @@ public:
 
   uint16_t imageIdentifier() const;
 
-  void add(const std::shared_ptr<const lrit::File>& f);
+  bool isSegmented() const;
 
   bool isComplete() const;
 
   std::unique_ptr<Image> getImage(const Config::Handler& config) const;
 
+  bool matchSatelliteID(int satelliteID) const;
+
+  bool matchRegion(const std::vector<std::string>& regions) const;
+
+  bool matchChannel(const std::vector<std::string>& regions) const;
+
+  std::pair<std::string, std::string> generateKey() const;
+
+  const struct timespec getFrameStart() const {
+    return frameStart_;
+  }
+
+  const Region& getRegion() const {
+    return region_;
+  }
+
+  const Channel& getChannel() const {
+    return channel_;
+  }
+
 protected:
   std::vector<std::shared_ptr<const lrit::File>> files_;
+
+  // GOES-R LRIT image files contain key/value pairs in the ancillary
+  // text header. These fields list the set of observed keys, as well
+  // as other information describing the nature of the file(s).
+  struct timespec frameStart_;
+  Region region_;
+  Channel channel_;
+  std::string satellite_;
+  int satelliteID_{-1};
+  std::string instrument_;
+  std::string imagingMode_;
+  std::string resolution_;
+  bool segmented_{false};
 };
 
 class GOESRImageHandler : public Handler {
