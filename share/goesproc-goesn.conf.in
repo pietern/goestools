@@ -59,7 +59,7 @@
 # Store original GOES-13 full disks.
 [[handler]]
 type = "image"
-product = "goes13"
+origin = "goes13"
 regions = [ "fd" ]
 directory = "./goes13/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES13_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
@@ -69,7 +69,7 @@ format = "jpg"
 # Store original GOES-13 northern hemisphere region
 [[handler]]
 type = "image"
-product = "goes13"
+origin = "goes13"
 regions = [ "nh" ]
 directory = "./goes13/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES13_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
@@ -79,7 +79,7 @@ format = "jpg"
 # Store original GOES-13 southern hemisphere region
 [[handler]]
 type = "image"
-product = "goes13"
+origin = "goes13"
 regions = [ "sh" ]
 directory = "./goes13/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES13_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
@@ -89,7 +89,7 @@ format = "jpg"
 # Store original GOES-13 US region
 [[handler]]
 type = "image"
-product = "goes13"
+origin = "goes13"
 regions = [ "us" ]
 directory = "./goes13/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES13_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
@@ -100,7 +100,7 @@ format = "jpg"
 # No crop specified because it is expected to move around
 [[handler]]
 type = "image"
-product = "goes13"
+origin = "goes13"
 regions = [ "si00", "si01", "si02", "si03", "si04" ]
 directory = "./goes13/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES13_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
@@ -109,7 +109,7 @@ format = "jpg"
 # Store original GOES-15 full disks
 [[handler]]
 type = "image"
-product = "goes15"
+origin = "goes15"
 regions = [ "fd" ]
 directory = "./goes15/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES15_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
@@ -125,7 +125,7 @@ format = "jpg"
 # Store original GOES-15 northern hemisphere region
 [[handler]]
 type = "image"
-product = "goes15"
+origin = "goes15"
 regions = [ "nh" ]
 directory = "./goes15/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES15_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
@@ -141,7 +141,7 @@ format = "jpg"
 # Store original GOES-15 southern hemisphere region
 [[handler]]
 type = "image"
-product = "goes15"
+origin = "goes15"
 regions = [ "sh" ]
 directory = "./goes15/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES15_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
@@ -157,7 +157,7 @@ format = "jpg"
 # Store original GOES-15 US region
 [[handler]]
 type = "image"
-product = "goes15"
+origin = "goes15"
 regions = [ "us" ]
 directory = "./goes15/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES15_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
@@ -174,7 +174,7 @@ format = "jpg"
 # No crop specified because it is expected to move around
 [[handler]]
 type = "image"
-product = "goes15"
+origin = "goes15"
 regions = [ "si00", "si01", "si02", "si03", "si04" ]
 directory = "./goes15/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES15_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
@@ -192,7 +192,7 @@ format = "jpg"
 # typically contain it.
 [[handler]]
 type = "image"
-product = "goes13"
+origin = "goes13"
 regions = [ "fd", "nh", "us" ]
 crop = [ -1574, 602, -1202, -382 ]
 directory = "./goes13/combine-north/{time:%Y-%m-%d}"
@@ -204,7 +204,7 @@ format = "jpg"
 # southern hemisphere.
 [[handler]]
 type = "image"
-product = "goes13"
+origin = "goes13"
 regions = [ "fd", "sh" ]
 crop = [ -1574, 1889, 506, 1074 ]
 directory = "./goes13/combine-south/{time:%Y-%m-%d}"
@@ -217,7 +217,7 @@ format = "jpg"
 # US crop regions.
 [[handler]]
 type = "image"
-product = "goes15"
+origin = "goes15"
 regions = [ "fd", "nh", "us" ]
 crop = [ -1312, 1447, -1327, -345 ]
 directory = "./goes15/combine-north/{time:%Y-%m-%d}"
@@ -235,7 +235,7 @@ format = "jpg"
 # southern hemisphere.
 [[handler]]
 type = "image"
-product = "goes15"
+origin = "goes15"
 regions = [ "fd", "sh" ]
 crop = [ -1864, 896, -19, 1043 ]
 directory = "./goes15/combine-south/{time:%Y-%m-%d}"
@@ -251,7 +251,7 @@ format = "jpg"
 # Images relayed from Himawari-8.
 [[handler]]
 type = "image"
-product = "himawari8"
+origin = "himawari8"
 directory = "./himawari8/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "Himawari8_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
 format = "jpg"
@@ -265,14 +265,14 @@ format = "jpg"
 # NWS text (weather reports).
 [[handler]]
 type = "text"
-product = "nws"
+origin = "nws"
 directory = "./nws/{time:%Y-%m-%d}"
 filename = "{time:%Y%m%dT%H%M%SZ}_{awips:nnn}{awips:xxx}"
 
 # NWS images.
 [[handler]]
 type = "image"
-product = "nws"
+origin = "nws"
 directory = "./nws/{time:%Y-%m-%d}"
 filename = "{time:%Y%m%dT%H%M%SZ}_{filename}"
 format = "png"
@@ -280,6 +280,6 @@ format = "png"
 # Miscellaneous text.
 [[handler]]
 type = "text"
-product = "other"
+origin = "other"
 directory = "./text/{time:%Y-%m-%d}"
 filename = "{time:%Y%m%dT%H%M%SZ}_{filename}"

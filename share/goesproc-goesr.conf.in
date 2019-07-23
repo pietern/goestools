@@ -4,7 +4,7 @@
 # Store all original GOES-16 products.
 [[handler]]
 type = "image"
-product = "goes16"
+origin = "goes16"
 directory = "./goes16/{region:short|lower}/{channel:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES16_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
 format = "jpg"
@@ -19,7 +19,7 @@ json = false
 # Store all original GOES-17 products.
 [[handler]]
 type = "image"
-product = "goes17"
+origin = "goes17"
 directory = "./goes17/{region:short|lower}/{channel:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES17_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
 format = "jpg"
@@ -34,7 +34,7 @@ json = false
 # GOES-16 ABI false color.
 [[handler]]
 type = "image"
-product = "goes16"
+origin = "goes16"
 regions = [ "fd", "m1", "m2" ]
 channels = [ "ch02", "ch13" ]
 directory = "./goes16/{region:short|lower}/fc/{time:%Y-%m-%d}"
@@ -57,7 +57,7 @@ json = false
 # GOES-16 ABI RGB-enhanced
 [[handler]]
 type = "image"
-product = "goes16"
+origin = "goes16"
 regions = [ "fd", "m1", "m2" ]
 channels = [ "ch07", "ch08", "ch09", "ch13", "ch14", "ch15" ]
 directory = "./goes16/{region:short|lower}/{channel:short|lower}_enhanced/{time:%Y-%m-%d}"
@@ -157,7 +157,7 @@ json = false
 # GOES-17 ABI false color.
 [[handler]]
 type = "image"
-product = "goes17"
+origin = "goes17"
 regions = [ "fd", "m1", "m2" ]
 channels = [ "ch02", "ch13" ]
 directory = "./goes17/{region:short|lower}/fc/{time:%Y-%m-%d}"
@@ -182,7 +182,7 @@ json = false
 # Images relayed from Himawari-8.
 [[handler]]
 type = "image"
-product = "himawari8"
+origin = "himawari8"
 directory = "./himawari8/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "Himawari8_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
 format = "jpg"
@@ -197,7 +197,7 @@ json = false
 # NWS text (weather reports).
 [[handler]]
 type = "text"
-product = "nws"
+origin = "nws"
 directory = "./nws/{time:%Y-%m-%d}"
 filename = "{time:%Y%m%dT%H%M%SZ}_{awips:nnn}{awips:xxx}"
 json = false
@@ -205,7 +205,7 @@ json = false
 # NWS images.
 [[handler]]
 type = "image"
-product = "nws"
+origin = "nws"
 directory = "./nws/{time:%Y-%m-%d}"
 filename = "{time:%Y%m%dT%H%M%SZ}_{filename}"
 format = "png"
@@ -214,7 +214,7 @@ json = false
 # Miscellaneous text.
 [[handler]]
 type = "text"
-product = "other"
+origin = "other"
 directory = "./text/{time:%Y-%m-%d}"
 filename = "{time:%Y%m%dT%H%M%SZ}_{filename}"
 json = false
@@ -222,7 +222,7 @@ json = false
 # Store relayed GOES-15 full disks
 [[handler]]
 type = "image"
-product = "goes15"
+origin = "goes15"
 regions = [ "fd" ]
 directory = "./goes15/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES15_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
@@ -239,7 +239,7 @@ json = false
 # Store relayed GOES-15 northern hemisphere region
 [[handler]]
 type = "image"
-product = "goes15"
+origin = "goes15"
 regions = [ "nh" ]
 directory = "./goes15/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES15_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
@@ -256,7 +256,7 @@ json = false
 # Store relayed GOES-15 southern hemisphere region
 [[handler]]
 type = "image"
-product = "goes15"
+origin = "goes15"
 regions = [ "sh" ]
 directory = "./goes15/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES15_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
@@ -273,7 +273,7 @@ json = false
 # Store relayed GOES-15 US region
 [[handler]]
 type = "image"
-product = "goes15"
+origin = "goes15"
 regions = [ "us" ]
 directory = "./goes15/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES15_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
@@ -291,7 +291,7 @@ json = false
 # No crop specified because it is expected to move around
 [[handler]]
 type = "image"
-product = "goes15"
+origin = "goes15"
 regions = [ "si00", "si01", "si02", "si03", "si04" ]
 directory = "./goes15/{region:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES15_{region:short}_{channel:short}_{time:%Y%m%dT%H%M%SZ}"
@@ -310,7 +310,7 @@ json = false
 # US crop regions.
 [[handler]]
 type = "image"
-product = "goes15"
+origin = "goes15"
 regions = [ "fd", "nh", "us" ]
 crop = [ -1312, 1447, -1327, -345 ]
 directory = "./goes15/combine-north/{time:%Y-%m-%d}"
@@ -329,7 +329,7 @@ json = false
 # southern hemisphere.
 [[handler]]
 type = "image"
-product = "goes15"
+origin = "goes15"
 regions = [ "fd", "sh" ]
 crop = [ -1864, 896, -19, 1043 ]
 directory = "./goes15/combine-south/{time:%Y-%m-%d}"

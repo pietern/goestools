@@ -302,9 +302,9 @@ GOESRImageHandler::GOESRImageHandler(
     channel = toUpper(channel);
   }
 
-  if (config_.product == "goes16") {
+  if (config_.origin == "goes16") {
     satelliteID_ = 16;
-  } else if (config_.product == "goes17") {
+  } else if (config_.origin == "goes17") {
     satelliteID_ = 17;
   } else {
     ASSERT(false);

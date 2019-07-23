@@ -61,9 +61,9 @@ GOESNImageHandler::GOESNImageHandler(
     channel = toUpper(channel);
   }
 
-  if (config_.product == "goes13") {
+  if (config_.origin == "goes13") {
     productID_ = 13;
-  } else if (config_.product == "goes15") {
+  } else if (config_.origin == "goes15") {
     productID_ = 15;
   } else {
     ASSERT(false);

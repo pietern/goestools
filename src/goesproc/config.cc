@@ -98,9 +98,30 @@ bool loadHandlers(const toml::Value& v, Config& out) {
     Config::Handler h;
     h.type = th->get<std::string>("type");
 
-    auto product = th->find("product");
-    if (product) {
-      h.product = product->as<std::string>();
+    // Singular product was renamed to "origin", to accommodate
+    // filtering by GOES-R ABI Level 2+ __products__. If we see it
+    // anyway, assume we're dealing with an older configuration, and
+    // load it into the "origin" field for backwards compatibility.
+    {
+      const auto deprecated_product = th->find("product");
+      if (deprecated_product) {
+        h.origin = deprecated_product->as<std::string>();
+      }
+    }
+
+    {
+      const auto origin = th->find("origin");
+      if (origin) {
+        if (!h.origin.empty()) {
+          out.ok = false;
+          out.error =
+            "You specified both \"product\" and \"origin\". "
+            "The \"product\" field was renamed to \"origin\". "
+            "Please update your configuration file accordingly.";
+          return false;
+        }
+        h.origin = origin->as<std::string>();
+      }
     }
 
     // Singular region is the old way to filter

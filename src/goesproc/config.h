@@ -27,7 +27,8 @@ struct Config {
     std::string type;
 
     // "goes16", "himawari8", "nws", ...
-    std::string product;
+    std::string origin;
+
 
     // "fd", "m1", "m2", "nh", "us", ...
     std::vector<std::string> regions;
