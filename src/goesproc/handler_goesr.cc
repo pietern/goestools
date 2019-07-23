@@ -319,8 +319,8 @@ bool GOESRProduct::matchChannel(
   return it != end;
 }
 
-std::pair<std::string, std::string> GOESRProduct::generateKey() const {
-  return std::make_pair(region_.nameShort, channel_.nameShort);
+SegmentKey GOESRProduct::generateKey() const {
+  return std::make_tuple(product_.nameShort, region_.nameShort, channel_.nameShort);
 }
 
 GOESRImageHandler::GOESRImageHandler(

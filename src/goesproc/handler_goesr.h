@@ -51,7 +51,7 @@ public:
 
   bool matchChannel(const std::vector<std::string>& regions) const;
 
-  std::pair<std::string, std::string> generateKey() const;
+  SegmentKey generateKey() const;
 
   const struct timespec getFrameStart() const {
     return frameStart_;

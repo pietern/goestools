@@ -110,7 +110,7 @@ void GOESNImageHandler::handle(std::shared_ptr<const lrit::File> f) {
   }
 
   auto sih = f->getHeader<lrit::SegmentIdentificationHeader>();
-  auto key = std::make_pair(region.nameShort, channel.nameShort);
+  auto key = std::make_tuple("unused", region.nameShort, channel.nameShort);
   auto& vector = segments_[key];
 
   // Ensure we can append this segment
