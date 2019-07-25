@@ -154,6 +154,170 @@ json = false
   [[handler.map]]
   path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_1_states_provinces_lakes.json"
 
+# GOES-16 ABI Non-CMIP RGB-enhanced (Black Borders)
+[[handler]]
+type = "image"
+origin = "goes16"
+products = [ "sst", "lst", "dsi", "tpw" ]
+directory = "./goes16/non-cmip/{region:short|lower}/{product:short|lower}/{time:%Y-%m-%d}"
+filename = "GOES16_{region:short}_{product:short}_{time:%Y%m%dT%H%M%SZ}"
+format = "jpg"
+json = false
+
+  [[handler.map]]
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_0_countries_lakes.json"
+  color = "#000000"
+
+  [[handler.map]]
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_1_states_provinces_lakes.json"
+  color = "#000000"
+
+  ## The following gradients are rough approximations of the 
+  ## McIDAS RGB enhancements used by NOAA/NESDIS/STAR on their site..
+  ##
+  ## For more info:
+  ##
+  ## https://www.ospo.noaa.gov/data/sst/contour/global.cf.gif (SST)
+  ## https://www.goes-r.gov/products/baseline-LST.html (LST)
+  ## http://cimss.ssec.wisc.edu/goes/OCLOFactSheetPDFs/ABIQuickGuide_BaselineDerivedStabilityIndices.pdf (DSI)
+  ## https://www.goes-r.gov/products/baseline-total-precipitable-water.html (TPW)
+
+  # Skin Sea Surface Temperature (Degrees K)
+  [handler.gradient.SST]
+  points = [
+    { units = 180, color = "#ffffff" },
+    { units = 270.65, color = "#ffffff" },
+    { units = 273.25, color = "#b005c6" },
+    { units = 275.5, color = "#8f06e4" },
+    { units = 277.75, color = "#6c1ff7" },
+    { units = 280, color = "#486afa" },
+    { units = 282.25, color = "#24b4fc" },
+    { units = 284.5, color = "#00ffff" },
+    { units = 287.25, color = "#00e696" },
+    { units = 289, color = "#00d54b" },
+    { units = 291.3, color = "#0cc600" },
+    { units = 293.6, color = "#59d800" },
+    { units = 295.85, color = "#a5ea00" },
+    { units = 298.1, color = "#f2fc00" },
+    { units = 300.35, color = "#ffc900" },
+    { units = 302.6, color = "#ff9400" },
+    { units = 304.85, color = "#ff5500" },
+    { units = 307.1, color = "#ff1500" },
+    { units = 340, color = "#ffffff" }
+  ]
+
+  # Skin Land Surface Temperature (Degrees K)
+  [handler.gradient.LST]
+  points = [
+    { units = 215, color = "#102469" },
+    { units = 220, color = "#0002b5" },
+    { units = 240, color = "#0359fa" },
+    { units = 260, color = "#03eee9" },
+    { units = 280, color = "#87f36c" },
+    { units = 300, color = "#fee502" },
+    { units = 320, color = "#f34900" },
+    { units = 342, color = "#7f1100" },
+    { units = 353, color = "#ffffff" }
+  ]
+
+  # CAPE Derived Stability Index (Joules/kg)
+  [handler.gradient.DSI]
+  points = [
+    { units = 0, color = "#543e20" },
+    { units = 500, color = "#a58154" },
+    { units = 750, color = "#cfa370" },
+    { units = 1000, color = "#c3afc2" },
+    { units = 1500, color = "#8181c5" },
+    { units = 1750, color = "#6363a3" },
+    { units = 2000, color = "#969656" },
+    { units = 2500, color = "#fffc02" },
+    { units = 2750, color = "#ffd327" },
+    { units = 3000, color = "#ff9063" },
+    { units = 3500, color = "#ff231e" },
+    { units = 4000, color = "#b10032" },
+    { units = 4250, color = "#680063" },
+    { units = 4500, color = "#8d0090" },
+    { units = 4961.3914, color = "#ea00ef" },
+    { units = 4980.9245, color = "#000000" }
+  ]
+
+  # Total Precipitable Water (mm)
+  [handler.gradient.TPW]
+  points = [
+    { units = 0, color = "#3a290b" },
+    { units = 11, color = "#d1a777" },
+    { units = 12, color = "#8999ee" },
+    { units = 22, color = "#584c96" },
+    { units = 23, color = "#9a6a5c" },
+    { units = 32, color = "#72a429" },
+    { units = 33, color = "#97c03c" },
+    { units = 43, color = "#f4fe00" },
+    { units = 44, color = "#fd775e" },
+    { units = 53, color = "#982a19" },
+    { units = 54, color = "#6f0069" },
+    { units = 65, color = "#fb00ee" },
+    { units = 66, color = "#ffc8ff" },
+    { units = 69, color = "#f0bbef" },
+    { units = 99, color = "#f069ef" },
+    { units = 99.6187, color = "#ffffff" },
+  ]
+
+# GOES-16 ABI Non-CMIP RGB-enhanced (White Borders)
+[[handler]]
+type = "image"
+origin = "goes16"
+products = [ "rrqpe", "acht" ]
+directory = "./goes16/non-cmip/{region:short|lower}/{product:short|lower}/{time:%Y-%m-%d}"
+filename = "GOES16_{region:short}_{product:short}_{time:%Y%m%dT%H%M%SZ}"
+format = "jpg"
+json = false
+
+  [[handler.map]]
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_0_countries_lakes.json"
+
+  [[handler.map]]
+  path = "${CMAKE_INSTALL_PREFIX}/share/goestools/ne/ne_50m_admin_1_states_provinces_lakes.json"
+
+  ## The following gradients are rough approximations of the 
+  ## McIDAS RGB enhancements used by NOAA/NESDIS/STAR on their site..
+  ##
+  ## For more info:
+  ##
+  ## https://www.goes-r.gov/products/baseline-rainfall-rate-qpe.html (RRQPE)
+  ## https://cimss.ssec.wisc.edu/goes/blog/archives/32657 (ACHT)
+
+  # Rainfall Rate (mm/hr)
+  [handler.gradient.RRQPE]
+  points = [
+    { units = 0, color = "#000000" },
+    { units = 6.35, color = "#303030" },
+    { units = 12.6, color = "#303030" },
+    { units = 12.7, color = "#009cff" },
+    { units = 25.3, color = "#050dc8" },
+    { units = 25.4, color = "#36ef31" },
+    { units = 38.1, color = "#1e8f01" },
+    { units = 40.64, color = "#fff92e" },
+    { units = 50.8, color = "#f23027" },
+    { units = 53.34, color = "#ff00f8" },
+    { units = 63.5, color = "#c168c6" },
+    { units = 66.04, color = "#fcfcfc" },
+    { units = 100, color = "#ffffff" }
+  ]
+
+  # Cloud top Height (Degrees K)
+  [handler.gradient.ACHT]
+   points = [
+    { units = 180, color = "#000000" },
+    { units = 193, color = "#ffe300" },
+    { units = 213, color = "#81ff00" },
+    { units = 233, color = "#00ff23" },
+    { units = 253, color = "#00ffbb" },
+    { units = 273, color = "#00abff" },
+    { units = 293, color = "#0011ff" },
+    { units = 313, color = "#7500eb" },
+    { units = 321, color = "#000000" },
+  ]
+
 # GOES-17 ABI false color.
 [[handler]]
 type = "image"
