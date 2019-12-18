@@ -2,6 +2,10 @@
 
 #include <algorithm>
 
+#ifdef BUILD_UHD
+#include "uhd_source.h"
+#endif
+
 #ifdef BUILD_AIRSPY
 #include "airspy_source.h"
 #endif
@@ -15,6 +19,35 @@
 std::unique_ptr<Source> Source::build(
     const std::string& type,
     Config& config) {
+    if (type == "uhd") {
+#ifdef BUILD_UHD
+        auto uhd = UHD::open( config.uhd.type );
+
+        // Use sample rate if set, otherwise default to lowest possible rate.
+        auto rates = uhd->getSampleRates();
+
+        // Use sample rate if set, otherwise default to 2.4MSPS.
+        if (config.uhd.sampleRate != 0) {
+            uhd->setSampleRate(config.uhd.sampleRate);
+        } else {
+            uhd->setSampleRate(2400000);
+        }
+
+        uhd->setFrequency(config.uhd.frequency);
+        uhd->setGain(config.uhd.gain);
+        uhd->setSamplePublisher(std::move(config.airspy.samplePublisher));
+
+        return std::unique_ptr<Source>(uhd.release());
+#else
+        throw std::runtime_error(
+            "You configured goesrecv to use the \"uhd\" source, "
+            "but goesrecv was not compiled with UHD support. "
+            "Make sure to install the UHD library before compiling goestools, "
+            "and look for a message saying 'Found uhd' when running cmake."
+        );
+#endif
+    }
+
   if (type == "airspy") {
 #ifdef BUILD_AIRSPY
     auto airspy = Airspy::open();
