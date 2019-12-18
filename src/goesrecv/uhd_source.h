@@ -23,45 +23,39 @@ class UHD : public Source
 
         ~UHD( );
 
-        std::vector<uint32_t> getSampleRates( ) const
-        {
-            return sampleRates_;
-        }
-
         void setFrequency( uint32_t freq );
 
+        // Also sets the bandwidth to match
         void setSampleRate( uint32_t rate );
 
+        // Reads the current sample rate setting from the device
         virtual uint32_t getSampleRate( ) const override;
 
         void setGain( int gain );
-
-        // void setBiasTee( bool on );
 
         void setSamplePublisher( std::unique_ptr<SamplePublisher> samplePublisher )
         {
             samplePublisher_ = std::move( samplePublisher );
         }
 
+        // Starts the sample streaming loop
         virtual void start( const std::shared_ptr<Queue<Samples>> &queue ) override;
 
+        // Stops the sample streaming loop
         virtual void stop( ) override;
 
     protected:
 
+        // When set to false the sample streaming loop exits
         bool running;
 
+        // A reference to the device
         uhd::usrp::multi_usrp::sptr dev_;
-
-        std::vector<uint32_t> loadSampleRates( );
-
-        std::vector<uint32_t> sampleRates_;
-
-        std::uint32_t sampleRate_;
 
         // Background RX thread
         std::thread thread_;
 
+        // Copies samples from our internal buffer into the application's queue
         virtual void transfer_buffer( std::vector<std::complex<float>> transfer, size_t num_rx_samps );
 
         // Set on start; cleared on stop

@@ -43,7 +43,7 @@ std::unique_ptr<UHD> UHD::open( std::string type )
 
     std::cout << std::endl << "Using Device " << dev->get_pp_string( ) << std::endl;
 
-    // Lock mboard clocks
+    // Select the internal clock source
     dev->set_clock_source( "internal" );
 
     return std::make_unique<UHD>( dev );
@@ -51,18 +51,12 @@ std::unique_ptr<UHD> UHD::open( std::string type )
 
 UHD::UHD( uhd::usrp::multi_usrp::sptr dev ) : dev_( dev )
 {
-    // Load list of supported sample rates
-    sampleRates_ = loadSampleRates( );
+    // Perform necessary constructor operations here
 }
 
 UHD::~UHD( )
 {
-
-}
-
-std::vector<uint32_t> UHD::loadSampleRates( )
-{
-    return { 200000, 250000, 2000000, 8000000, 10000000, 12500000, 16000000, 20000000, 56000000 };
+    // Perform necessary destructor operations here
 }
 
 void UHD::setFrequency( uint32_t freq )
@@ -82,13 +76,13 @@ void UHD::setSampleRate( uint32_t rate )
 
     // Set the bandwidth to match the sample rate
     dev_->set_rx_bandwidth( rate );
-
-    sampleRate_ = rate;
 }
 
 uint32_t UHD::getSampleRate( ) const
 {
-    return sampleRate_;
+    ASSERT( dev_ != nullptr );
+
+    return dev_->get_rx_rate( );
 }
 
 void UHD::setGain( int gain )
@@ -102,56 +96,73 @@ void UHD::start( const std::shared_ptr<Queue<Samples>> &queue )
 {
     ASSERT( dev_ != nullptr );
 
+    // This is the application's sample queue
     queue_ = queue;
 
     thread_ = std::thread( [&] {
 
+        // The streamming loop continues to run as long as this is true
         running = true;
 
-        size_t num_acc_samps = 0; // number of accumulated samples
+        // Keep track of the total accumulated samples
+        size_t num_acc_samps = 0;
 
-        // set the antenna
+        // Set the antenana for receiving our signal
         dev_->set_rx_antenna( "TX/RX" );
 
-        std::this_thread::sleep_for( std::chrono::seconds( 1 ) ); // allow for some setup time
+        // Check sensors for a local oscillator
+         std::vector<std::string> sensor_names = dev_->get_rx_sensor_names( 0 );
 
-        // Check Ref and LO Lock detect
-        std::vector<std::string> sensor_names;
-
-        sensor_names = dev_->get_rx_sensor_names( 0 );
-
+        // If a local oscillator exists, make sure it's locked
         if ( std::find( sensor_names.begin( ), sensor_names.end( ), "lo_locked" ) != sensor_names.end( ) )
         {
-            uhd::sensor_value_t lo_locked = dev_->get_rx_sensor( "lo_locked", 0 );
+            std::cout << std::endl << "-- Found a local oscillator" << std::endl;
 
-            std::cout << std::endl << "Checking RX: " << lo_locked.to_pp_string( ) << std::endl << std::endl;
+            int lock_attempts = 0;
 
-            UHD_ASSERT_THROW( lo_locked.to_bool( ) );
+            do
+            {
+                if ( lock_attempts++ > 3 ) // Abort after three attempts
+                {
+                    std::cout << "Unable to lock local oscillator" << std::endl;
+
+                    exit( 1 );
+                }
+
+                // Allow the front end time to settle
+                std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
+            }
+            while ( not dev_->get_rx_sensor( "lo_locked" ).to_bool( ) );
+
+            std::cout << "-- Local oscillator locked" << std::endl << std::endl;
         }
 
-        sensor_names = dev_->get_mboard_sensor_names( 0 );
-
-        // create a receive streamer of complex floats
+        // Specify that we want to receive samples as a pair of 16 bit complex foats
         uhd::stream_args_t stream_args( "fc32" );
 
+        // Create a receive stream
         uhd::rx_streamer::sptr rx_stream = dev_->get_rx_stream( stream_args );
 
-        // setup streaming
+        // Create a stream command that will start immediately and run continuously
         uhd::stream_cmd_t stream_cmd_start( uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS );
 
         stream_cmd_start.stream_now = true;
 
+        // Start streaming
         rx_stream->issue_stream_cmd( stream_cmd_start );
 
+        // Holds stream metadata, such as error codes
         uhd::rx_metadata_t md;
 
+        // Create an internal buffer to hold received samples
         std::vector<std::complex<float>> buff( rx_stream->get_max_num_samps( ) * 2 );
 
         while ( running )
         {
+            // Read samples from the device and into our buffer
             size_t num_rx_samps = rx_stream->recv( &buff.front( ), buff.size( ), md );
 
-            // handle the error codes
+            // Handle any error codes we receive
             switch ( md.error_code )
             {
                 case uhd::rx_metadata_t::ERROR_CODE_NONE:
@@ -180,6 +191,7 @@ void UHD::start( const std::shared_ptr<Queue<Samples>> &queue )
                     goto done_loop;
             }
 
+            // Copies samples from our internal buffer into the application's queue
             transfer_buffer( buff, num_rx_samps );
 
 #ifdef HANDLEIT
@@ -247,7 +259,7 @@ void UHD::stop( )
 {
     ASSERT( dev_ != nullptr );
 
-    // cause the recieve loop to exit
+    // Causes the sample streaming loop to exit
     running = false;
 
     // Wait for thread to terminate
@@ -260,6 +272,7 @@ void UHD::stop( )
     queue_.reset( );
 }
 
+// Copies samples from our internal buffer into the application's queue
 void UHD::transfer_buffer( std::vector<std::complex<float>> transfer, size_t num_rx_samps )
 {
     // Expect multiple of 2
@@ -274,6 +287,7 @@ void UHD::transfer_buffer( std::vector<std::complex<float>> transfer, size_t num
 
     for ( int i = 0; i < int( num_rx_samps ); i++ )
     {
+        // std::cout << "real " << real( transfer[i] ) << " imag " << imag( transfer[i] ) << std::endl;
         p[i] = transfer[i];
     }
 

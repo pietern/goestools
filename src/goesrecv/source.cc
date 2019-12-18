@@ -24,7 +24,7 @@ std::unique_ptr<Source> Source::build(
         auto uhd = UHD::open( config.uhd.type );
 
         // Use sample rate if set, otherwise default to lowest possible rate.
-        auto rates = uhd->getSampleRates();
+        // auto rates = uhd->getSampleRates();
 
         // Use sample rate if set, otherwise default to 2.4MSPS.
         if (config.uhd.sampleRate != 0) {
