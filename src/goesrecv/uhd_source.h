@@ -1,17 +1,13 @@
 #pragma once
 
 #include <stdint.h>
-
 #include <memory>
 #include <thread>
 #include <vector>
-
 #include <uhd.h>
 #include <uhd/exception.hpp>
 #include <uhd/usrp/multi_usrp.hpp>
 #include <uhd/utils/safe_main.hpp>
-
-
 #include "source.h"
 
 class UHD : public Source
