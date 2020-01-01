@@ -35,7 +35,7 @@ std::unique_ptr<Source> Source::build(
 
         uhd->setFrequency(config.uhd.frequency);
         uhd->setGain(config.uhd.gain);
-        uhd->setSamplePublisher(std::move(config.airspy.samplePublisher));
+        uhd->setSamplePublisher(std::move(config.uhd.samplePublisher));
 
         return std::unique_ptr<Source>(uhd.release());
 #else
