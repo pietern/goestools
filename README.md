@@ -30,8 +30,7 @@ Bundled dependencies:
 
 Ettus Research USRP dependencies (required when building USRP support)
 
-* libuhd-dev
-* libuhd003.010.003
+* libuhd
 * libboost
 
 ## Build
