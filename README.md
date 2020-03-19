@@ -31,7 +31,7 @@ Bundled dependencies:
 ## Build
 
 ``` shell
-git clone https://github.com/pietern/goestools
+git clone --recurse-submodules https://github.com/pietern/goestools
 cd goestools
 mkdir -p build
 cd build
