@@ -135,7 +135,13 @@ GOESRProduct::GOESRProduct(const std::shared_ptr<const lrit::File>& f)
       continue;
     }
 
-    FAILM("Unhandled key in ancillary text \"", key, "\"");
+    // New keys were added to this map which tripped this assert.
+    // Started happening on Apr 2, 2020. If these contain useful
+    // information, we can choose to properly process them at a
+    // later point in time. Until then, ignore them.
+    //
+    //   FAILM("Unhandled key in ancillary text \"", key, "\"");
+    //
   }
 
   // The product name is encoded in the file name only.
