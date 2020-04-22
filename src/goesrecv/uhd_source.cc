@@ -124,7 +124,7 @@ void UHD::start(const std::shared_ptr<Queue<Samples>> &queue) {
         }
 
         // Specify that we want to receive samples as a pair of 16 bit complex
-        // foats
+        // floats
         uhd::stream_args_t stream_args("fc32");
 
         // Create a receive stream
