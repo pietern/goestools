@@ -266,7 +266,7 @@ json = false
 [[handler]]
 type = "image"
 origin = "goes16"
-products = [ "rrqpe", "acht" ]
+products = [ "rrqpe", "acht", "acha" ]
 directory = "./goes16/non-cmip/{region:short|lower}/{product:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES16_{region:short}_{product:short}_{time:%Y%m%dT%H%M%SZ}"
 format = "jpg"
@@ -285,6 +285,7 @@ json = false
   ##
   ## https://www.goes-r.gov/products/baseline-rainfall-rate-qpe.html (RRQPE)
   ## https://cimss.ssec.wisc.edu/goes/blog/archives/32657 (ACHT)
+  ## http://cimss.ssec.wisc.edu/goes/OCLOFactSheetPDFs/ABIQuickGuide_BaselineCloudTopHeight.pdf (ACHA)
 
   # Rainfall Rate (mm/hr)
   [handler.gradient.RRQPE]
@@ -304,7 +305,7 @@ json = false
     { units = 100, color = "#ffffff" }
   ]
 
-  # Cloud top Height (Degrees K)
+  # Cloud Top Temperature (Degrees K)
   [handler.gradient.ACHT]
    points = [
     { units = 180, color = "#000000" },
@@ -316,6 +317,20 @@ json = false
     { units = 293, color = "#0011ff" },
     { units = 313, color = "#7500eb" },
     { units = 321, color = "#000000" },
+  ]
+  
+  # Cloud Top Height (m)
+  [handler.gradient.ACHA]
+   points = [
+    { units = 0, color = "#000000" },
+    { units = 1500, color = "#5e10b1" },
+    { units = 3000, color = "#360ae5" },
+    { units = 6050, color = "#0d85e4" },
+    { units = 9100, color = "#16f2b4" },
+    { units = 12200, color = "#19f108" },
+    { units = 15250, color = "#e4ff2b" },
+    { units = 19845, color = "#ef630e" },
+    { units = 19923, color = "#000000" },
   ]
 
 # GOES-17 ABI false color.
