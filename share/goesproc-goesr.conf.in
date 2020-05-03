@@ -158,7 +158,7 @@ json = false
 [[handler]]
 type = "image"
 origin = "goes16"
-products = [ "sst", "lst", "dsi", "tpw" ]
+products = [ "sst", "lst", "tpw" ]
 directory = "./goes16/non-cmip/{region:short|lower}/{product:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES16_{region:short}_{product:short}_{time:%Y%m%dT%H%M%SZ}"
 format = "jpg"
@@ -179,7 +179,6 @@ json = false
   ##
   ## https://www.ospo.noaa.gov/data/sst/contour/global.cf.gif (SST)
   ## https://www.goes-r.gov/products/baseline-LST.html (LST)
-  ## http://cimss.ssec.wisc.edu/goes/OCLOFactSheetPDFs/ABIQuickGuide_BaselineDerivedStabilityIndices.pdf (DSI)
   ## https://www.goes-r.gov/products/baseline-total-precipitable-water.html (TPW)
 
   # Skin Sea Surface Temperature (Degrees K)
@@ -220,27 +219,6 @@ json = false
     { units = 353, color = "#ffffff" }
   ]
 
-  # CAPE Derived Stability Index (Joules/kg)
-  [handler.gradient.DSI]
-  points = [
-    { units = 0, color = "#543e20" },
-    { units = 500, color = "#a58154" },
-    { units = 750, color = "#cfa370" },
-    { units = 1000, color = "#c3afc2" },
-    { units = 1500, color = "#8181c5" },
-    { units = 1750, color = "#6363a3" },
-    { units = 2000, color = "#969656" },
-    { units = 2500, color = "#fffc02" },
-    { units = 2750, color = "#ffd327" },
-    { units = 3000, color = "#ff9063" },
-    { units = 3500, color = "#ff231e" },
-    { units = 4000, color = "#b10032" },
-    { units = 4250, color = "#680063" },
-    { units = 4500, color = "#8d0090" },
-    { units = 4961.3914, color = "#ea00ef" },
-    { units = 4980.9245, color = "#000000" }
-  ]
-
   # Total Precipitable Water (mm)
   [handler.gradient.TPW]
   points = [
@@ -266,7 +244,7 @@ json = false
 [[handler]]
 type = "image"
 origin = "goes16"
-products = [ "rrqpe", "acht", "acha" ]
+products = [ "rrqpe", "acht", "acha", "dsi" ]
 directory = "./goes16/non-cmip/{region:short|lower}/{product:short|lower}/{time:%Y-%m-%d}"
 filename = "GOES16_{region:short}_{product:short}_{time:%Y%m%dT%H%M%SZ}"
 format = "jpg"
@@ -286,6 +264,7 @@ json = false
   ## https://www.goes-r.gov/products/baseline-rainfall-rate-qpe.html (RRQPE)
   ## https://cimss.ssec.wisc.edu/goes/blog/archives/32657 (ACHT)
   ## http://cimss.ssec.wisc.edu/goes/OCLOFactSheetPDFs/ABIQuickGuide_BaselineCloudTopHeight.pdf (ACHA)
+  ## http://cimss.ssec.wisc.edu/goes/OCLOFactSheetPDFs/ABIQuickGuide_BaselineDerivedStabilityIndices.pdf (DSI)
 
   # Rainfall Rate (mm/hr)
   [handler.gradient.RRQPE]
@@ -331,6 +310,25 @@ json = false
     { units = 15250, color = "#e4ff2b" },
     { units = 19845, color = "#ef630e" },
     { units = 19923, color = "#000000" },
+  ]
+  
+  # Lifted Index (Degrees K)
+  [handler.gradient.DSI]
+  points = [
+    { units = -10, color = "#bc1c28" },
+    { units = -7.5, color = "#8c0001" },
+    { units = -5, color = "#635a21" },
+    { units = -2.5, color = "#c2d200" },
+    { units = 0, color = "#cdde5e" },
+    { units = 2.5, color = "#8898ed" },
+    { units = 5, color = "#696aad" },
+    { units = 7.5, color = "#6b6179" },
+    { units = 10, color = "#d5ab93" },
+    { units = 13.3, color = "#878f92" },
+    { units = 16.7, color = "#422d10" },
+    { units = 20, color = "#bfada3" },
+    { units = 39.6140, color = "#bfada3" },
+    { units = 39.8093, color = "#000000" },
   ]
 
 # GOES-17 ABI false color.
