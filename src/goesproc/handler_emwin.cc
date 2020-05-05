@@ -31,8 +31,9 @@ void EMWINHandler::handle(std::shared_ptr<const lrit::File> f) {
   }
 
   // Extract time stamp from filename
+  auto text = f->getHeader<lrit::AnnotationHeader>().text;
   struct timespec time = {0, 0};
-  if (!extractTimeStamp(*f, time)) {
+  if (!extractTimeStamp(text, time)) {
     return;
   }
 
@@ -41,7 +42,7 @@ void EMWINHandler::handle(std::shared_ptr<const lrit::File> f) {
   fb.time = time;
 
   // Assume we can extract WMO abbreviated heading from filename
-  if (!extractAWIPS(*f, fb.awips)) {
+  if (!extractAWIPS(text, fb.awips)) {
     return;
   }
 
@@ -61,8 +62,7 @@ void EMWINHandler::handle(std::shared_ptr<const lrit::File> f) {
 
   // Write with TXT extension if this is not a compressed file
   if (nlh.noaaSpecificCompression == 0) {
-    auto filename = removeSuffix(f->getHeader<lrit::AnnotationHeader>().text);
-    fb.filename = filename;
+    fb.filename = removeSuffix(text);
 
     // Compressed TXT files also use the uppercase TXT extension
     const auto path = fb.build("{filename}", "TXT");
@@ -77,9 +77,8 @@ void EMWINHandler::handle(std::shared_ptr<const lrit::File> f) {
 // Extract time stamp from filename.
 // See http://www.nws.noaa.gov/emwin/EMWIN_GOES-R_filename_convention.pdf
 bool EMWINHandler::extractTimeStamp(
-    const lrit::File& f,
+    const std::string& text,
     struct timespec& ts) const {
-  auto text = f.getHeader<lrit::AnnotationHeader>().text;
   auto parts = split(text, '_');
   if (parts.size() < 5) {
     return false;
@@ -101,8 +100,9 @@ bool EMWINHandler::extractTimeStamp(
 
 // Extract AWIPS information from filename.
 // See https://www.weather.gov/tg/awips for full description.
-bool EMWINHandler::extractAWIPS(const lrit::File& f, struct AWIPS& out) const {
-  auto text = f.getHeader<lrit::AnnotationHeader>().text;
+bool EMWINHandler::extractAWIPS(
+    const std::string& text,
+    struct AWIPS& out) const {
   auto parts = split(text, '_');
   if (parts.size() < 6) {
     return false;

@@ -14,11 +14,11 @@ public:
 
 protected:
   bool extractTimeStamp(
-      const lrit::File& f,
+      const std::string& text,
       struct timespec& ts) const;
 
   bool extractAWIPS(
-      const lrit::File& f,
+      const std::string& text,
       struct AWIPS& out) const;
 
   Config::Handler config_;
