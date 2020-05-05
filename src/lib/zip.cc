@@ -23,13 +23,7 @@ uint32_t fromLittleEndian(const uint8_t in[4]) {
 void checkSignature(uint32_t expected, const uint8_t in[4]) {
   auto signature = fromLittleEndian(in);
   if (signature != expected) {
-    std::stringstream ss;
-    ss.fill('0');
-    ss << "Expected signature 0x"
-       << std::hex << std::setw(8) << expected << ", "
-       << "got signature 0x"
-       << std::hex << std::setw(8) << signature;
-    throw std::runtime_error(ss.str());
+    throw Zip::SignatureError(expected, signature);
   }
 }
 
@@ -40,6 +34,21 @@ std::string loadString(std::unique_ptr<std::istream>& is, size_t len) {
 }
 
 } // namespace
+
+Zip::SignatureError::SignatureError(uint32_t expected, uint32_t actual)
+  : expected_(expected), actual_(actual) {
+  std::stringstream ss;
+  ss.fill('0');
+  ss << "Expected signature 0x"
+     << std::hex << std::setw(8) << expected_ << ", "
+     << "got signature 0x"
+     << std::hex << std::setw(8) << actual_;
+  error_ = ss.str();
+}
+
+const char* Zip::SignatureError::what() const noexcept {
+  return error_.c_str();
+}
 
 Zip::Zip(std::unique_ptr<std::istream> is)
   : is_(std::move(is)) {

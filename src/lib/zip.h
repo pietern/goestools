@@ -15,6 +15,20 @@
 //
 class Zip {
 public:
+  // SignatureError is thrown if a signature field as defined in the
+  // ZIP file specification doesn't match what is found in the file.
+  class SignatureError : public std::exception {
+  public:
+    SignatureError(uint32_t expected, uint32_t actual);
+
+    const char* what() const noexcept override;
+
+  private:
+    uint32_t expected_;
+    uint32_t actual_;
+    std::string error_;
+  };
+
   explicit Zip(std::unique_ptr<std::istream> is);
 
   std::string fileName() const {

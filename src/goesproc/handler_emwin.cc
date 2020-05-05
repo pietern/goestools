@@ -48,14 +48,18 @@ void EMWINHandler::handle(std::shared_ptr<const lrit::File> f) {
 
   // Decompress if this is a ZIP file
   if (nlh.noaaSpecificCompression == 10) {
-    auto zip = Zip(f->getData());
-    fb.filename = zip.fileName();
+    try {
+      auto zip = Zip(f->getData());
+      fb.filename = zip.fileName();
 
-    // Use filename and extension straight from ZIP file
-    const auto path = fb.build("{filename}");
-    fileWriter_->write(path, zip.read());
-    if (config_.json) {
-      fileWriter_->writeHeader(*f, path);
+      // Use filename and extension straight from ZIP file
+      const auto path = fb.build("{filename}");
+      fileWriter_->write(path, zip.read());
+      if (config_.json) {
+        fileWriter_->writeHeader(*f, path);
+      }
+    } catch (const Zip::SignatureError& error) {
+      std::cout << "Ignoring " << text << ": " << error.what() << std::endl;
     }
     return;
   }
