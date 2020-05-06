@@ -51,6 +51,9 @@ struct Config {
     // Write LRIT header contents as JSON file.
     bool json = false;
 
+    // Exclude TXT files from EMWIN.
+    bool exclude_txt = false;
+
     // Crop (applied before scaling)
     Area crop;
 
