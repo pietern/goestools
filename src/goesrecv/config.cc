@@ -198,6 +198,51 @@ void loadRTLSDRSource(Config::RTLSDR& out, const toml::Value& v) {
   }
 }
 
+void loadHackRFSource(Config::HackRF& out, const toml::Value& v) {
+  const auto& table = v.as<toml::Table>();
+  for (const auto& it : table) {
+    const auto& key = it.first;
+    const auto& value = it.second;
+
+    if (key == "frequency") {
+      out.frequency = value.as<int>();
+      continue;
+    }
+
+    if (key == "sample_rate") {
+      out.sampleRate = value.as<int>();
+      continue;
+    }
+
+    if (key == "if_gain") {
+      out.if_gain = value.as<int>();
+      continue;
+    }
+
+    if (key == "bb_gain") {
+      out.bb_gain = value.as<int>();
+      continue;
+    }
+
+    if (key == "rf_amp_enabled") {
+      out.rf_amp_enabled = value.as<bool>();
+      continue;
+    }
+
+    if (key == "sample_publisher") {
+      out.samplePublisher = createSamplePublisher(value);
+      continue;
+    }
+
+    if (key == "bias_tee") {
+      out.bias_tee = value.as<bool>();
+      continue;
+    }
+
+    throwInvalidKey(key);
+  }
+}
+
 void loadNanomsgSource(Config::Nanomsg& out, const toml::Value& v) {
   const auto& table = v.as<toml::Table>();
   for (const auto& it : table) {
@@ -392,6 +437,11 @@ Config Config::load(const std::string& file) {
       continue;
     }
 
+    if (key == "hackrf") {
+      loadHackRFSource(out.hackrf, value);
+      continue;
+    }
+
     if (key == "nanomsg") {
       loadNanomsgSource(out.nanomsg, value);
       continue;
@@ -446,10 +496,12 @@ Config Config::load(const std::string& file) {
   if (out.demodulator.downlinkType == "lrit") {
     setIfZero(out.airspy.frequency, 1691000000u);
     setIfZero(out.rtlsdr.frequency, 1691000000u);
+    setIfZero(out.hackrf.frequency, 1691000000u);
   }
   if (out.demodulator.downlinkType == "hrit") {
     setIfZero(out.airspy.frequency, 1694100000u);
     setIfZero(out.rtlsdr.frequency, 1694100000u);
+    setIfZero(out.hackrf.frequency, 1694100000u);
   }
 
   return out;
