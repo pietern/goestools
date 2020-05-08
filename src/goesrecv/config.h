@@ -48,6 +48,21 @@ struct Config {
 
   Airspy airspy;
 
+  struct Soapy {
+    uint32_t frequency = 0;
+    uint32_t sampleRate = 0;
+
+    // Applies to the linearity gain setting
+    uint8_t gain = 18;
+
+    // Optional device index (if you have multiple devices)
+    uint32_t deviceIndex = 0;
+
+    std::unique_ptr<SamplePublisher> samplePublisher;
+ };
+
+  Soapy soapy;
+
   struct RTLSDR {
     uint32_t frequency = 0;
     uint32_t sampleRate = 0;

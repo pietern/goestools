@@ -11,6 +11,7 @@
 #endif
 
 #include "nanomsg_source.h"
+#include "soapy_source.h"
 
 std::unique_ptr<Source> Source::build(
     const std::string& type,
@@ -84,6 +85,36 @@ std::unique_ptr<Source> Source::build(
     nanomsg->setSampleRate(config.nanomsg.sampleRate);
     nanomsg->setSamplePublisher(std::move(config.nanomsg.samplePublisher));
     return std::unique_ptr<Source>(nanomsg.release());
+  }
+  if (type == "soapy") {
+      auto soapy = Soapy::open(config.soapy.deviceIndex);
+
+      // Use sample rate if set, otherwise default to lowest possible rate.
+      // This is 2.5MSPS for the R2 and 3M for the Mini.
+      auto rates = soapy->getSampleRates();
+      if (config.soapy.sampleRate != 0) {
+          auto rate = config.soapy.sampleRate;
+          auto pos = std::find(rates.begin(), rates.end(), rate);
+          if (pos == rates.end()) {
+              std::stringstream ss;
+              ss <<
+                 "You configured the SoapySDR source to use an unsupported " <<
+                 "sample rate equal to " << rate << ". " <<
+                 "Supported sample rates are: " << std::endl;
+              for (size_t i = 0; i < rates.size(); i++) {
+                  ss << " - " << rates[i] << std::endl;
+              }
+              throw std::runtime_error(ss.str());
+          }
+          soapy->setSampleRate(rate);
+      } else {
+          std::sort(rates.begin(), rates.end());
+          soapy->setSampleRate(rates[0]);
+      }
+      soapy->setFrequency(config.soapy.frequency);
+      soapy->setGain(config.soapy.gain);
+      soapy->setSamplePublisher(std::move(config.soapy.samplePublisher));
+      return std::unique_ptr<Source>(soapy.release());
   }
 
   throw std::runtime_error("Invalid source: " + type);
