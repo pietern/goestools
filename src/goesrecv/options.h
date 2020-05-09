@@ -4,6 +4,8 @@
 #include <string>
 
 struct Options {
+  Options();
+
   std::string config;
   bool verbose;
   std::chrono::milliseconds interval;

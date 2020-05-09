@@ -25,6 +25,9 @@ void usage(int argc, char** argv) {
   exit(0);
 }
 
+Options::Options() : interval(std::chrono::seconds(1)) {
+}
+
 Options parseOptions(int argc, char** argv) {
   Options opts;
 
@@ -96,10 +99,6 @@ Options parseOptions(int argc, char** argv) {
       fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
       exit(1);
     }
-  }
-
-  if (opts.verbose && opts.interval.count() == 0) {
-    opts.interval = std::chrono::seconds(1);
   }
 
   return opts;
