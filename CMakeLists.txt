@@ -58,7 +58,11 @@ endif()
 
 add_subdirectory(vendor/libcorrect EXCLUDE_FROM_ALL)
 add_subdirectory(vendor/libaec EXCLUDE_FROM_ALL)
-add_subdirectory(vendor/json EXCLUDE_FROM_ALL)
+
+find_package(nlohmann_json QUIET)
+if(NOT ${nlohmann_json_FOUND})
+  add_subdirectory(vendor/json EXCLUDE_FROM_ALL)
+endif()
 
 # Build nanomsg
 option(NN_STATIC_LIB "Build nanomsg as static library." ON)
