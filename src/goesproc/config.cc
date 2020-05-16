@@ -5,6 +5,12 @@
 
 #include <util/string.h>
 
+#ifndef CV_VERSION_EPOCH
+#if CV_VERSION_MAJOR >= 4
+#include <opencv2/imgcodecs/legacy/constants_c.h>
+#endif
+#endif
+
 using namespace nlohmann;
 using namespace util;
 
