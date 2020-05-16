@@ -32,8 +32,14 @@ if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "^arm")
   endif()
 endif()
 
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/vendor/sanitizers-cmake/cmake ${CMAKE_MODULE_PATH})
-find_package(Sanitizers)
+if(SANITIZE_ADDRESS OR SANITIZE_MEMORY OR
+    SANITIZE_THREAD OR SANITIZE_UNDEFINED)
+  set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/vendor/sanitizers-cmake/cmake ${CMAKE_MODULE_PATH})
+  find_package(Sanitizers)
+else()
+  function(add_sanitizers)
+  endfunction()
+endif()
 
 # Force static build of libaec
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "" FORCE)
