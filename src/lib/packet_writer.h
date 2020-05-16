@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cstdint>
 #include <ctime>
 
 // PacketWriter is an abstract base class for things that write packets.
