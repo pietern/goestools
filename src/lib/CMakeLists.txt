@@ -10,20 +10,24 @@ add_executable(unzip unzip.cc)
 target_link_libraries(unzip zip m stdc++)
 
 # Get the latest abbreviated commit hash of the working branch
-execute_process(
-  COMMAND git log -1 --format=%h
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-  OUTPUT_VARIABLE GIT_COMMIT_HASH
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
+if (NOT GIT_COMMIT_HASH)
+  execute_process(
+    COMMAND git log -1 --format=%h
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_COMMIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+endif()
 
 # Get the latest commit date of the working branch
-execute_process(
-  COMMAND git log -1 --format=%cD
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-  OUTPUT_VARIABLE GIT_COMMIT_DATE
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
+if (NOT GIT_COMMIT_DATE)
+  execute_process(
+    COMMAND git log -1 --format=%cD
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_COMMIT_DATE
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+endif()
 
 # Generate header file with string macros
 configure_file(
