@@ -1,7 +1,9 @@
 #pragma once
 
-#if PROJ_VERSION_MAJOR < 4 || PROJ_VERSION_MAJOR > 5
-#error "proj version 4 or 5 required"
+#if PROJ_VERSION_MAJOR < 4 || PROJ_VERSION_MAJOR > 6
+#error "proj version 4, 5, or 6 required"
+#elif PROJ_VERSION_MAJOR == 6
+#define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H 1
 #endif
 
 #include <map>
