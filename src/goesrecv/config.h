@@ -21,7 +21,7 @@ struct Config {
     // LRIT or HRIT
     std::string downlinkType;
 
-    // String "airspy" or "rtlsdr"
+    // String "uhd", "airspy" or "rtlsdr"
     std::string source;
 
     // Demodulator statistics (gain, frequency correction, etc.)
@@ -32,6 +32,18 @@ struct Config {
   };
 
   Demodulator demodulator;
+
+ struct UHD {
+
+    std::string type;  // device type filter
+    uint32_t frequency = 0;
+    uint32_t sampleRate = 0;
+    uint8_t gain = 8;
+
+    std::unique_ptr<SamplePublisher> samplePublisher;
+  };
+
+  UHD uhd;
 
   struct Airspy {
     uint32_t frequency = 0;
