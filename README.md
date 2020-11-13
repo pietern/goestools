@@ -177,9 +177,9 @@ All PDFs at http://www.noaasis.noaa.gov/LRIT/pdf-files/ are useful, in
 particular the receiver specs, transmitter specs, and mission data
 documents.
 
-* http://www.noaasis.noaa.gov/LRIT/pdf-files/3_LRIT_Receiver-specs.pdf
-* http://www.noaasis.noaa.gov/LRIT/pdf-files/4_LRIT_Transmitter-specs.pdf
-* http://www.noaasis.noaa.gov/LRIT/pdf-files/5_LRIT_Mission-data.pdf
+* [LRIT Receiver Specs](./docs/LRIT_Receiver_Specs.pdf)
+* [LRIT Transmitter Specs](./docs/LRIT_Transmitter_Specs.pdf)
+* [LRIT Mission Specific Data](./docs/LRIT_Mission_Specific_Data.pdf)
 
 Also, these blog series:
 
