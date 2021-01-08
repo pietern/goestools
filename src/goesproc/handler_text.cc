@@ -80,8 +80,8 @@ void TextHandler::handle(std::shared_ptr<const lrit::File> f) {
     // Parse time from file name.
     if (!goesrParseTextTime(text, time)) {
       // Unable to extract timestamp from file name.  Use current system time instead.
-	    auto rv = clock_gettime(CLOCK_REALTIME, &time);
-	    ASSERT(rv >= 0);
+      auto rv = clock_gettime(CLOCK_REALTIME, &time);
+      ASSERT(rv >= 0);
     }
   }
 
