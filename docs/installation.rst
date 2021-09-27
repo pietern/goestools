@@ -47,7 +47,8 @@ Install system dependencies:
     git-core \
     libopencv-dev \
     libproj-dev \
-    zlib1g-dev
+    zlib1g-dev \
+    libproj-dev
 
 If you want to run goesrecv on this machine, you also have to install
 the development packages of the drivers the SDRs you want to use;
