@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdint.h>
 #include <array>
 
 // PacketReader is an abstract base class for things that read packets.
