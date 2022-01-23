@@ -20,7 +20,7 @@ set(GOESPROC_SRCS
   )
 
 find_package(PkgConfig)
-pkg_check_modules(OPENCV REQUIRED opencv)
+pkg_check_modules(OPENCV REQUIRED opencv4)
 pkg_check_modules(PROJ proj)
 
 if(PROJ_FOUND)
