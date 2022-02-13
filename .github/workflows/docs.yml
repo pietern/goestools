@@ -1,0 +1,51 @@
+name: Documentation
+
+on:
+  push:
+    paths:
+      - 'docs/**'
+    branches:
+      - main
+  pull_request:
+    paths:
+      - 'docs/**'
+    branches:
+      - main
+
+jobs:
+  "Build":
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          cache: 'pip'
+      - run: pip install -r docs/requirements.txt
+      - run: make html
+        working-directory: docs
+      - uses: actions/upload-artifact@v2
+        with:
+          path: docs/_build/html
+
+  "Deploy":
+    needs: "Build"
+    if: success() && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: refs/heads/gh-pages
+      # Remove all tracked files such that we're left with a snapshot of the artifact.
+      - name: clean
+        run: git ls-files -z | xargs -0 rm -f
+      - uses: actions/download-artifact@v2
+      - name: commit
+        run: |
+          rsync -a artifact/ .
+          rm -rf artifact
+          git add -A
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git commit --allow-empty -m "Snapshot of $GITHUB_SHA"
+      - name: push
+        run: git push origin gh-pages
