@@ -40,4 +40,6 @@ jobs:
       - uses: actions/download-artifact@v2
       - run: rsync -a artifact/ .
       - run: rm -rf artifact
-      - run: git status
+      - run: git add -A
+      - run: git commit -m "Snapshot refs/heads/master@$(git rev-parse --short refs/heads/master)"
+      - run: git push origin gh-pages
