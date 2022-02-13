@@ -23,3 +23,18 @@ jobs:
       - run: pip install -r docs/requirements.txt
       - run: make html
         working-directory: docs
+      - uses: actions/upload-artifact@v2
+        with:
+          path: docs/_build/html
+
+  "Deploy":
+    needs: "Build"
+    # if: success() && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: refs/heads/gh-pages
+      - uses: actions/download-artifact@v2
+      - run: ls -al
+      - run: ls -al docs/_build/html
