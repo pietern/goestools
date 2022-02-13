@@ -96,10 +96,10 @@
            <div itemprop="articleBody">
              
   <section id="goesproc">
-<span id="id1"></span><h1>goesproc<a class="headerlink" href="#goesproc" title="Permalink to this headline"></a></h1>
+<span id="id1"></span><h1>goesproc<a class="headerlink" href="#goesproc" title="Permalink to this headline">¶</a></h1>
 <p>Process stream of packets (VCDUs) or list of LRIT files.</p>
 <section id="options">
-<h2>Options<a class="headerlink" href="#options" title="Permalink to this headline"></a></h2>
+<h2>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 43%" />
@@ -134,13 +134,13 @@ contain that match the glob <code class="docutils literal notranslate"><span cla
 is sorted according to their time stamp header prior to processing it.</p>
 </section>
 <section id="configuration">
-<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline"></a></h2>
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
 <p>The configuration file uses <a class="reference external" href="https://github.com/toml-lang/toml">TOML</a> syntax. You can
 find an example configuration (that includes stanzas for every
 available handler) in <code class="docutils literal notranslate"><span class="pre">./etc/goesproc.conf</span></code>.</p>
 </section>
 <section id="handlers">
-<h2>Handlers<a class="headerlink" href="#handlers" title="Permalink to this headline"></a></h2>
+<h2>Handlers<a class="headerlink" href="#handlers" title="Permalink to this headline">¶</a></h2>
 <p>Different products use different handlers with different configuration
 options. For example, there is an NWS image handler, NWS text handler,
 EMWIN handler, GOES N-series handler, GOES R-series handler, Himawari
@@ -148,7 +148,7 @@ handler, etc.</p>
 <p><strong>TODO</strong> – describe configuration options for every handler</p>
 </section>
 <section id="example">
-<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline"></a></h2>
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
 <p>For example, with the following configuration file:</p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[[handler]]</span><span class="w"></span>
 <span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;image&quot;</span><span class="w"></span>
@@ -184,7 +184,7 @@ $ convert -loop <span class="m">0</span> -delay <span class="m">50</span> *.png 
 <img alt="../_images/GOES15_FD_VS_20170821.gif" src="../_images/GOES15_FD_VS_20170821.gif" />
 </section>
 <section id="sample-configuration">
-<h2>Sample configuration<a class="headerlink" href="#sample-configuration" title="Permalink to this headline"></a></h2>
+<h2>Sample configuration<a class="headerlink" href="#sample-configuration" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example configuration file for goesproc</span><span class="w"></span>
 <span class="c1">#</span><span class="w"></span>
 <span class="c1"># This tool is designed to run on streaming data (live or recorded)</span><span class="w"></span>

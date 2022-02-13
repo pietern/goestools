@@ -91,7 +91,7 @@
            <div itemprop="articleBody">
              
   <section id="monitoring-goesrecv-with-circonus">
-<h1>Monitoring goesrecv with Circonus<a class="headerlink" href="#monitoring-goesrecv-with-circonus" title="Permalink to this headline"></a></h1>
+<h1>Monitoring goesrecv with Circonus<a class="headerlink" href="#monitoring-goesrecv-with-circonus" title="Permalink to this headline">¶</a></h1>
 <p><a class="reference external" href="https://www.circonus.com/">Circonus</a> is a hosted graphing and monitoring tool. It has native
 support for histograms which is ideal for looking at a distribution
 over time. For goesrecv in particular, this is great for keeping track
@@ -110,17 +110,17 @@ packet drop at all.</p>
 <figure class="align-center" id="id1">
 <img alt="../_images/circonus_before.png" src="../_images/circonus_before.png" />
 <figcaption>
-<p><span class="caption-text"><strong>Before</strong></span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+<p><span class="caption-text"><strong>Before</strong></span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
 <figure class="align-center" id="id2">
 <img alt="../_images/circonus_after.png" src="../_images/circonus_after.png" />
 <figcaption>
-<p><span class="caption-text"><strong>After</strong></span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+<p><span class="caption-text"><strong>After</strong></span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
 <section id="setup">
-<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline"></a></h2>
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Register for a Circonus account and log in</p></li>
 <li><p>Go to “new check”</p></li>
@@ -131,7 +131,7 @@ system metrics by default. It will also be the sink for the statsd
 stats produced by goesrecv and forward them to Circonus.</p>
 </section>
 <section id="setup-on-raspbian">
-<h2>Setup on Raspbian<a class="headerlink" href="#setup-on-raspbian" title="Permalink to this headline"></a></h2>
+<h2>Setup on Raspbian<a class="headerlink" href="#setup-on-raspbian" title="Permalink to this headline">¶</a></h2>
 <p>If you run goesrecv on Raspbian you have to install the agent
 yourself. See <a class="reference external" href="https://www.circonus.com/2018/02/circonus-raspberry-pi/">https://www.circonus.com/2018/02/circonus-raspberry-pi/</a>
 for instructions. These instructions include a fixed version of Node
@@ -156,7 +156,7 @@ sudo systemctl start nad
 </div>
 </section>
 <section id="configuration">
-<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline"></a></h2>
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
 <p>The statsd listener in the agent is enabled by default.</p>
 <p>Ensure that your goesrecv configuration contains the following:</p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[monitor]</span><span class="w"></span>
