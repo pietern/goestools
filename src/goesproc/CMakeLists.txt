@@ -20,7 +20,13 @@ set(GOESPROC_SRCS
   )
 
 find_package(PkgConfig)
-pkg_check_modules(OPENCV REQUIRED opencv)
+pkg_check_modules(OPENCV opencv)
+
+# In Ubuntu >= 20.04 the pkgconfig name for OpenCV is "opencv4".
+if(NOT OPENCV_FOUND)
+  pkg_check_modules(OPENCV REQUIRED opencv4)
+endif()
+
 pkg_check_modules(PROJ proj)
 
 if(PROJ_FOUND)
@@ -38,6 +44,7 @@ target_link_libraries(goesproc version)
 
 if(OPENCV_FOUND)
   target_link_libraries(goesproc opencv_core opencv_highgui opencv_imgproc)
+  target_include_directories(goesproc PRIVATE ${OPENCV_INCLUDE_DIRS})
   if(${OPENCV_VERSION} VERSION_GREATER 3.0)
     target_link_libraries(goesproc opencv_imgcodecs)
   endif()
