@@ -35,9 +35,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           ref: refs/heads/gh-pages
+      - run: rm -rf *
       - uses: actions/download-artifact@v2
-        with:
-          path: .
-      - run: ls -al
+      - run: cp -a artifact
       - run: git status
-      - run: ls -al docs/_build/html
