@@ -16,15 +16,13 @@ About the satellites and the signals (GOES-R series):
   * https://www.goes-r.gov/users/grb.html
   * https://www.goes-r.gov/users/docs/GRB_downlink.pdf
 
-Since HRIT is a higher baud rate LRIT, all the docs about the LRIT
-signal and file format still apply:
+Because HRIT is similar to LRIT at a higher baud rate, documentation for
+LRIT is also relevant for HRIT. The documents below used to be hosted
+by NOAA until ~2020. They're mirrored here for posterity.
 
-* http://www.noaasis.noaa.gov/LRIT/pdf-files/3_LRIT_Receiver-specs.pdf
-* http://www.noaasis.noaa.gov/LRIT/pdf-files/4_LRIT_Transmitter-specs.pdf
-* http://www.noaasis.noaa.gov/LRIT/pdf-files/5_LRIT_Mission-data.pdf
-* All PDFs at http://www.noaasis.noaa.gov/LRIT/pdf-files/ are useful,
-  in particular the receiver specs, transmitter specs, and mission
-  data documents.
+* :download:`3_LRIT_Receiver-specs.pdf <files/3_LRIT_Receiver-specs.pdf>`
+* :download:`4_LRIT_Transmitter-specs.pdf <files/4_LRIT_Transmitter-specs.pdf>`
+* :download:`5_LRIT_Mission-data.pdf <files/5_LRIT_Mission-data.pdf>`
 
 The blog series by Lucas Teske is a great resource:
 
