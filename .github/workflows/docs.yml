@@ -38,5 +38,6 @@ jobs:
       # Remove all tracked files such that we're left with a snapshot of the artifact.
       - run: git ls-files -z | xargs -0 rm -f
       - uses: actions/download-artifact@v2
-      - run: mv artifact/{.,}* .
+      - run: rsync -a artifact/ .
+      - run: rm -rf artifact
       - run: git status
