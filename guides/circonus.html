@@ -1,11 +1,8 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  <script type="text/javascript">
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<script type="text/javascript">
 
       var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-120209331-1']);
@@ -17,60 +14,32 @@
         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
       })();
     </script>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Monitoring goesrecv with Circonus &mdash; goestools  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Resources" href="../resources.html" />
     <link rel="prev" title="A minimal LRIT/HRIT receiver" href="minimal_receiver.html" /> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
-          
-
-          
+        <div class="wy-side-nav-search" >
             <a href="../index.html" class="icon icon-home"> goestools
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -78,18 +47,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../commands.html">Commands</a></li>
@@ -106,72 +65,33 @@
 <li class="toctree-l1"><a class="reference internal" href="../resources.html">Resources</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">goestools</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../guides.html">Guides</a> &raquo;</li>
-        
       <li>Monitoring goesrecv with Circonus</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="../_sources/guides/circonus.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="monitoring-goesrecv-with-circonus">
-<h1>Monitoring goesrecv with Circonus<a class="headerlink" href="#monitoring-goesrecv-with-circonus" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="monitoring-goesrecv-with-circonus">
+<h1>Monitoring goesrecv with Circonus<a class="headerlink" href="#monitoring-goesrecv-with-circonus" title="Permalink to this headline"></a></h1>
 <p><a class="reference external" href="https://www.circonus.com/">Circonus</a> is a hosted graphing and monitoring tool. It has native
 support for histograms which is ideal for looking at a distribution
 over time. For goesrecv in particular, this is great for keeping track
@@ -187,27 +107,31 @@ figure clearly has a lower mean bit error rate, but has really bad
 outliers, that in turn cause packet drop. The after figure has a
 higher mean bit error rate, but lacks the bad outliers, and has no
 packet drop at all.</p>
-<div class="figure align-center" id="id1">
+<figure class="align-center" id="id1">
 <img alt="../_images/circonus_before.png" src="../_images/circonus_before.png" />
-<p class="caption"><span class="caption-text"><strong>Before</strong></span></p>
-</div>
-<div class="figure align-center" id="id2">
+<figcaption>
+<p><span class="caption-text"><strong>Before</strong></span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id2">
 <img alt="../_images/circonus_after.png" src="../_images/circonus_after.png" />
-<p class="caption"><span class="caption-text"><strong>After</strong></span></p>
-</div>
-<div class="section" id="setup">
-<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
+<figcaption>
+<p><span class="caption-text"><strong>After</strong></span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline"></a></h2>
 <ul class="simple">
-<li>Register for a Circonus account and log in</li>
-<li>Go to “new check”</li>
-<li>Use the Circonus One-Step Install (COSI)</li>
+<li><p>Register for a Circonus account and log in</p></li>
+<li><p>Go to “new check”</p></li>
+<li><p>Use the Circonus One-Step Install (COSI)</p></li>
 </ul>
 <p>COSI installs an agent on your machine. The agent tracks a set of
 system metrics by default. It will also be the sink for the statsd
 stats produced by goesrecv and forward them to Circonus.</p>
-</div>
-<div class="section" id="setup-on-raspbian">
-<h2>Setup on Raspbian<a class="headerlink" href="#setup-on-raspbian" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="setup-on-raspbian">
+<h2>Setup on Raspbian<a class="headerlink" href="#setup-on-raspbian" title="Permalink to this headline"></a></h2>
 <p>If you run goesrecv on Raspbian you have to install the agent
 yourself. See <a class="reference external" href="https://www.circonus.com/2018/02/circonus-raspberry-pi/">https://www.circonus.com/2018/02/circonus-raspberry-pi/</a>
 for instructions. These instructions include a fixed version of Node
@@ -215,8 +139,8 @@ version 6, but newer versions have come out since. Find the latest
 version at <a class="reference external" href="https://nodejs.org/dist/latest-v6.x/">https://nodejs.org/dist/latest-v6.x/</a> and modify the
 commands accordingly.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Run <code class="docutils literal notranslate"><span class="pre">uname</span> <span class="pre">-a</span></code> on your Raspberry Pi to see if you need the
+<p class="admonition-title">Note</p>
+<p>Run <code class="docutils literal notranslate"><span class="pre">uname</span> <span class="pre">-a</span></code> on your Raspberry Pi to see if you need the
 <code class="docutils literal notranslate"><span class="pre">armv6l</span></code> or <code class="docutils literal notranslate"><span class="pre">arvm7l</span></code> binaries.</p>
 </div>
 <p>The instructions are missing a <code class="docutils literal notranslate"><span class="pre">mkdir</span></code>, run the following before starting:</p>
@@ -230,13 +154,13 @@ sudo systemctl enable nad
 sudo systemctl start nad
 </pre></div>
 </div>
-</div>
-<div class="section" id="configuration">
-<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline"></a></h2>
 <p>The statsd listener in the agent is enabled by default.</p>
 <p>Ensure that your goesrecv configuration contains the following:</p>
-<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">monitor</span><span class="p">]</span>
-<span class="n">statsd_address</span> <span class="o">=</span> <span class="s">&quot;udp4://localhost:8125&quot;</span>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[monitor]</span><span class="w"></span>
+<span class="n">statsd_address</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;udp4://localhost:8125&quot;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>After both the agent and goesrecv have run for a minute or so,
@@ -246,79 +170,45 @@ you just added. Then click on “View Check Details” and subsequently
 care about.</p>
 <p>Relevant demodulator stats:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">statsd.gain</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">statsd.frequency</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">statsd.omega</span></code></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">statsd.gain</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">statsd.frequency</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">statsd.omega</span></code></p></li>
 </ul>
 <p>Relevant decoder stats:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">statsd.viterbi_errors</span></code> (enable as histogram)</li>
-<li><code class="docutils literal notranslate"><span class="pre">statsd.reed_solomon_errors</span></code> (enable as histogram)</li>
-<li><code class="docutils literal notranslate"><span class="pre">statsd.packets_ok</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">statsd.packets_dropped</span></code></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">statsd.viterbi_errors</span></code> (enable as histogram)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">statsd.reed_solomon_errors</span></code> (enable as histogram)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">statsd.packets_ok</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">statsd.packets_dropped</span></code></p></li>
 </ul>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="../resources.html" class="btn btn-neutral float-right" title="Resources" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="minimal_receiver.html" class="btn btn-neutral" title="A minimal LRIT/HRIT receiver" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="minimal_receiver.html" class="btn btn-neutral float-left" title="A minimal LRIT/HRIT receiver" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../resources.html" class="btn btn-neutral float-right" title="Resources" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2018, Pieter Noordhuis.
-
-    </p>
+    <p>&#169; Copyright 2018, Pieter Noordhuis.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-
-  
-
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });

@@ -1,11 +1,8 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  <script type="text/javascript">
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<script type="text/javascript">
 
       var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-120209331-1']);
@@ -17,60 +14,32 @@
         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
       })();
     </script>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>A minimal LRIT/HRIT receiver &mdash; goestools  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Monitoring goesrecv with Circonus" href="circonus.html" />
     <link rel="prev" title="Guides" href="../guides.html" /> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
-          
-
-          
+        <div class="wy-side-nav-search" >
             <a href="../index.html" class="icon icon-home"> goestools
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -78,18 +47,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../commands.html">Commands</a></li>
@@ -106,105 +65,72 @@
 <li class="toctree-l1"><a class="reference internal" href="../resources.html">Resources</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">goestools</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../guides.html">Guides</a> &raquo;</li>
-        
       <li>A minimal LRIT/HRIT receiver</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="../_sources/guides/minimal_receiver.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="a-minimal-lrit-hrit-receiver">
-<span id="minimal-receiver"></span><h1>A minimal LRIT/HRIT receiver<a class="headerlink" href="#a-minimal-lrit-hrit-receiver" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="a-minimal-lrit-hrit-receiver">
+<span id="minimal-receiver"></span><h1>A minimal LRIT/HRIT receiver<a class="headerlink" href="#a-minimal-lrit-hrit-receiver" title="Permalink to this headline"></a></h1>
 <p>Receiving the LRIT and/or HRIT signal can be done with relatively
 inexpensive equipment. This guide describes a minimal configuration
 that I have confirmed to work <strong>at my location</strong>.</p>
 <div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">Whether or not this configuration works at your location depends on
+<p class="admonition-title">Warning</p>
+<p>Whether or not this configuration works at your location depends on
 a large number of factors, such as satellite elevation, local
 interference, etc. Try it at your own risk.</p>
 </div>
 <p>The bill of materials is as follows:</p>
 <ul class="simple">
-<li>Raspberry Pi 2 (v1.1+) or higher<ul>
-<li>Available at <a class="reference external" href="http://www.newark.com/raspberry-pi/2773729/sbc-arm-cortex-a53-1gb-sdram/dp/49AC7637">Newark</a>; $35 (Raspberry Pi 3 Model B+)</li>
+<li><p>Raspberry Pi 2 (v1.1+) or higher</p>
+<ul>
+<li><p>Available at <a class="reference external" href="http://www.newark.com/raspberry-pi/2773729/sbc-arm-cortex-a53-1gb-sdram/dp/49AC7637">Newark</a>; $35 (Raspberry Pi 3 Model B+)</p></li>
 </ul>
 </li>
-<li>RTL-SDR with R820T2 tuner<ul>
-<li>Available at <a class="reference external" href="http://www.nooelec.com/store/sdr/sdr-receivers/nesdr/nesdr-smart-sdr.html">NooElec</a>; $24 (NooElec NESDR SMArt)</li>
+<li><p>RTL-SDR with R820T2 tuner</p>
+<ul>
+<li><p>Available at <a class="reference external" href="http://www.nooelec.com/store/sdr/sdr-receivers/nesdr/nesdr-smart-sdr.html">NooElec</a>; $24 (NooElec NESDR SMArt)</p></li>
 </ul>
 </li>
-<li>NooElec SAWBird with bias tee (LNA and filter board)<ul>
-<li>Available at NooElec (send an email to <a class="reference external" href="mailto:support&#37;&#52;&#48;nooelec&#46;com">support<span>&#64;</span>nooelec<span>&#46;</span>com</a>); ~$25</li>
+<li><p>NooElec SAWBird (or SAWBird+) with bias tee (LNA and filter board)</p>
+<ul>
+<li><p>Available at <a class="reference external" href="http://www.nooelec.com/store/sawbird-goes.html">NooElec</a>; ~$25 (or $35 for the SAWBird+)</p></li>
 </ul>
 </li>
-<li>L-Com 1.9 GHz Parabolic Grid Antenna<ul>
-<li>Available at <a class="reference external" href="http://www.l-com.com/wireless-antenna-hyperlink-brand-19-ghz-22-dbi-parabolic-grid-antenna">L-Com</a>; $89</li>
+<li><p>1.9 GHz Parabolic Grid Antenna</p>
+<ul>
+<li><p>Available at <a class="reference external" href="https://www.excel-wireless.com/1900-mhz-grid-parabolic-antenna/1850-1990-mhz-grid-parabolic-antenna-20-dbi">Excel-Wireless</a> (or Amazon); ~$100</p></li>
 </ul>
 </li>
-<li>Adapter from male Type N to male SMA (for antenna to LNA)<ul>
-<li>Available at <a class="reference external" href="http://www.l-com.com/coaxial-coaxial-adapter-n-male-sma-male">L-Com</a>; $7</li>
+<li><p>Adapter from male Type N to male SMA (for antenna to LNA)</p>
+<ul>
+<li><p>Available at <a class="reference external" href="https://www.amazon.com/gp/product/B01MFHRW4N/">Amazon</a> and elsewhere; $7</p></li>
 </ul>
 </li>
-<li>Jumper from male SMA to male SMA (for LNA to RTL-SDR)<ul>
-<li>Available at <a class="reference external" href="http://www.nooelec.com/store/sdr/sdr-adapters-and-cables/sdr-cables/male-sma-to-male-sma-pigtail-rg316-0-5-length.html">NooElec</a>; $8</li>
+<li><p>Jumper from male SMA to male SMA (for LNA to RTL-SDR)</p>
+<ul>
+<li><p>Available at <a class="reference external" href="http://www.nooelec.com/store/sdr/sdr-adapters-and-cables/sdr-cables/male-sma-to-male-sma-pigtail-rg316-0-5-length.html">NooElec</a>; $8</p></li>
 </ul>
 </li>
 </ul>
@@ -214,22 +140,20 @@ SMArTee</a> ($26) which has an always-on bias tee for powering the
 SAWBird SAWBird LNA. Without an integrated bias tee you’ll have to
 supply power to the SAWBird yourself with a micro-USB cable (see
 pictures below).</p>
+<p>Another option is to buy the <a class="reference external" href="http://www.nooelec.com/store/sdr/sdr-receivers/nesdr/nesdr-smartee-xtr-sdr.html">NESDR SMArTee XTR</a> ($38) which is the same
+as the above SDR, but has an extended frequence range that may be better able
+to tune into the 1694 Mhz signal (which is fairly close to the 1750 Mhz limit
+in some SDRs)</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Additional items such as power supplies or mounting hardware
+<p class="admonition-title">Note</p>
+<p>Additional items such as power supplies or mounting hardware
 are not listed here.</p>
 </div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">As of May 2018, the NooElec SAWbird is not yet listed in their
-shop. You can contact the NooElec sales department directly to
-order an engineering sample. The final units are expected to become
-generally available later this year.</p>
-</div>
 <div class="admonition important">
-<p class="first admonition-title">Important</p>
-<p>The listed grid dish antenna works for me at my location (San
-Francisco Bay Area). I can receive GOES-15 at its west location
+<p class="admonition-title">Important</p>
+<p>A similar grid dish antenna works for me at my location (San
+Francisco Bay Area; the exact antenna is no longer available).
+I can receive GOES-15 at its west location
 (135 degrees west), GOES-16 at its east location (75 degrees west),
 and GOES-17 at its checkout location (89 degrees west). GOES-16 is
 furthest away and at 25 degrees elevation at my location.</p>
@@ -238,44 +162,44 @@ elevation than 25 degrees, you may need a bigger dish. However,
 even with any satellite at a higher elevation, there are other
 factors that can impact whether or not you can use the dish
 mentioned here (blocked line of sight, local interference, etc).</p>
-<p class="last">Find your local azimuth and elevation on <a class="reference external" href="http://www.satview.org/">Satview</a>
+<p>Find your local azimuth and elevation on <a class="reference external" href="http://www.satview.org/">Satview</a>
 (<a class="reference external" href="http://www.satview.org/?sat_id=36411U">GOES-15</a>,
 <a class="reference external" href="http://www.satview.org/?sat_id=41866U">GOES-16</a>,
 <a class="reference external" href="http://www.satview.org/?sat_id=43226U">GOES-17</a>).</p>
 </div>
-<div class="section" id="hardware">
-<h2>Hardware<a class="headerlink" href="#hardware" title="Permalink to this headline">¶</a></h2>
+<section id="hardware">
+<h2>Hardware<a class="headerlink" href="#hardware" title="Permalink to this headline"></a></h2>
 <p>The setup to test this configuration looked like this.</p>
 <a class="reference internal image-reference" href="../_images/minimal_zoomed.jpg"><img alt="../_images/minimal_zoomed.jpg" src="../_images/minimal_zoomed.jpg" style="width: 340.2px; height: 453.6px;" /></a>
 <a class="reference internal image-reference" href="../_images/minimal_overview.jpg"><img alt="../_images/minimal_overview.jpg" src="../_images/minimal_overview.jpg" style="width: 340.2px; height: 453.6px;" /></a>
 <ul class="simple">
-<li>The grid dish antenna has a female Type N connector. To connect it
+<li><p>The grid dish antenna has a female Type N connector. To connect it
 to the SAWBird you need a male Type N to male SMA adapter (in the
-picture you see the adapter and an male SMA to male SMA jumper).</li>
-<li>The NooElec SAWBird is connected to the grid dish antenna on the
+picture you see the adapter and an male SMA to male SMA jumper).</p></li>
+<li><p>The NooElec SAWBird is connected to the grid dish antenna on the
 input and the RTL-SDR on the output. It is powered by the Pi over
-USB (the bias tee version of the SAWBird has a micro-USB connector).</li>
-<li>The RTL-SDR is connected to the SAWBird using a male SMA to male SMA
-jumper cable.</li>
-<li>In this setup, the Pi gets its power over USB.</li>
-<li>In this setup, the Pi is connected to the network over Ethernet.</li>
-<li>The laptop in the right image was only used to SSH into the Raspberry
-Pi.</li>
+USB (the bias tee version of the SAWBird has a micro-USB connector).</p></li>
+<li><p>The RTL-SDR is connected to the SAWBird using a male SMA to male SMA
+jumper cable.</p></li>
+<li><p>In this setup, the Pi gets its power over USB.</p></li>
+<li><p>In this setup, the Pi is connected to the network over Ethernet.</p></li>
+<li><p>The laptop in the right image was only used to SSH into the Raspberry
+Pi.</p></li>
 </ul>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
+<p class="admonition-title">Note</p>
 <p>While the Raspberry Pi 2 v1.1 is adequate for HRIT demodulation and
 decoding, it doesn’t leave much margin on the processing power. In
 a screenshot below you can see the demodulator use 96% of a single
 CPU core.</p>
-<p class="last">The RTL-SDR can be configured to use a low enough sample rate to
+<p>The RTL-SDR can be configured to use a low enough sample rate to
 still work with the Pi 2. If you want to use an Airspy Mini instead
 (which has a minimum sample rate of 3M samples/sec), you’ll have to
 use a Raspberry Pi 2 v1.2 or the Raspberry Pi 3.</p>
 </div>
-</div>
-<div class="section" id="software">
-<h2>Software<a class="headerlink" href="#software" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="software">
+<h2>Software<a class="headerlink" href="#software" title="Permalink to this headline"></a></h2>
 <p>Raspbian works fine. There is no need for a desktop environment if you
 only use the Pi for signal demodulation and decode, so you can use the
 lite version. For instructions on building and installing goestools,
@@ -303,83 +227,49 @@ size constraints):</p>
 <p>This is a crop of Northern America to get an impression of the
 resolution of these full disk images:</p>
 <img alt="../_images/minimal_GOES16_FD_FC_20180505T223038Z_crop.jpg" src="../_images/minimal_GOES16_FD_FC_20180505T223038Z_crop.jpg" />
-</div>
-<div class="section" id="notes">
-<h2>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="notes">
+<h2>Notes<a class="headerlink" href="#notes" title="Permalink to this headline"></a></h2>
 <ul class="simple">
-<li>For enclosures, check out <a class="reference external" href="https://www.budind.com/">Bud Industries</a> and <a class="reference external" href="https://www.hammfg.com/enclosures">Hammond Manufacturing</a>.</li>
-<li>The power consumption of this setup is about 6 watts.</li>
-<li>Other ARM based single board computers should work fine as well as
+<li><p>For enclosures, check out <a class="reference external" href="https://www.budind.com/">Bud Industries</a> and <a class="reference external" href="https://www.hammfg.com/enclosures">Hammond Manufacturing</a>.</p></li>
+<li><p>The power consumption of this setup is about 6 watts.</p></li>
+<li><p>Other ARM based single board computers should work fine as well as
 long as they have comparable (or better) performance to the
-Raspberry Pi 2.</li>
-<li>Empirical evidence shows that adding another LNA <em>after</em> the NooElec
+Raspberry Pi 2.</p></li>
+<li><p>Empirical evidence shows that adding another LNA <em>after</em> the NooElec
 SAWbird improves signal quality (e.g. going from Viterbi error rate
-~150 to ~100).</li>
-<li><a class="reference external" href="https://twitter.com/usa_satcom/status/820773345956200449">This post</a> by <a class="reference external" href="https://twitter.com/usa_satcom">&#64;usa_satcom</a>
-showing the grid antenna is capable of receiving LRIT.</li>
+~150 to ~100).</p></li>
+<li><p><a class="reference external" href="https://twitter.com/usa_satcom/status/820773345956200449">This post</a> by <a class="reference external" href="https://twitter.com/usa_satcom">&#64;usa_satcom</a>
+showing the grid antenna is capable of receiving LRIT.</p></li>
 </ul>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="circonus.html" class="btn btn-neutral float-right" title="Monitoring goesrecv with Circonus" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="../guides.html" class="btn btn-neutral" title="Guides" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../guides.html" class="btn btn-neutral float-left" title="Guides" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="circonus.html" class="btn btn-neutral float-right" title="Monitoring goesrecv with Circonus" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2018, Pieter Noordhuis.
-
-    </p>
+    <p>&#169; Copyright 2018, Pieter Noordhuis.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-
-  
-
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });

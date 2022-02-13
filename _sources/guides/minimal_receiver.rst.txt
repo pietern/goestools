@@ -23,17 +23,17 @@ The bill of materials is as follows:
 
   * Available at NooElec__; $24 (NooElec NESDR SMArt)
 
-* NooElec SAWBird with bias tee (LNA and filter board)
+* NooElec SAWBird (or SAWBird+) with bias tee (LNA and filter board)
 
-  * Available at NooElec (send an email to support@nooelec.com); ~$25
+  * Available at NooElec__; ~$25 (or $35 for the SAWBird+)
 
-* L-Com 1.9 GHz Parabolic Grid Antenna
+* 1.9 GHz Parabolic Grid Antenna
 
-  * Available at L-Com__; $89
+  * Available at Excel-Wireless__ (or Amazon); ~$100
 
 * Adapter from male Type N to male SMA (for antenna to LNA)
 
-  * Available at L-Com__; $7
+  * Available at Amazon__ and elsewhere; $7
 
 * Jumper from male SMA to male SMA (for LNA to RTL-SDR)
 
@@ -43,8 +43,9 @@ This sums up to about $200 excluding tax/shipping.
 
 .. __: http://www.newark.com/raspberry-pi/2773729/sbc-arm-cortex-a53-1gb-sdram/dp/49AC7637
 .. __: http://www.nooelec.com/store/sdr/sdr-receivers/nesdr/nesdr-smart-sdr.html
-.. __: http://www.l-com.com/wireless-antenna-hyperlink-brand-19-ghz-22-dbi-parabolic-grid-antenna
-.. __: http://www.l-com.com/coaxial-coaxial-adapter-n-male-sma-male
+.. __: http://www.nooelec.com/store/sawbird-goes.html
+.. __: https://www.excel-wireless.com/1900-mhz-grid-parabolic-antenna/1850-1990-mhz-grid-parabolic-antenna-20-dbi
+.. __: https://www.amazon.com/gp/product/B01MFHRW4N/
 .. __: http://www.nooelec.com/store/sdr/sdr-adapters-and-cables/sdr-cables/male-sma-to-male-sma-pigtail-rg316-0-5-length.html
 
 Instead of the listed RTL-SDR, you can also opt to buy the `NESDR
@@ -53,24 +54,24 @@ SAWBird SAWBird LNA. Without an integrated bias tee you'll have to
 supply power to the SAWBird yourself with a micro-USB cable (see
 pictures below).
 
+Another option is to buy the `NESDR SMArTee XTR`__ ($38) which is the same
+as the above SDR, but has an extended frequence range that may be better able
+to tune into the 1694 Mhz signal (which is fairly close to the 1750 Mhz limit
+in some SDRs)
+
 .. __: http://www.nooelec.com/store/sdr/sdr-receivers/nesdr/nesdr-smartee-sdr.html
+.. __: http://www.nooelec.com/store/sdr/sdr-receivers/nesdr/nesdr-smartee-xtr-sdr.html
 
 .. note::
 
    Additional items such as power supplies or mounting hardware
    are not listed here.
 
-.. note::
-
-   As of May 2018, the NooElec SAWbird is not yet listed in their
-   shop. You can contact the NooElec sales department directly to
-   order an engineering sample. The final units are expected to become
-   generally available later this year.
-
 .. important::
 
-   The listed grid dish antenna works for me at my location (San
-   Francisco Bay Area). I can receive GOES-15 at its west location
+   A similar grid dish antenna works for me at my location (San
+   Francisco Bay Area; the exact antenna is no longer available).
+   I can receive GOES-15 at its west location
    (135 degrees west), GOES-16 at its east location (75 degrees west),
    and GOES-17 at its checkout location (89 degrees west). GOES-16 is
    furthest away and at 25 degrees elevation at my location.
