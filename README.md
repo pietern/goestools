@@ -173,13 +173,14 @@ convert -loop 0 -delay 50 *.png GOES15_FD_VS_20170821.gif
 
 ## Resources
 
-All PDFs at http://www.noaasis.noaa.gov/LRIT/pdf-files/ are useful, in
-particular the receiver specs, transmitter specs, and mission data
-documents.
+Because HRIT is similar to LRIT at a higher baud rate, documentation for
+LRIT is also relevant for HRIT. The documents below used to be hosted
+by NOAA until ~2020. They're mirrored here for posterity (thanks @gojimmypi;
+see https://github.com/pietern/goestools/pull/102).
 
-* http://www.noaasis.noaa.gov/LRIT/pdf-files/3_LRIT_Receiver-specs.pdf
-* http://www.noaasis.noaa.gov/LRIT/pdf-files/4_LRIT_Transmitter-specs.pdf
-* http://www.noaasis.noaa.gov/LRIT/pdf-files/5_LRIT_Mission-data.pdf
+* [LRIT Receiver Specification](./docs/files/3_LRIT_Receiver-specs.pdf)
+* [LRIT Transmitter Specification](./docs/files/4_LRIT_Transmitter-specs.pdf)
+* [LRIT Mission Specific Data](./docs/files/5_LRIT_Mission-data.pdf)
 
 Also, these blog series:
 
