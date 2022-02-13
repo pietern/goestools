@@ -1,7 +1,11 @@
 #pragma once
 
-#if PROJ_VERSION_MAJOR < 4 || PROJ_VERSION_MAJOR > 5
-#error "proj version 4 or 5 required"
+#if PROJ_VERSION_MAJOR < 4
+#error "proj version >= 4 required"
+#else
+// Assume proj continues to ship with a backwards compatibility layer.
+// See for a migration guide https://proj.org/development/migration.html.
+#define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H 1
 #endif
 
 #include <map>
