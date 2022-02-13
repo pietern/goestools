@@ -29,7 +29,7 @@ jobs:
 
   "Deploy":
     needs: "Build"
-    # if: success() && github.ref == 'refs/heads/master'
+    if: success() && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
