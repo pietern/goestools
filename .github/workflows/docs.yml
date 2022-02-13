@@ -44,8 +44,8 @@ jobs:
           rsync -a artifact/ .
           rm -rf artifact
           git add -A
-          git config user.name "GitHub Actions Bot"
-          git config user.email "<>"
-          git commit -m "Snapshot of $GITHUB_SHA"
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git commit --allow-empty -m "Snapshot of $GITHUB_SHA"
       - name: push
         run: git push origin gh-pages
