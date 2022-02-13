@@ -36,10 +36,16 @@ jobs:
         with:
           ref: refs/heads/gh-pages
       # Remove all tracked files such that we're left with a snapshot of the artifact.
-      - run: git ls-files -z | xargs -0 rm -f
+      - name: clean
+        run: git ls-files -z | xargs -0 rm -f
       - uses: actions/download-artifact@v2
-      - run: rsync -a artifact/ .
-      - run: rm -rf artifact
-      - run: git add -A
-      - run: git commit -m "Snapshot refs/heads/master@$(git rev-parse --short refs/heads/master)"
-      - run: git push origin gh-pages
+      - name: commit
+        run: |
+          rsync -a artifact/ .
+          rm -rf artifact
+          git add -A
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          git commit -m "Snapshot of $GITHUB_SHA"
+      - name: push
+        run: git push origin gh-pages
