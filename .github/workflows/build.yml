@@ -22,6 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - run: docker build --tag build:ubuntu-${{ matrix.version }} --build-arg version=${{ matrix.version }} docker/ubuntu
         name: "docker build"
       - run: docker run --detach --interactive --name build --volume $PWD:/goestools build:ubuntu-${{ matrix.version }}
