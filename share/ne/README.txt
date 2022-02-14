@@ -16,6 +16,8 @@ a Shapefile (SHP) from a points based geometry like most GIS
 systems, to a polygon based geometry shape that is processed
 by goestools with this command:
 
-ogr2ogr -f "GeoJSON" -dialect SQLite -sql "select ST_Buffer(geometry,
-0.01) from inputfile" output.json inputfile.shp
+```
+ogr2ogr -f "GeoJSON" -dialect SQLite -sql "select ST_Buffer(geometry, 0.01) from inputfile" output.json inputfile.shp
+```
 
+See https://gdal.org/ for installation instructions for `ogr2ogr`.
