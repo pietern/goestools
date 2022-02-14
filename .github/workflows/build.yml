@@ -1,0 +1,34 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  "Ubuntu":
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - "16.04"
+          - "18.04"
+          - "20.04"
+          - "21.04"
+          - "21.10"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - run: docker build --tag build:ubuntu-${{ matrix.version }} --build-arg version=${{ matrix.version }} docker/ubuntu
+        name: "docker build"
+      - run: docker run --detach --interactive --name build --volume $PWD:/goestools build:ubuntu-${{ matrix.version }}
+        name: "docker run"
+      - run: docker exec -t build /run_cmake.sh
+        name: "cmake"
+      - run: docker exec -t build /run_compile.sh
+        name: "make"
