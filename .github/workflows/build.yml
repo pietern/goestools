@@ -23,7 +23,6 @@ jobs:
       - uses: actions/checkout@v2
       - run: docker build --tag build:ubuntu-${{ matrix.version }} --build-arg version=${{ matrix.version }} docker/ubuntu
         name: "docker build"
-        working-directory: docker/ubuntu
       - run: docker run --detach --interactive --name build --volume $PWD:/goestools build:ubuntu-${{ matrix.version }}
         name: "docker run"
       - run: docker exec -t build /run_cmake.sh
