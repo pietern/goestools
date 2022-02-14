@@ -11,6 +11,7 @@ on:
 jobs:
   "Ubuntu":
     strategy:
+      fail-fast: false
       matrix:
         version:
           - "16.04"
