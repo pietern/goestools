@@ -1,8 +1,8 @@
 #pragma once
 
-#include <stdint.h>
-
 #include <array>
+#include <cstdint>
+#include <cstdio>
 #include <vector>
 
 namespace decoder {
