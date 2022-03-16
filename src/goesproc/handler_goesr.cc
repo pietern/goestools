@@ -366,6 +366,10 @@ GOESRImageHandler::GOESRImageHandler(
     satelliteID_ = 16;
   } else if (config_.origin == "goes17") {
     satelliteID_ = 17;
+  } else if (config_.origin == "goes18") {
+    satelliteID_ = 18;
+  } else if (config_.origin == "goes19") {
+    satelliteID_ = 19;
   } else {
     ASSERT(false);
   }
@@ -379,16 +383,17 @@ void GOESRImageHandler::handle(std::shared_ptr<const lrit::File> f) {
 
   // Filter by product
   //
-  // We assume that the NOAA product ID can be either 16 or 17,
-  // indicating GOES-16 and GOES-17. The latter has not yet been
-  // spotted in the wild as of July 2018. Even GOES-17 products
-  // still used product ID equal to 16 at this time.
+  // The NOAA product ID is equal to the GOES satellite number.
+  // This is true for LRIT files from both GOES-16 and GOES-17,
+  // which is reason to believe it will hold true for GOES-18
+  // and GOES-19 as well (also see issue #122).
   //
   // Actual filtering based on satellite is done based on the details
   // encoded in the ancillary data field.
   //
   auto nlh = f->getHeader<lrit::NOAALRITHeader>();
-  if (nlh.productID != 16 && nlh.productID != 17) {
+  auto pid = nlh.productID;
+  if (!(pid == 16 || pid == 17 || pid == 18 || pid == 19)) {
     return;
   }
 

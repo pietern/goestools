@@ -51,34 +51,37 @@ int main(int argc, char** argv) {
   std::vector<std::unique_ptr<Handler> > handlers;
   for (const auto& handler: config.handlers) {
     if (handler.type == "image") {
-      if (handler.origin == "goes16") {
+      const auto& origin = handler.origin;
+      if (origin == "goes16" || origin == "goes17" || origin == "goes18" || origin == "goes19") {
         handlers.push_back(
           std::unique_ptr<Handler>(
             new GOESRImageHandler(handler, fileWriter)));
-      } else if (handler.origin == "goes17") {
-          handlers.push_back(
-            std::unique_ptr<Handler>(
-              new GOESRImageHandler(handler, fileWriter)));
-      } else if (handler.origin == "nws") {
+        continue;
+      }
+
+      if (origin == "nws") {
         handlers.push_back(
           std::unique_ptr<Handler>(
             new NWSImageHandler(handler, fileWriter)));
-      } else if (handler.origin == "himawari8") {
+        continue;
+      }
+
+      if (origin == "himawari8") {
         handlers.push_back(
           std::unique_ptr<Handler>(
             new Himawari8ImageHandler(handler, fileWriter)));
-      } else if (handler.origin == "goes13") {
-        handlers.push_back(
-          std::unique_ptr<Handler>(
-            new GOESNImageHandler(handler, fileWriter)));
-      } else if (handler.origin == "goes15") {
-        handlers.push_back(
-          std::unique_ptr<Handler>(
-            new GOESNImageHandler(handler, fileWriter)));
-      } else {
-        std::cerr << "Invalid image handler origin: " << handler.origin << std::endl;
-        exit(1);
+        continue;
       }
+
+      if (origin == "goes13" || origin == "goes15") {
+        handlers.push_back(
+          std::unique_ptr<Handler>(
+            new GOESNImageHandler(handler, fileWriter)));
+        continue;
+      }
+
+      std::cerr << "Invalid image handler origin: " << handler.origin << std::endl;
+      exit(1);
     } else if (handler.type == "emwin") {
       handlers.push_back(
         std::unique_ptr<Handler>(
@@ -86,18 +89,23 @@ int main(int argc, char** argv) {
     } else if (handler.type == "dcs") {
       // TODO
     } else if (handler.type == "text") {
-      if (handler.origin == "nws") {
+      const auto& origin = handler.origin;
+      if (origin == "nws") {
         handlers.push_back(
           std::unique_ptr<Handler>(
             new NWSTextHandler(handler, fileWriter)));
-      } else if (handler.origin == "other") {
-          handlers.push_back(
-            std::unique_ptr<Handler>(
-              new TextHandler(handler, fileWriter)));
-      } else {
-        std::cerr << "Invalid text handler product: " << handler.origin << std::endl;
-        exit(1);
+        continue;
       }
+
+      if (origin == "other") {
+        handlers.push_back(
+          std::unique_ptr<Handler>(
+            new TextHandler(handler, fileWriter)));
+        continue;
+      }
+
+      std::cerr << "Invalid text handler product: " << handler.origin << std::endl;
+      exit(1);
     } else {
       std::cerr << "Invalid handler type: " << handler.type << std::endl;
       exit(1);

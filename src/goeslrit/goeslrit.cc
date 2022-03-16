@@ -49,9 +49,10 @@ std::string filename(std::unique_ptr<assembler::SessionPDU>& spdu) {
   auto out = spdu->getName();
   auto ph = spdu->getHeader<lrit::PrimaryHeader>();
   auto nlh = spdu->getHeader<lrit::NOAALRITHeader>();
+  auto pid = nlh.productID;
 
-  // Special case GOES-16 and GOES-17
-  if (ph.fileType == 0 && (nlh.productID == 16 || nlh.productID == 17)) {
+  // Special case GOES-R series.
+  if (ph.fileType == 0 && (pid == 16 || pid == 17 || pid == 18 || pid == 19)) {
     // Some image files are segmented but have the same annotation.
     // To prevent overwriting earlier files, include the segment number.
     if (spdu->hasHeader<lrit::SegmentIdentificationHeader>()) {
