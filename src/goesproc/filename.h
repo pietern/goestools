@@ -7,7 +7,7 @@ struct FilenameBuilder {
   std::string dir;
   std::string filename;
 
-  struct timespec time;
+  struct timespec time{0, 0};
   AWIPS awips;
   Product product;
   Region region;
