@@ -158,6 +158,41 @@ void loadAirspySource(Config::Airspy& out, const toml::Value& v) {
   }
 }
 
+void loadSoapySource(Config::Soapy& out, const toml::Value& v) {
+  const auto& table = v.as<toml::Table>();
+  for (const auto& it : table) {
+    const auto& key = it.first;
+    const auto& value = it.second;
+
+    if (key == "frequency") {
+      out.frequency = value.as<int>();
+      continue;
+    }
+
+    if (key == "sample_rate") {
+      out.sampleRate = value.as<int>();
+      continue;
+    }
+
+    if (key == "gain") {
+      out.gain = value.as<int>();
+      continue;
+    }
+
+    if (key == "sample_publisher") {
+      out.samplePublisher = createSamplePublisher(value);
+      continue;
+    }
+
+    if (key == "device_index") {
+        out.deviceIndex = value.as<int>();
+        continue;
+    }
+
+    throwInvalidKey(key);
+  }
+}
+
 void loadRTLSDRSource(Config::RTLSDR& out, const toml::Value& v) {
   const auto& table = v.as<toml::Table>();
   for (const auto& it : table) {
@@ -384,6 +419,11 @@ Config Config::load(const std::string& file) {
 
     if (key == "airspy") {
       loadAirspySource(out.airspy, value);
+      continue;
+    }
+
+    if (key == "soapy") {
+      loadSoapySource(out.soapy, value);
       continue;
     }
 
