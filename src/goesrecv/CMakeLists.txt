@@ -23,6 +23,16 @@ if(NOT RTLSDR_FOUND)
   message(WARNING "Unable to find librtlsdr")
 else()
   add_library(rtlsdr_source rtlsdr_source.cc)
+
+  # Some rtlsdr versions begin with an extraneous 'v', such as older
+  # versions (<= 0.5.4) built from source, or the version provided by MacPorts.
+  # Newer versions built from source, as well as Debian packages, have
+  # versions that do not begin with this 'v'.
+  # Remove prefix 'v' here to handle all versions consistently.
+  if(RTLSDR_VERSION MATCHES "^v")
+    string(SUBSTRING ${RTLSDR_VERSION} 1 -1 RTLSDR_VERSION)
+  endif()
+
   if((RTLSDR_VERSION VERSION_EQUAL 0.5.4) OR
      (RTLSDR_VERSION VERSION_GREATER 0.5.4))
     target_compile_definitions(rtlsdr_source PRIVATE RTLSDR_HAS_BIAS_TEE)
