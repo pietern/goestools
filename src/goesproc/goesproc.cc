@@ -17,6 +17,7 @@
 #include "handler_goesr.h"
 #include "handler_himawari8.h"
 #include "handler_nws_image.h"
+#include "handler_dcs.h"
 #include "handler_nws_text.h"
 #include "handler_text.h"
 #include "options.h"
@@ -87,7 +88,9 @@ int main(int argc, char** argv) {
         std::unique_ptr<Handler>(
           new EMWINHandler(handler, fileWriter)));
     } else if (handler.type == "dcs") {
-      // TODO
+                handlers.push_back(
+                        std::unique_ptr<Handler>(
+                                new DCSTextHandler(handler, fileWriter)));
     } else if (handler.type == "text") {
       const auto& origin = handler.origin;
       if (origin == "nws") {

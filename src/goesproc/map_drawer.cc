@@ -10,6 +10,8 @@ Proj longitudeToProj(float longitude) {
   args["h"] = "35786023.0";
   args["lon_0"] = std::to_string(longitude);
   args["sweep"] = "x";
+// goestools-proj-compat.patch
+  args["ellps"] = "WGS84"; 
   return Proj(args);
 }
 

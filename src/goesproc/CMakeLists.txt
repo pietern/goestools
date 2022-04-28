@@ -10,6 +10,7 @@ set(GOESPROC_SRCS
   handler_goesr.cc
   handler_himawari8.cc
   handler_nws_image.cc
+  handler_dcs.cc
   handler_nws_text.cc
   handler_text.cc
   image.cc
@@ -36,7 +37,7 @@ endif()
 add_executable(goesproc ${GOESPROC_SRCS})
 add_sanitizers(goesproc)
 install(TARGETS goesproc COMPONENT goestools RUNTIME DESTINATION bin)
-target_link_libraries(goesproc lrit util assembler packet_reader dir)
+target_link_libraries(goesproc dcs lrit util assembler packet_reader dir)
 target_link_libraries(goesproc zip)
 target_link_libraries(goesproc nlohmann_json)
 target_link_libraries(goesproc timer)
