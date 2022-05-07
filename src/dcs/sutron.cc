@@ -91,6 +91,8 @@ std::string	sutron(std::string inbuf)
 
 	switch ( Hash( inbuf.substr(1,2).c_str() ) )
 	{
+		case Hash("B "):	
+		case Hash("B>"):	
 		case Hash("B\\"):	
 		case Hash("B*"):	
 		case Hash("B1"):	
@@ -108,6 +110,7 @@ std::string	sutron(std::string inbuf)
 		case Hash("BP"):	
 		case Hash("BR"):	
 		case Hash("BS"):	
+		case Hash("BU"):	
 		case Hash("BW"):	
 		case Hash("BX"):	
 		case Hash("BY"):	
