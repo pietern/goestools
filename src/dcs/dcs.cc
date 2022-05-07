@@ -91,20 +91,21 @@ int DCPData::readFrom(const char* buf, size_t len) {
       nread += n;
     }
 
-    // Skip over Missed Messages Blocks (blockID == 2 as of January 21, 2021) 
-    if (blocks[pos].blockID != 1) {
-      nread += 28; // Size of Missed Message Block (2(blocks len) + 24(header) + 2(CRC16))
+         // 2 bytes contain blocks length
+	{
+         constexpr unsigned n = 2;
+         ASSERT((len - nread) >= n);
+         memcpy(&blocks[pos].blockLength, &buf[nread], n);
+         nread += n;
+	}
+     if (blocks[pos].blockID != 1)
+     {
+    //  Skip over Missed Messages Blocks (blockID == 2 per HRITS Doc 1/25/2019)
+	nread += blocks[pos].blockLength - 3; //Skip(header + 2(CRC16))-(ID+LNG)
+       // nread += 26; // Size of Missed Message Block (24(header) + 2(CRC16))
     }
-    else {
-
-      // 2 bytes contain blocks length
-      {
-        constexpr unsigned n = 2;
-        ASSERT((len - nread) >= n);
-        memcpy(&blocks[pos].blockLength, &buf[nread], n);
-        nread += n;
-      }
-
+    else 
+    {
       // Begin DCP Header section
 
       // 3 bytes contain sequence number

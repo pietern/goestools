@@ -263,11 +263,18 @@ std::string	sutron(std::string inbuf)
 				
 			  	break;
 
+		case Hash("D/"): 	
+		case Hash("D<"): 	
+		case Hash("D#"): 	
 		case Hash("D1"): 	
 		case Hash("D2"): 	
 		case Hash("D3"): 	
 		case Hash("D4"): 	
+		case Hash("DL"): 	
+		case Hash("DN"): 	
 		case Hash("DO"): 	
+		case Hash("DQ"): 	
+		case Hash("DT"): 	
 				{
 				  std::string tmp("");
 				  tmp="block-id: D ";
