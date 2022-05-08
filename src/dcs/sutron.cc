@@ -185,7 +185,7 @@ std::string	sutron(std::string inbuf)
 					return inbuf;  // see if it is really a C type, as it is required to have +
 
 				  std::string c(1,inbuf[2]); // convert 1 char group-id to string
-				  tmp="block-id: C group-id: " + c + "\n"; 
+				  tmp="block-id: C group-id: " + c + " "; 
 				  std::copy(tmp.begin(), tmp.end(), std::back_inserter(outbuf));
 				  std::string sensor;
 				  std::string smeas, sj_day, stmin_in_day, stmin_int;
@@ -246,7 +246,7 @@ std::string	sutron(std::string inbuf)
 
 				  	tmp=" M" + smeas + ": " + "Julian Day: " + sj_day
 					+ ", Time Since Midnight(min): " + stmin_in_day + ",  Time Interval(min): "
-					+ stmin_int + ", data(x10^-2): " + data + "\n";
+					+ stmin_int + ", data(x10^-2): " + data + " ";
 				  	std::copy(tmp.begin(), tmp.end(), std::back_inserter(outbuf));
 					j++;
 				
