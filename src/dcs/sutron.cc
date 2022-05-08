@@ -91,27 +91,18 @@ std::string	sutron(std::string inbuf)
 
 	switch ( Hash( inbuf.substr(1,2).c_str() ) )
 	{
-		case Hash("B "):	
-		case Hash("B>"):	
 		case Hash("B\\"):	
 		case Hash("B*"):	
 		case Hash("B1"):	
 		case Hash("B2"):	
 		case Hash("B3"):	
 		case Hash("B4"):	
-		case Hash("B6"):	
-		case Hash("BA"):	
-		case Hash("BB"):	
 		case Hash("BC"):	
 		case Hash("BG"):	
-		case Hash("BI"):	
 		case Hash("BK"):	
 		case Hash("BL"):	
 		case Hash("BP"):	
-		case Hash("BR"):	
 		case Hash("BS"):	
-		case Hash("BU"):	
-		case Hash("BW"):	
 		case Hash("BX"):	
 		case Hash("BY"):	
 				{
@@ -266,18 +257,11 @@ std::string	sutron(std::string inbuf)
 				
 			  	break;
 
-		case Hash("D/"): 	
-		case Hash("D<"): 	
-		case Hash("D#"): 	
 		case Hash("D1"): 	
 		case Hash("D2"): 	
 		case Hash("D3"): 	
 		case Hash("D4"): 	
-		case Hash("DL"): 	
-		case Hash("DN"): 	
-		case Hash("DO"): 	
 		case Hash("DQ"): 	
-		case Hash("DT"): 	
 				{
 				  std::string tmp("");
 				  tmp="block-id: D ";
