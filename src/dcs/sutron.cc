@@ -169,17 +169,18 @@ std::string	sutron(std::string inbuf)
 				  std::string tmp2("");
 				  float bat;
 			 	  long int ival,l,m,r;
+				  int	lenbuf=inbuf.length();
+				  len=word[0].length()+1;
 
-                                  if ( word[1].c_str() )
-                                  {
-					len=word[0].length()+1;
+				  if (lenbuf -len  > 0 )
+				  {
                                         std::string s;
                                         s=coda;
 					bat=0;
                                         bat= ((inbuf[len] -64)&0x3F)*.234 + 10.6;
                                         tmp="opt: " + s + " bat: " + to_string( round(bat * 10)/10).substr(0,4)  + " Volts\n";
                                         std::copy(tmp.begin(), tmp.end(), std::back_inserter(tmp2));
-                                  }
+				  }
 				  std::vector<std::string> pword = split_delim(word[0], '+');
 				  if ( pword[0].empty()) 
 					return inbuf;  // see if it is really a C type, as it is required to have +
