@@ -7,8 +7,8 @@ std::vector<std::string> split_delim(const std::string &s, char delim)
 	std::vector<std::string> elems;
 	while (std::getline(ss, item, delim))
 	{
-		elems.push_back(item);
-	// elems.push_back(std::move(item)); // if C++11 (based on comment from @mchiasson)
+	//	elems.push_back(item);
+	        elems.push_back(std::move(item)); // if C++11 (based on comment from @mchiasson)
 	}
 	return elems;
 }
@@ -176,7 +176,7 @@ std::string	sutron(std::string inbuf)
                                         std::string s;
                                         s=coda;
 					bat=0;
-                                        bat= (inbuf[len] -64)*.234 + 10.6;
+                                        bat= ((inbuf[len] -64)&0x3F)*.234 + 10.6;
                                         tmp="opt: " + s + " bat: " + to_string( round(bat * 10)/10).substr(0,4)  + " Volts\n";
                                         std::copy(tmp.begin(), tmp.end(), std::back_inserter(tmp2));
                                   }
@@ -190,16 +190,16 @@ std::string	sutron(std::string inbuf)
 				  std::string sensor;
 				  std::string smeas, sj_day, stmin_in_day, stmin_int;
 				  long s,jday,tday,tint;
-				  int j=1; // skip the "C1: piece
-				  //while (  pword[j].c_str() )
-				do {
-				  std::string c(1,inbuf[2]); // convert 1 char group-id to string
-					std::string data("");
-					sensor=pword[j];
-					len=sensor.length();
+				  //int j=1; // skip the "C1: piece
+				  for (std::size_t j=1; j < pword.size(); j++)
+				 {
+				   std::string c(1,inbuf[2]); // convert 1 char group-id to string
+				   std::string data("");
+				   sensor=pword[j];
+				   len=sensor.length();
 
-				for(std::size_t i=7;i<len;i=i+3)
-                                {
+				   for(std::size_t i=7;i<len;i=i+3)
+                                   {
                                     	if (i+2 > len)
                                         	r=0;
                                     	else
@@ -224,7 +224,7 @@ std::string	sutron(std::string inbuf)
                                     	ival= l + m + r;
                                     	tmp=to_string(ival) + " ";
                                     	std::copy(tmp.begin(), tmp.end(), std::back_inserter(data));
-                                 }
+                                     }
 
 					s=(sensor[0]-64)&0x3F;
 					smeas=to_string(s);
@@ -245,12 +245,10 @@ std::string	sutron(std::string inbuf)
 					stmin_int=to_string(tint);
 
 				  	tmp=" M" + smeas + ": " + "Julian Day: " + sj_day
-					+ ", Time Since Midnight(min): " + stmin_in_day + ",  Time Interval(min): "
-					+ stmin_int + ", data(x10^-2): " + data + " ";
+					+ " Time Since Midnight(min): " + stmin_in_day + " Interval(min): "
+					+ stmin_int + " data(x10^-2): " + data + " ";
 				  	std::copy(tmp.begin(), tmp.end(), std::back_inserter(outbuf));
-					j++;
-				
-				  } while (  pword[j].empty() );
+				  } 
 
 				  std::copy(tmp2.begin(), tmp2.end(), std::back_inserter(outbuf));
 				}
@@ -261,7 +259,6 @@ std::string	sutron(std::string inbuf)
 		case Hash("D2"): 	
 		case Hash("D3"): 	
 		case Hash("D4"): 	
-		case Hash("DQ"): 	
 				{
 				  std::string tmp("");
 				  tmp="block-id: D ";

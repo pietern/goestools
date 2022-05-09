@@ -13,7 +13,7 @@ main ()
 //	std::string data1("\"B1@@Gt@Gs@Sx@Sr@@i@@iL");
 //	std::string data1("\"B2@@Gt@Gs@Sx@Sr@@i@@iL");
 	std::string data1("\"B1O@!&@!&@!'@!(@!'@!'@!'@!&@!&@!(@!&@!%@!&@!'@!&@!'JAH@@");
-//	std::string data2("\"C1+AA9L[@O@PA@PA@PA@PA@PA@P@@P@@P@.H 2102527 ");
+	std::string data2("\"C1+AA9L[@O@PA@PA@PA@PA@PA@P@@P@@P@.H 2102527 ");
 //	std::string data2("\"C1+ABeHq@A@E|@FG@FM+BBeHq@A@@O.K"); // look for "C1+. the terminator . is important
 //	std::string data2("\"C1+AA,T(@O @@ @@ @@ @@+BA,T(@O @@ @@ @@ @@+CA,T(@O @@ @@ @@ @@+DA,T(@O @@ @@ @@ @@+EA,T(@O @@ @@ @@ @@+FA,T(@O @@ @@ @@ @@+GA,T(@O @@ @@ @@ @@+HA,T(@O@T,@U6@U6@U6+IA,T(@O @@ @@ @@ @@.");
 //	std::string data2("\"C1+AA,TY@O@PL@PL@PL@PL@PL@PL@PL@PL.J 2102527");
@@ -21,7 +21,7 @@ main ()
 //	std::string data2("\"C1+AA9U$@O@PB@PB@PB@PB@PB@PB@PB@PB.J 2102527 ");
 //	std::string data2(" C1+AA;BG@O@PA@PA@PA@PA@PA@PA@PA@PB.I2102527 ");
 //	std::string data2(" C3D*@YAZD^G\"@.:@@@AVWD3D=@OAGDXG=@.:@@@AVWCRDV@ZARDWG1@.:@@@AVWCYE@@TAPDOHT@.:@@@AVWCQE @\"AMDPH^@.:@@@AVWD/C4@M@5DPH$@.:@@@AVXDOD0@PAKDMH-@.:@@@AVXDGD*@M@2DGIR@.9@@@AVXC E$@YATDAI%@.:@@@AVYCTD]@\\A9C;I1@.:@@@AVYB>D/@TA\"C8JU@.:@@@AVYA=AC@XAHC5J*@.:@@@AVYBI");
-	std::string data2(" C4ES@R@&CRL/@.2@@[??PC+D&@\\@+CSL.@.2@@[??JC\"D@@^@3CTL-@.2@@[??FC&D'@_@4CTL+@.2@@[??AC'EH@\\@6CUL)@.2@@[?>;C)DP@^@9CVL(@.2@@[?>6C+D0@#@<CWL(@.3@@[?>1C)DI@(AKCWL&@.2@@[?>,C(D @2ARCXL&@.2@@[?>)C,D_@1A\\CXL$@.3@@[?>'C%DN@*ACCYL\"@.3@@[?>$C*DJ@^AFCZL^@.3@@[?>!A?");
+//	std::string data2(" C4ES@R@&CRL/@.2@@[??PC+D&@\\@+CSL.@.2@@[??JC\"D@@^@3CTL-@.2@@[??FC&D'@_@4CTL+@.2@@[??AC'EH@\\@6CUL)@.2@@[?>;C)DP@^@9CVL(@.2@@[?>6C+D0@#@<CWL(@.3@@[?>1C)DI@(AKCWL&@.2@@[?>,C(D @2ARCXL&@.2@@[?>)C,D_@1A\\CXL$@.3@@[?>'C%DN@*ACCYL\"@.3@@[?>$C*DJ@^AFCZL^@.3@@[?>!A?");
 //	std::string data2("\"CS#!0101XX-@PM1457N&_&@D@\\@P@R@#@B@B@A@A-@0FPBVD,D+-(5?.F");
 //	std::string data2("\"CS#!0101XX-@PM1457N&_&@D@\\@P@R@#@B@B@A@A-@0FPBVD,D+-(5?.@V@NNHYU@B@@@@@@@@ANC(M-@@@@@@@@AQB1ARB1@L@L@@@@BSC?@@A9+A@QZ@@W@U@IA;BG+B@TJ@@@@S@IBRBS+C@U9@@@@T@IBLBL+D@XK@@\"@V@JBFBF+E@W3@@=@V@JBBBB+F@V^@A!@X@KA>A>+G@ZG@A[@X@JA:A7+H@Z9@A0@W@JA5A/+I@[9@BP@W@KA1A)+J@];@BO@X@JA.A$+K@^2@BU@V@IA+A +L@^*@BI@U@JA+A^+M@^5@A6@Y@JA+A]+N@_7@BA@W@JA)A[+O@ Y@A=@T@IA&AZ+P@^=@A2@V@KA$AW+Q@]0@@[@[@NA#AU+R@\\E??O@ @NA#AV+S@X:?=6@ @NA%AX+T@XE?=U@_@OA%AY+U@T7?;.@ @MA(AX+V@Q<?:3@Y@KA,AR+W@P+?:<@X@JA+AP+X@NR?;^@Y@LA+AO+Y@LT?<I@Z@MA*AN+Z@JF?<A@X@LA,AM+[@H-?<!@[@KA'AM+\\@I.?;5@X@KA-AJ+]@H3?;?@X@KA-AJ+^@F[?=O@W@KA*AJ+_@F=?<2@W@KA'AH+ @C3?>\"@W@JA&AJ+!@C&?>M@T@IA+AK+\"@EH?=-@T@IA-AE+#@C1?>N@S@IA&AI+$@DM?>J@T@IA*AE+%@B8?>6@R@HA'AG+&@AM??_@P@HA_AJ+'@B[?>/@U@IA AK+(@@=??_@R@HA A.+)@@5??<@P@HAWBD+*@@%@@M@O@GAWBI++@@S@@F@P@GA!BG+,??9@@N@Q@GA#A8+-@@G@@@@Q@HA)A@+.??-??2@Q@GA.@3+/@@S??-@P@GA*@.+0@@V??/@Q@HA#@*");
 //	std::string data3("\"D1D~A8@NI@NH@NG@NF@NE@DGF");
@@ -41,7 +41,7 @@ main ()
 	std::string data10("");
 	std::string data11("\"");
 	std::string buf;
-	buf=sutron(data3);
+	buf=sutron(data2);
 	cout<<buf<<endl;
 
 	return 0;
