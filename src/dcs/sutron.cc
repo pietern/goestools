@@ -135,7 +135,7 @@ std::string	sutron(std::string inbuf)
 				    	m= ((inbuf[i+1] - 64)&0x3F) <<6; // middle of 18 bit percision
 
 			  	    l= ((inbuf[i] - 64)&0x3F) <<12; // left of 18 bit percision
-				    if ( (l & 0x20) != 0)
+				    if ( (inbuf[i] & 0x20) != 0)
 							sign = -1; // negative 
 				    ival= l + m + r;
 				    if (sign == -1)
@@ -231,8 +231,8 @@ std::string	sutron(std::string inbuf)
 					{
                                     		l= ((sensor[i] - 64)&0x3F) <<12; // left of 18 bit percision
 					}
-				   	if ((l & 0x20) !=0 )
-								sign = -1;
+				    if ( (inbuf[i] & 0x20) != 0)
+							sign = -1;
 
                                     	ival= l + m + r;
 					if ( sign == -1)
@@ -318,7 +318,7 @@ std::string	sutron(std::string inbuf)
 				    	m= ((inbuf[i+1] - 64)&0x3F) <<6; // middle of 18 bit percision
 
 			  	    l= ((inbuf[i] - 64)&0x3F) <<12; // left of 18 bit percision
-				    if ((l & 0x20) !=0 )
+				    if ( (inbuf[i] & 0x20) != 0)
                                                          sign = -1;
 				    ival= l + m + r;
 				    if (sign == -1)
