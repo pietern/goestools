@@ -137,7 +137,9 @@ std::string	sutron(std::string inbuf)
 				    std::copy(tmp.begin(), tmp.end(), std::back_inserter(outbuf));
 				  }
 				  bat=0;
-				  bat=((inbuf[len]-64)&0x3F)*.234 + 10.6;
+				  bat=(inbuf[len]-64)*.234 + 10.6;
+				  if ( bat < 0)
+					battery = 0;
 				  if ( battery == 1)
 				
 				  {
@@ -177,7 +179,7 @@ std::string	sutron(std::string inbuf)
                                         std::string s;
                                         s=coda;
 					bat=0;
-                                        bat= ((inbuf[len] -64)&0x3F)*.234 + 10.6;
+                                        bat= (inbuf[len] -64)*.234 + 10.6;
                                         tmp="opt: " + s + " bat: " + to_string( round(bat * 10)/10).substr(0,4)  + " Volts\n";
                                         std::copy(tmp.begin(), tmp.end(), std::back_inserter(tmp2));
 				  }
@@ -308,7 +310,9 @@ std::string	sutron(std::string inbuf)
 				  if ( inbuf[len] < 64)
 					battery=0;
 				  bat=0;
-				  bat=((inbuf[len]-64)&0x3F)*.234 + 10.6;
+				  bat=(inbuf[len]-64)*.234 + 10.6;
+				  	if ( bat < 0)
+						battery = 0;
 				  if ( battery == 1)
 				
 				  {
