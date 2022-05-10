@@ -112,6 +112,7 @@ std::string	sutron(std::string inbuf)
 
 				  long int ival,l,m,r;
 				  float bat;
+				  long sign=1; // positive value
 
 				  std::string c(1,inbuf[2]); // convert 1 char group-id to string
 				  tmp="group-id: " + c + " ";
@@ -125,6 +126,8 @@ std::string	sutron(std::string inbuf)
 					r=0;
 				    else	
 					r= (inbuf[i+2] - 64)&0x3F; // right of 18 bit percision
+				   if ((inbuf[i+2] & 0x20) !=0 )
+							sign = -1; // negative 
 					
 				    if (i+1 > len) 
 					m=0 <<6;
@@ -133,6 +136,8 @@ std::string	sutron(std::string inbuf)
 
 			  	    l= ((inbuf[i] - 64)&0x3F) <<12; // left of 18 bit percision
 				    ival= l + m + r;
+				    if (sign == -1)
+					ival=ival*sign; // negative value
 				    tmp=to_string(ival) + " ";
 				    std::copy(tmp.begin(), tmp.end(), std::back_inserter(outbuf));
 				  }
@@ -171,6 +176,7 @@ std::string	sutron(std::string inbuf)
 				  std::string tmp2("");
 				  float bat;
 			 	  long int ival,l,m,r;
+				  long sign=1;
 				  int	lenbuf=inbuf.length();
 				  len=word[0].length()+1;
 
@@ -209,6 +215,8 @@ std::string	sutron(std::string inbuf)
 					{
                                         	r= (sensor[i+2] - 64)&0x3F; // right of 18 bit percision
 					}
+				   	if ((inbuf[i+2] & 0x20) !=0 )
+								sign = -1;
 
                                     	if (i+1 > len)
                                        		m=0 <<6;
@@ -225,6 +233,8 @@ std::string	sutron(std::string inbuf)
 					}
 
                                     	ival= l + m + r;
+					if ( sign == -1)
+							ival=ival*sign; //negative value
                                     	tmp=to_string(ival) + " ";
                                     	std::copy(tmp.begin(), tmp.end(), std::back_inserter(data));
                                      }
@@ -269,6 +279,7 @@ std::string	sutron(std::string inbuf)
 
 				  long int ival,l,m,r;
 				  float bat;
+				  long sign=1;
 
 				  std::string c(1,inbuf[2]); // convert 1 char to string
 				  tmp="group-id: " + c + " ";
@@ -296,6 +307,9 @@ std::string	sutron(std::string inbuf)
 					r=0;
 				    else	
 					r= (inbuf[i+2] - 64)&0x3F; // right of 18 bit percision
+
+				if ((inbuf[i+2] & 0x20) !=0 )
+                                                        sign = -1;
 					
 				    if (i+1 > len) 
 					m=0 <<6;
@@ -304,6 +318,8 @@ std::string	sutron(std::string inbuf)
 
 			  	    l= ((inbuf[i] - 64)&0x3F) <<12; // left of 18 bit percision
 				    ival= l + m + r;
+				    if (sign == -1)
+				    	ival=ival*sign; // negative value
 				    tmp=to_string(ival) + " ";
 				    std::copy(tmp.begin(), tmp.end(), std::back_inserter(outbuf));
 				  }
