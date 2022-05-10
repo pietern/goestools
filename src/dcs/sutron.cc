@@ -112,7 +112,6 @@ std::string	sutron(std::string inbuf)
 
 				  long int ival,l,m,r;
 				  float bat;
-				  long sign=1; // positive value
 
 				  std::string c(1,inbuf[2]); // convert 1 char group-id to string
 				  tmp="group-id: " + c + " ";
@@ -122,6 +121,7 @@ std::string	sutron(std::string inbuf)
 				  std::copy(tmp.begin(), tmp.end(), std::back_inserter(outbuf));
 				  for(std::size_t i=4;i<len;i=i+3)
 				  {
+				    long sign=1; // positive value
 				    if (i+2 > len) 
 					r=0;
 				    else	
@@ -178,7 +178,6 @@ std::string	sutron(std::string inbuf)
 				  std::string tmp2("");
 				  float bat;
 			 	  long int ival,l,m,r;
-				  long sign=1;
 				  int	lenbuf=inbuf.length();
 				  len=word[0].length()+1;
 
@@ -211,6 +210,7 @@ std::string	sutron(std::string inbuf)
 
 				   for(std::size_t i=7;i<len;i=i+3)
                                    {
+					long sign=1;
                                     	if (i+2 > len)
                                         	r=0;
                                     	else
@@ -281,7 +281,6 @@ std::string	sutron(std::string inbuf)
 
 				  long int ival,l,m,r;
 				  float bat;
-				  long sign=1;
 
 				  std::string c(1,inbuf[2]); // convert 1 char to string
 				  tmp="group-id: " + c + " ";
@@ -305,6 +304,7 @@ std::string	sutron(std::string inbuf)
 // ---------------------------------
 				  for(std::size_t i=7;i<len;i=i+3)
 				  {
+					long sign=1;
 				    if (i+2 > len) 
 					r=0;
 				    else	
