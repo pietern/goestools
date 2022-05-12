@@ -139,7 +139,7 @@ std::string	sutron(std::string inbuf)
 							sign = -1; // negative 
 				    ival= l + m + r;
 				    if (sign == -1)
-					ival=ival*sign; // negative value
+					ival=ival*sign+0x20000; // negative value
 				    tmp=to_string(ival) + " ";
 				    std::copy(tmp.begin(), tmp.end(), std::back_inserter(outbuf));
 				  }
@@ -236,7 +236,7 @@ std::string	sutron(std::string inbuf)
 
                                     	ival= l + m + r;
 					if ( sign == -1)
-							ival=ival*sign; //negative value
+						ival=ival*sign+0x20000; //negative value
                                     	tmp=to_string(ival) + " ";
                                     	std::copy(tmp.begin(), tmp.end(), std::back_inserter(data));
                                      }
@@ -322,7 +322,7 @@ std::string	sutron(std::string inbuf)
                                                          sign = -1;
 				    ival= l + m + r;
 				    if (sign == -1)
-				    	ival=ival*sign; // negative value
+					ival=ival*sign+0x20000; //negative value
 				    tmp=to_string(ival) + " ";
 				    std::copy(tmp.begin(), tmp.end(), std::back_inserter(outbuf));
 				  }
