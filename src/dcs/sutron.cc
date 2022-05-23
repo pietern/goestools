@@ -103,6 +103,7 @@ std::string	sutron(std::string inbuf)
 		case Hash("BL"):	
 		case Hash("BP"):	
 		case Hash("BS"):	
+		case Hash("BT"):	
 		case Hash("BX"):	
 		case Hash("BY"):	
 				{

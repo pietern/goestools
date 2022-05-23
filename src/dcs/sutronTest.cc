@@ -40,8 +40,11 @@ main ()
 	std::string data9("\"C1");
 	std::string data10("");
 	std::string data11("\"");
+	//std::string data12("\"BT<@W\\DVGD$AES)DP*G:(NY$F6HB\\_F^HFSGFK!F]SF^\"FT)FM;F\\:F]9FTWFM;F\\C");
+	std::string data12("\"BT<@U8DUCGU)D?*EJXF!]JO'JO'F@@JO'JO'JO'JO'F@@F@@F@@JO'JO'JO'F@@F@@F@@JO'JO'JO'");
+
 	std::string buf;
-	buf=sutron(data2);
+	buf=sutron(data12);
 	cout<<buf<<endl;
 
 	return 0;
