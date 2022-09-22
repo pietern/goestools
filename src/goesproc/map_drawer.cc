@@ -5,12 +5,12 @@ using namespace nlohmann;
 namespace {
 
 Proj longitudeToProj(float longitude) {
-  std::map<std::string, std::string> args;
-  args["proj"] = "geos";
-  args["h"] = "35786023.0";
-  args["lon_0"] = std::to_string(longitude);
-  args["sweep"] = "x";
-  return Proj(args);
+  std::stringstream args;
+  args << "+proj=geos ";
+  args << "+h=35786023.0 ";
+  args << "+lon_0=" << std::to_string(longitude) << " ";
+  args << "+sweep=x";
+  return Proj(args.str());
 }
 
 } // namespace
@@ -36,8 +36,8 @@ void MapDrawer::generatePoints(
   double lat, lon;
   double x, y;
   for (const auto& coord : coords) {
-    lon = coord.at(0).get<double>() * DEG_TO_RAD;
-    lat = coord.at(1).get<double>() * DEG_TO_RAD;
+    lon = proj_torad(coord.at(0).get<double>());
+    lat = proj_torad(coord.at(1).get<double>());
     std::tie(x, y) = proj_.fwd(lon, lat);
 
     // If out of range, ignore

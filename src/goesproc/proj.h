@@ -1,25 +1,17 @@
 #pragma once
 
-#if PROJ_VERSION_MAJOR < 4
-#error "proj version >= 4 required"
-#else
-// Assume proj continues to ship with a backwards compatibility layer.
-// See for a migration guide https://proj.org/development/migration.html.
-#define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H 1
+#if PROJ_VERSION_MAJOR < 5
+#error "proj version >= 5 required"
 #endif
 
-#include <map>
 #include <string>
 #include <tuple>
-#include <vector>
 
-#include <proj_api.h>
+#include <proj.h>
 
 class Proj {
 public:
-  explicit Proj(const std::vector<std::string>& args);
-
-  explicit Proj(const std::map<std::string, std::string>& args);
+  explicit Proj(const std::string& args);
 
   ~Proj();
 
@@ -28,5 +20,5 @@ public:
   std::tuple<double, double> inv(double x, double y);
 
 protected:
-  projPJ proj_;
+  PJ *proj_;
 };
