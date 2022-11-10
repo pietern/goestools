@@ -2,18 +2,16 @@
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<script type="text/javascript">
 
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-120209331-1']);
-      _gaq.push(['_trackPageview']);
-
-      (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VVB9QTT7MV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-VVB9QTT7MV');
     </script>
+    
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Monitoring goesrecv with Circonus &mdash; goestools  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,7 +23,9 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -78,9 +78,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../guides.html">Guides</a> &raquo;</li>
-      <li>Monitoring goesrecv with Circonus</li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../guides.html">Guides</a></li>
+      <li class="breadcrumb-item active">Monitoring goesrecv with Circonus</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/guides/circonus.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -91,7 +91,7 @@
            <div itemprop="articleBody">
              
   <section id="monitoring-goesrecv-with-circonus">
-<h1>Monitoring goesrecv with Circonus<a class="headerlink" href="#monitoring-goesrecv-with-circonus" title="Permalink to this headline">¶</a></h1>
+<h1>Monitoring goesrecv with Circonus<a class="headerlink" href="#monitoring-goesrecv-with-circonus" title="Permalink to this heading">¶</a></h1>
 <p><a class="reference external" href="https://www.circonus.com/">Circonus</a> is a hosted graphing and monitoring tool. It has native
 support for histograms which is ideal for looking at a distribution
 over time. For goesrecv in particular, this is great for keeping track
@@ -120,7 +120,7 @@ packet drop at all.</p>
 </figcaption>
 </figure>
 <section id="setup">
-<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Register for a Circonus account and log in</p></li>
 <li><p>Go to “new check”</p></li>
@@ -131,7 +131,7 @@ system metrics by default. It will also be the sink for the statsd
 stats produced by goesrecv and forward them to Circonus.</p>
 </section>
 <section id="setup-on-raspbian">
-<h2>Setup on Raspbian<a class="headerlink" href="#setup-on-raspbian" title="Permalink to this headline">¶</a></h2>
+<h2>Setup on Raspbian<a class="headerlink" href="#setup-on-raspbian" title="Permalink to this heading">¶</a></h2>
 <p>If you run goesrecv on Raspbian you have to install the agent
 yourself. See <a class="reference external" href="https://www.circonus.com/2018/02/circonus-raspberry-pi/">https://www.circonus.com/2018/02/circonus-raspberry-pi/</a>
 for instructions. These instructions include a fixed version of Node
@@ -156,7 +156,7 @@ sudo systemctl start nad
 </div>
 </section>
 <section id="configuration">
-<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading">¶</a></h2>
 <p>The statsd listener in the agent is enabled by default.</p>
 <p>Ensure that your goesrecv configuration contains the following:</p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[monitor]</span><span class="w"></span>

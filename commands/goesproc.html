@@ -2,18 +2,16 @@
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<script type="text/javascript">
 
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-120209331-1']);
-      _gaq.push(['_trackPageview']);
-
-      (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VVB9QTT7MV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-VVB9QTT7MV');
     </script>
+    
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>goesproc &mdash; goestools  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,7 +23,9 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -83,9 +83,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../commands.html">Commands</a> &raquo;</li>
-      <li>goesproc</li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../commands.html">Commands</a></li>
+      <li class="breadcrumb-item active">goesproc</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/commands/goesproc.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -96,10 +96,10 @@
            <div itemprop="articleBody">
              
   <section id="goesproc">
-<span id="id1"></span><h1>goesproc<a class="headerlink" href="#goesproc" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h1>goesproc<a class="headerlink" href="#goesproc" title="Permalink to this heading">¶</a></h1>
 <p>Process stream of packets (VCDUs) or list of LRIT files.</p>
 <section id="options">
-<h2>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<h2>Options<a class="headerlink" href="#options" title="Permalink to this heading">¶</a></h2>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 43%" />
@@ -134,13 +134,13 @@ contain that match the glob <code class="docutils literal notranslate"><span cla
 is sorted according to their time stamp header prior to processing it.</p>
 </section>
 <section id="configuration">
-<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading">¶</a></h2>
 <p>The configuration file uses <a class="reference external" href="https://github.com/toml-lang/toml">TOML</a> syntax. You can
 find an example configuration (that includes stanzas for every
 available handler) in <code class="docutils literal notranslate"><span class="pre">./etc/goesproc.conf</span></code>.</p>
 </section>
 <section id="handlers">
-<h2>Handlers<a class="headerlink" href="#handlers" title="Permalink to this headline">¶</a></h2>
+<h2>Handlers<a class="headerlink" href="#handlers" title="Permalink to this heading">¶</a></h2>
 <p>Different products use different handlers with different configuration
 options. For example, there is an NWS image handler, NWS text handler,
 EMWIN handler, GOES N-series handler, GOES R-series handler, Himawari
@@ -148,7 +148,7 @@ handler, etc.</p>
 <p><strong>TODO</strong> – describe configuration options for every handler</p>
 </section>
 <section id="example">
-<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this heading">¶</a></h2>
 <p>For example, with the following configuration file:</p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[[handler]]</span><span class="w"></span>
 <span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;image&quot;</span><span class="w"></span>
@@ -184,7 +184,7 @@ $ convert -loop <span class="m">0</span> -delay <span class="m">50</span> *.png 
 <img alt="../_images/GOES15_FD_VS_20170821.gif" src="../_images/GOES15_FD_VS_20170821.gif" />
 </section>
 <section id="sample-configuration">
-<h2>Sample configuration<a class="headerlink" href="#sample-configuration" title="Permalink to this headline">¶</a></h2>
+<h2>Sample configuration<a class="headerlink" href="#sample-configuration" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example configuration file for goesproc</span><span class="w"></span>
 <span class="c1">#</span><span class="w"></span>
 <span class="c1"># This tool is designed to run on streaming data (live or recorded)</span><span class="w"></span>
