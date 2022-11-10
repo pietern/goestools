@@ -2,6 +2,4 @@ sphinx
 sphinx-autobuild
 sphinx_rtd_theme
 pygments-github-lexers
-# Note: this refers to a fork because upstream is not compatible with newer Sphinx versions.
-# See https://github.com/sphinx-contrib/googleanalytics/pull/1.
-git+https://github.com/jelmer/googleanalytics@983680d
+git+https://github.com/sphinx-contrib/googleanalytics@42b3df9
