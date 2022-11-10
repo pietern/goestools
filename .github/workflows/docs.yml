@@ -16,14 +16,14 @@ jobs:
   "Build":
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           cache: 'pip'
       - run: pip install -r docs/requirements.txt
       - run: make html
         working-directory: docs
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           path: docs/_build/html
 
@@ -32,13 +32,13 @@ jobs:
     if: success() && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           ref: refs/heads/gh-pages
       # Remove all tracked files such that we're left with a snapshot of the artifact.
       - name: clean
         run: git ls-files -z | xargs -0 rm -f
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
       - name: commit
         run: |
           rsync -a artifact/ .

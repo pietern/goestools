@@ -19,7 +19,7 @@ jobs:
           - "20.04"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - run: docker build --tag build:ubuntu-${{ matrix.version }} --build-arg version=${{ matrix.version }} docker/ubuntu
