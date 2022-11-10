@@ -17,8 +17,6 @@ jobs:
           - "16.04"
           - "18.04"
           - "20.04"
-          - "21.04"
-          - "21.10"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
