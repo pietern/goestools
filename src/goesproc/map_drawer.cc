@@ -5,12 +5,12 @@ using namespace nlohmann;
 namespace {
 
 Proj longitudeToProj(float longitude) {
-  std::stringstream args;
-  args << "+proj=geos ";
-  args << "+h=35786023.0 ";
-  args << "+lon_0=" << std::to_string(longitude) << " ";
-  args << "+sweep=x";
-  return Proj(args.str());
+  std::map<std::string, std::string> args;
+  args["proj"] = "geos";
+  args["h"] = "35786023.0";
+  args["lon_0"] = std::to_string(longitude);
+  args["sweep"] = "x";
+  return Proj(args);
 }
 
 } // namespace
