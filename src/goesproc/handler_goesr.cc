@@ -180,7 +180,7 @@ GOESRProduct::GOESRProduct(const std::shared_ptr<const lrit::File>& f)
       if (k == "_NAME") {
         if(v == "atmosphere_convective_available_potential_energy_wrt_surface") product_.nameShort += "-CAPE";
         if(v == "temperature_difference_between_ambient_air_and_air_lifted_adiabatically_from_the_surface") product_.nameShort += "-LI";
-	    break;
+        break;
       }
     }
   }
