@@ -160,6 +160,31 @@ GOESRProduct::GOESRProduct(const std::shared_ptr<const lrit::File>& f)
       product_.nameShort = tmp;
     }
 
+    //Get _NAME from ImageDataFunctionHeader
+    //Used to determine the difference between GOES-R
+    //DSI CAPE and DSI Lifted Index (LI)
+    //DSI LI began transmitting on June 30, 2023
+    if(product_.nameShort == "DSI" && hasHeader<lrit::ImageDataFunctionHeader>()) {
+      auto h = f->getHeader<lrit::ImageDataFunctionHeader>();
+      const auto str = std::string((const char*) h.data.data(), h.data.size());
+      std::istringstream iss(str);
+      std::string line;
+
+      while (std::getline(iss, line, '\n')) {
+        std::istringstream lss(line);
+        std::string k, v;
+        std::getline(lss, k, '=');
+        std::getline(lss, v, '\n');
+        k.erase(k.end() - 1);
+
+      if (k == "_NAME") {
+        if(v == "atmosphere_convective_available_potential_energy_wrt_surface") product_.nameShort += "-CAPE";
+        if(v == "temperature_difference_between_ambient_air_and_air_lifted_adiabatically_from_the_surface") product_.nameShort += "-LI";
+	    break;
+      }
+    }
+  }
+
     // We can fix a mapping from the abbreviation to the long name
     // for all the products, but for now, make them equivalent.
     product_.nameLong = product_.nameShort;
