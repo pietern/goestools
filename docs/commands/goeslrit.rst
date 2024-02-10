@@ -57,7 +57,7 @@ The address takes the following form:
 
 Example::
 
-  $ goeslrit --images --subscribe tcp://1.2.3.4:5005
+  $ goeslrit --images --subscribe tcp://1.2.3.4:5004
   Writing: OR_ABI-L2-CMIPM1-M3C02_G16_s20180591958303_e20180591958360_c20180591958427.lrit (4004087 bytes)
   Writing: OR_ABI-L2-CMIPM2-M3C07_G16_s20180592000003_e20180592000073_c20180592000110.lrit (254551 bytes)
   ...
