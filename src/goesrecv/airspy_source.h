@@ -6,7 +6,7 @@
 #include <thread>
 #include <vector>
 
-#include <libairspy/airspy.h>
+#include <airspy.h>
 
 #include "source.h"
 
