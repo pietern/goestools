@@ -41,7 +41,7 @@ struct Channel {
 using SegmentKey = std::tuple<std::string, std::string, std::string>;
 
 // Corresponding hash function
-struct SegmentKeyHash : public std::unary_function<SegmentKey, std::size_t> {
+struct SegmentKeyHash : public std::function<std::size_t(SegmentKey)> {
   std::size_t operator()(const SegmentKey& k) const {
     return
       std::hash<std::string>()(std::get<0>(k)) ^
