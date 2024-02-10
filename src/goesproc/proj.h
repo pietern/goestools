@@ -1,19 +1,22 @@
 #pragma once
 
-#if PROJ_VERSION_MAJOR < 4
-#error "proj version >= 4 required"
+#if PROJ_VERSION_MAJOR == 4
+#include <proj_api.h>
+#elif PROJ_VERSION_MAJOR >= 5
+#include <proj.h>
 #else
-// Assume proj continues to ship with a backwards compatibility layer.
-// See for a migration guide https://proj.org/development/migration.html.
-#define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H 1
+#error "proj version >= 4 required"
+#endif
+
+#if PROJ_VERSION_MAJOR == 4
+// Forward compatibility.
+double proj_torad (double angle_in_degrees);
 #endif
 
 #include <map>
 #include <string>
 #include <tuple>
 #include <vector>
-
-#include <proj_api.h>
 
 class Proj {
 public:
@@ -28,5 +31,9 @@ public:
   std::tuple<double, double> inv(double x, double y);
 
 protected:
+#if PROJ_VERSION_MAJOR == 4
   projPJ proj_;
+#elif PROJ_VERSION_MAJOR >= 5
+  PJ *proj_;
+#endif
 };

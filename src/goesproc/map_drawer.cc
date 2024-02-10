@@ -36,8 +36,8 @@ void MapDrawer::generatePoints(
   double lat, lon;
   double x, y;
   for (const auto& coord : coords) {
-    lon = coord.at(0).get<double>() * DEG_TO_RAD;
-    lat = coord.at(1).get<double>() * DEG_TO_RAD;
+    lon = proj_torad(coord.at(0).get<double>());
+    lat = proj_torad(coord.at(1).get<double>());
     std::tie(x, y) = proj_.fwd(lon, lat);
 
     // If out of range, ignore
