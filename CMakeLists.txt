@@ -66,22 +66,25 @@ add_subdirectory(vendor/libcorrect EXCLUDE_FROM_ALL)
 add_subdirectory(vendor/libaec EXCLUDE_FROM_ALL)
 add_subdirectory(vendor/json EXCLUDE_FROM_ALL)
 
-# Build nanomsg
-option(NN_STATIC_LIB "Build nanomsg as static library." ON)
-option(NN_ENABLE_DOC "Build nanomsg documentation." OFF)
-option(NN_TESTS "Build nanomsg tests" OFF)
-option(NN_TOOLS "Build nanomsg tools" OFF)
-add_subdirectory(vendor/nanomsg EXCLUDE_FROM_ALL)
+find_package(nanomsg QUIET)
+if(NOT ${nanomsg_FOUND})
+  # Build nanomsg
+  option(NN_STATIC_LIB "Build nanomsg as static library." ON)
+  option(NN_ENABLE_DOC "Build nanomsg documentation." OFF)
+  option(NN_TESTS "Build nanomsg tests" OFF)
+  option(NN_TOOLS "Build nanomsg tools" OFF)
+  add_subdirectory(vendor/nanomsg EXCLUDE_FROM_ALL)
 
-# Symlink vendor/nanomsg/src such that we can still use the "nanomsg"
-# include path and not conflict with system includes (e.g. protocol.h).
-execute_process(COMMAND
-  ${CMAKE_COMMAND} -E make_directory
-  ${PROJECT_BINARY_DIR}/include)
-execute_process(COMMAND
-  ${CMAKE_COMMAND} -E create_symlink
-  ${PROJECT_SOURCE_DIR}/vendor/nanomsg/src
-  ${PROJECT_BINARY_DIR}/include/nanomsg)
+  # Symlink vendor/nanomsg/src such that we can still use the "nanomsg"
+  # include path and not conflict with system includes (e.g. protocol.h).
+  execute_process(COMMAND
+    ${CMAKE_COMMAND} -E make_directory
+    ${PROJECT_BINARY_DIR}/include)
+  execute_process(COMMAND
+    ${CMAKE_COMMAND} -E create_symlink
+    ${PROJECT_SOURCE_DIR}/vendor/nanomsg/src
+    ${PROJECT_BINARY_DIR}/include/nanomsg)
+endif()
 
 include_directories(BEFORE SYSTEM ${PROJECT_BINARY_DIR}/include)
 include_directories(BEFORE SYSTEM ${PROJECT_SOURCE_DIR}/vendor/libcorrect/include)
