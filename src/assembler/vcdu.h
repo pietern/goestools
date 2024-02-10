@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cstdint>
 
 // VCDU: Virtual Channel Data Unit.
 // This is the data packet AFTER applying Reed Solomon decode.
