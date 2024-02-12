@@ -2,6 +2,10 @@
 
 #include <algorithm>
 
+#ifdef BUILD_HACKRF
+#include "hackrf_source.h"
+#endif
+
 #ifdef BUILD_AIRSPY
 #include "airspy_source.h"
 #endif
@@ -12,9 +16,7 @@
 
 #include "nanomsg_source.h"
 
-std::unique_ptr<Source> Source::build(
-    const std::string& type,
-    Config& config) {
+std::unique_ptr<Source> Source::build(const std::string& type, Config& config) {
   if (type == "airspy") {
 #ifdef BUILD_AIRSPY
     auto airspy = Airspy::open();
@@ -27,10 +29,9 @@ std::unique_ptr<Source> Source::build(
       auto pos = std::find(rates.begin(), rates.end(), rate);
       if (pos == rates.end()) {
         std::stringstream ss;
-        ss <<
-          "You configured the Airspy source to use an unsupported " <<
-          "sample rate equal to " << rate << ". " <<
-          "Supported sample rates are: " << std::endl;
+        ss << "You configured the Airspy source to use an unsupported "
+           << "sample rate equal to " << rate << ". "
+           << "Supported sample rates are: " << std::endl;
         for (size_t i = 0; i < rates.size(); i++) {
           ss << " - " << rates[i] << std::endl;
         }
@@ -48,13 +49,54 @@ std::unique_ptr<Source> Source::build(
     return std::unique_ptr<Source>(airspy.release());
 #else
     throw std::runtime_error(
-      "You configured goesrecv to use the \"airspy\" source, "
-      "but goesrecv was not compiled with Airspy support. "
-      "Make sure to install the Airspy library before compiling goestools, "
-      "and look for a message saying 'Found libairspy' when running cmake."
-      );
+        "You configured goesrecv to use the \"airspy\" source, "
+        "but goesrecv was not compiled with Airspy support. "
+        "Make sure to install the Airspy library before compiling goestools, "
+        "and look for a message saying 'Found libairspy' when running cmake.");
 #endif
   }
+
+  if (type == "hackrf") {
+#ifdef BUILD_HACKRF
+    auto hackrf = HackRF::open();
+
+    // Use sample rate if set, otherwise default to lowest possible rate.
+    auto rates = hackrf->getSampleRates();
+    if (config.hackrf.sampleRate != 0) {
+      auto rate = config.hackrf.sampleRate;
+      auto pos = std::find(rates.begin(), rates.end(), rate);
+      if (pos == rates.end()) {
+        std::stringstream ss;
+        ss << "You configured the HackRF source to use an unsupported "
+           << "sample rate equal to " << rate << ". "
+           << "Supported sample rates are: " << std::endl;
+        for (size_t i = 0; i < rates.size(); i++) {
+          ss << " - " << rates[i] << std::endl;
+        }
+        throw std::runtime_error(ss.str());
+      }
+      hackrf->setSampleRate(rate);
+    } else {
+      std::sort(rates.begin(), rates.end());
+      hackrf->setSampleRate(rates[0]);
+    }
+
+    hackrf->setFrequency(config.hackrf.frequency);
+    hackrf->setRfAmplifier(config.hackrf.rf_amp_enabled);
+    hackrf->setIfGain(config.hackrf.if_gain);
+    hackrf->setBbGain(config.hackrf.bb_gain);
+    hackrf->setBiasTee(config.hackrf.bias_tee);
+    hackrf->setSamplePublisher(std::move(config.airspy.samplePublisher));
+    return std::unique_ptr<Source>(hackrf.release());
+#else
+    throw std::runtime_error(
+        "You configured goesrecv to use the \"hackrf\" source, "
+        "but goesrecv was not compiled with HackRF support. "
+        "Make sure to install the HackRF library before compiling goestools, "
+        "and look for a message saying 'Found libhackrf' when running cmake.");
+#endif
+  }
+
   if (type == "rtlsdr") {
 #ifdef BUILD_RTLSDR
     auto rtlsdr = RTLSDR::open(config.rtlsdr.deviceIndex);
@@ -72,11 +114,10 @@ std::unique_ptr<Source> Source::build(
     return std::unique_ptr<Source>(rtlsdr.release());
 #else
     throw std::runtime_error(
-      "You configured goesrecv to use the \"rtlsdr\" source, "
-      "but goesrecv was not compiled with RTL-SDR support. "
-      "Make sure to install the RTL-SDR library before compiling goestools, "
-      "and look for a message saying 'Found librtlsdr' when running cmake."
-      );
+        "You configured goesrecv to use the \"rtlsdr\" source, "
+        "but goesrecv was not compiled with RTL-SDR support. "
+        "Make sure to install the RTL-SDR library before compiling goestools, "
+        "and look for a message saying 'Found librtlsdr' when running cmake.");
 #endif
   }
   if (type == "nanomsg") {
@@ -89,5 +130,4 @@ std::unique_ptr<Source> Source::build(
   throw std::runtime_error("Invalid source: " + type);
 }
 
-Source::~Source() {
-}
+Source::~Source() {}

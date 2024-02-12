@@ -1,10 +1,10 @@
 #include "config.h"
 
+#include <toml/toml.h>
+
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
-
-#include <toml/toml.h>
 
 namespace {
 
@@ -24,7 +24,8 @@ void setIfZero(T& out, T value) {
 std::unique_ptr<SamplePublisher> createSamplePublisher(const toml::Value& v) {
   auto bind = v.find("bind");
   if (!bind) {
-    throw std::invalid_argument("Expected publisher section to have \"bind\" key");
+    throw std::invalid_argument(
+        "Expected publisher section to have \"bind\" key");
   }
 
   // Only need bind value to create publisher
@@ -42,7 +43,8 @@ std::unique_ptr<SamplePublisher> createSamplePublisher(const toml::Value& v) {
 std::unique_ptr<SoftBitPublisher> createSoftBitPublisher(const toml::Value& v) {
   auto bind = v.find("bind");
   if (!bind) {
-    throw std::invalid_argument("Expected publisher section to have \"bind\" key");
+    throw std::invalid_argument(
+        "Expected publisher section to have \"bind\" key");
   }
 
   // Only need bind value to create publisher
@@ -60,7 +62,8 @@ std::unique_ptr<SoftBitPublisher> createSoftBitPublisher(const toml::Value& v) {
 std::unique_ptr<PacketPublisher> createPacketPublisher(const toml::Value& v) {
   auto bind = v.find("bind");
   if (!bind) {
-    throw std::invalid_argument("Expected publisher section to have \"bind\" key");
+    throw std::invalid_argument(
+        "Expected publisher section to have \"bind\" key");
   }
 
   // Only need bind value to create publisher
@@ -78,7 +81,8 @@ std::unique_ptr<PacketPublisher> createPacketPublisher(const toml::Value& v) {
 Config::StatsPublisher createStatsPublisher(const toml::Value& v) {
   auto bind = v.find("bind");
   if (!bind) {
-    throw std::invalid_argument("Expected publisher section to have \"bind\" key");
+    throw std::invalid_argument(
+        "Expected publisher section to have \"bind\" key");
   }
 
   Config::StatsPublisher out;
@@ -198,6 +202,51 @@ void loadRTLSDRSource(Config::RTLSDR& out, const toml::Value& v) {
   }
 }
 
+void loadHackRFSource(Config::HackRF& out, const toml::Value& v) {
+  const auto& table = v.as<toml::Table>();
+  for (const auto& it : table) {
+    const auto& key = it.first;
+    const auto& value = it.second;
+
+    if (key == "frequency") {
+      out.frequency = value.as<int>();
+      continue;
+    }
+
+    if (key == "sample_rate") {
+      out.sampleRate = value.as<int>();
+      continue;
+    }
+
+    if (key == "if_gain") {
+      out.if_gain = value.as<int>();
+      continue;
+    }
+
+    if (key == "bb_gain") {
+      out.bb_gain = value.as<int>();
+      continue;
+    }
+
+    if (key == "rf_amp_enabled") {
+      out.rf_amp_enabled = value.as<bool>();
+      continue;
+    }
+
+    if (key == "sample_publisher") {
+      out.samplePublisher = createSamplePublisher(value);
+      continue;
+    }
+
+    if (key == "bias_tee") {
+      out.bias_tee = value.as<bool>();
+      continue;
+    }
+
+    throwInvalidKey(key);
+  }
+}
+
 void loadNanomsgSource(Config::Nanomsg& out, const toml::Value& v) {
   const auto& table = v.as<toml::Table>();
   for (const auto& it : table) {
@@ -241,12 +290,12 @@ void loadAGC(Config::AGC& out, const toml::Value& v) {
     const auto& value = it.second;
 
     if (key == "min") {
-      out.min = (float) value.as<double>();
+      out.min = (float)value.as<double>();
       continue;
     }
 
     if (key == "max") {
-      out.max = (float) value.as<double>();
+      out.max = (float)value.as<double>();
       continue;
     }
 
@@ -266,7 +315,7 @@ void loadCostas(Config::Costas& out, const toml::Value& v) {
     const auto& value = it.second;
 
     if (key == "max_deviation") {
-      out.maxDeviation = (int) value.as<double>();
+      out.maxDeviation = (int)value.as<double>();
       if (out.maxDeviation <= 0) {
         throw std::invalid_argument("Expected 'max_deviation' to be positive");
       }
@@ -362,7 +411,7 @@ void loadMonitor(Config::Monitor& out, const toml::Value& v) {
   }
 }
 
-} // namespace
+}  // namespace
 
 Config Config::load(const std::string& file) {
   Config out;
@@ -389,6 +438,11 @@ Config Config::load(const std::string& file) {
 
     if (key == "rtlsdr") {
       loadRTLSDRSource(out.rtlsdr, value);
+      continue;
+    }
+
+    if (key == "hackrf") {
+      loadHackRFSource(out.hackrf, value);
       continue;
     }
 
@@ -446,10 +500,12 @@ Config Config::load(const std::string& file) {
   if (out.demodulator.downlinkType == "lrit") {
     setIfZero(out.airspy.frequency, 1691000000u);
     setIfZero(out.rtlsdr.frequency, 1691000000u);
+    setIfZero(out.hackrf.frequency, 1691000000u);
   }
   if (out.demodulator.downlinkType == "hrit") {
     setIfZero(out.airspy.frequency, 1694100000u);
     setIfZero(out.rtlsdr.frequency, 1694100000u);
+    setIfZero(out.hackrf.frequency, 1694100000u);
   }
 
   return out;

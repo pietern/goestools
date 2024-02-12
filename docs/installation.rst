@@ -51,7 +51,8 @@ Install system dependencies:
 
 If you want to run goesrecv on this machine, you also have to install
 the development packages of the drivers the SDRs you want to use;
-``librtlsdr-dev`` for an RTL-SDR, ``libairspy-dev`` for an Airspy.
+``librtlsdr-dev`` for an RTL-SDR, ``libairspy-dev`` for an Airspy,
+and ``libhackrf-dev`` for a HackRF.
 
 Now you can build and install goestools:
 
