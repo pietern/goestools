@@ -1,3 +1,6 @@
+// January 16, 2021: "Deprecated"  Needs to be modified to work with latest DCS algorithm implementation
+
+
 #include <getopt.h>
 
 #include <iostream>
@@ -38,13 +41,13 @@ int main(int argc, char** argv) {
 
     while (nread < nbytes) {
       // Read DCS header
-      dcs::Header h;
+      dcs::FileHeader h;
       rv = h.readFrom(buf.get() + nread, nbytes - nread);
       ASSERT(rv > 0);
       nread += rv;
 
       // Skip over actual data
-      nread += h.dataLength;
+      nread += h.length;
 
       // Skip 14 characters for time with milliseconds (in DCS format).
       // Skip 1 whitepace.
