@@ -605,3 +605,4 @@ void GOESRImageHandler::overlayMaps(const GOESRProduct& product, cv::Mat& mat) {
   mat = drawer.draw(mat);
 #endif
 }
+

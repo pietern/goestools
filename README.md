@@ -28,10 +28,15 @@ Bundled dependencies:
 * libcorrect (currently a fork with CMake related fixes)
 * libaec
 
+Ettus Research USRP dependencies (required when building USRP support)
+
+* libuhd
+* libboost
+
 ## Build
 
 ``` shell
-git clone https://github.com/pietern/goestools
+git clone --recursive https://github.com/codient/goestools
 cd goestools
 mkdir -p build
 cd build
