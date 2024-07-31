@@ -91,6 +91,7 @@ bool EMWINHandler::extractTimeStamp(
   const char* buf = parts[4].c_str();
   const char* format = "%Y%m%d%H%M%S";
   struct tm tm;
+  memset(&tm,0,sizeof(struct tm));
   auto ptr = strptime(buf, format, &tm);
 
   // Only use time if strptime was successful
