@@ -33,6 +33,7 @@ Bundled dependencies:
 ``` shell
 git clone https://github.com/pietern/goestools
 cd goestools
+git submodule update --init --recursive
 mkdir -p build
 cd build
 cmake ../ -DCMAKE_INSTALL_PREFIX=/usr/local
