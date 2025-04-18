@@ -216,3 +216,8 @@ Project][OSP]). I used his code to verify my antenna system and as
 reference to cross check between the LRIT spec and his implementation.
 
 [OSP]: https://github.com/opensatelliteproject
+
+## Credits
+- EMWIN text_exclude option adapted from [tmbates12s commit](https://github.com/pietern/goestools/commit/2f54169cabfe05c6bfdc4f68dca0307fe7117df1)
+- Admin timestamp fix adapted from [spinomalys commit](https://github.com/spinomaly/goestools/commit/05d2ff696bbb4a16063aa930c028487360569dfd)
+- DSI-CAPE and DSI-LI naming fix adapted from [jvital2013s commits](https://github.com/JVital2013/goestools-win/commits/main) (e9568fc, f900ece)
