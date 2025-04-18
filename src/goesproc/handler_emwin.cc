@@ -52,6 +52,13 @@ void EMWINHandler::handle(std::shared_ptr<const lrit::File> f) {
       auto zip = Zip(f->getData());
       fb.filename = zip.fileName();
 
+      // Don't write file if EMWIN TXT is disabled in config
+      if (config_.exclude_txt) {
+        if (fb.filename.substr(fb.filename.length() - 3) == "TXT") {
+          return;
+        }
+      }
+
       // Use filename and extension straight from ZIP file
       const auto path = fb.build("{filename}");
       fileWriter_->write(path, zip.read());
@@ -66,6 +73,12 @@ void EMWINHandler::handle(std::shared_ptr<const lrit::File> f) {
 
   // Write with TXT extension if this is not a compressed file
   if (nlh.noaaSpecificCompression == 0) {
+    
+    // Don't write file if EMWIN TXT is disabled in config
+    if (config_.exclude_txt) {
+      return;
+    }
+
     fb.filename = removeSuffix(text);
 
     // Compressed TXT files also use the uppercase TXT extension

@@ -180,6 +180,11 @@ bool loadHandlers(const toml::Value& v, Config& out) {
       h.json = json->as<bool>();
     }
 
+    auto exclude_txt = th->find("exclude_txt");
+    if (exclude_txt) {
+      h.exclude_txt = exclude_txt->as<bool>();
+    }
+
     auto crop = th->find("crop");
     if (crop) {
       auto vs = crop->as<std::vector<int>>();
