@@ -45,5 +45,5 @@ jobs:
           target: ${{ matrix.feature }}
           platforms: ${{ matrix.platform }}
           push: true
-          tags: ${{ matrix.feature }}:${{ matrix.platform }}
+          tags: ${{ matrix.feature }}:latest
           labels: ${{ steps.meta.outputs.labels }}
