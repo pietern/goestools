@@ -42,10 +42,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          build-args: |
-            version=latest
           target: ${{ matrix.feature }}
           platforms: ${{ matrix.platform }}
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ matrix.feature }}:${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
