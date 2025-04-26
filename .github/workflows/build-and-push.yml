@@ -38,10 +38,6 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Set tags and labels
-        id: meta
-        uses: docker/metadata-action@v3
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
