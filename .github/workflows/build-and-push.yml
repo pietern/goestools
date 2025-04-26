@@ -29,8 +29,6 @@ jobs:
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
-        with:
-          platforms: ${{ matrix.platform }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -43,8 +41,6 @@ jobs:
       - name: Set tags and labels
         id: meta
         uses: docker/metadata-action@v3
-        with:
-          images: ghcr.io/${{ github.repository }}/${{ matrix.feature }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
