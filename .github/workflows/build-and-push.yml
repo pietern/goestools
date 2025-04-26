@@ -49,3 +49,4 @@ jobs:
           push: true
           tags: ${{ matrix.feature }}:latest
           labels: ${{ steps.meta.outputs.labels }}
+          registry: https://ghcr.io
