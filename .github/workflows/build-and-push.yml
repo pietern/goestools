@@ -47,5 +47,5 @@ jobs:
           target: ${{ matrix.feature }}
           platforms: ${{ matrix.platform }}
           push: true
-          tags: ghcr.io/codyswanson4/${{ matrix.feature }}:latest
+          tags: ghcr.io/codyswanson4/goestools/${{ matrix.feature }}:latest
           labels: ${{ steps.meta.outputs.labels }}
