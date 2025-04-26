@@ -1,5 +1,5 @@
 ARG version
-FROM debian:${version} as build-env
+FROM debian:${version} AS build-env
 
 ENV TZ="Etc/UTC"
 ENV DEBIAN_FRONTEND=noninteractive
@@ -10,7 +10,7 @@ RUN cmake /goestools
 RUN make
 RUN ls -al /build
 
-FROM debian:${version} as goesrecv
+FROM debian:${version} AS goesrecv
 ENV TZ="Etc/UTC"
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
@@ -21,7 +21,7 @@ WORKDIR /goesrecv
 COPY --from=build-env /build/src/goesrecv/goesrecv .
 CMD ["./goesrecv","-c","/config/goesrecv.conf"]
 
-FROM debian:${version} as goesproc
+FROM debian:${version} AS goesproc
 ENV TZ="Etc/UTC"
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
