@@ -1,6 +1,7 @@
 #pragma once
 
 #include "publisher.h"
+#include <cstdint>
 
 class PacketPublisher : public Publisher {
 public:
