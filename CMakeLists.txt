@@ -22,14 +22,14 @@ if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "^arm")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpu=neon")
 
   # Assume Raspbian if we're cross compiling for ARM
-  if(CMAKE_CROSSCOMPILING)
-    # Raspbian supports multiarch and as such places libraries in
-    # directories named after their architecture identifier.
-    shift_link_directories(${RASPBERRYPI_SYSROOT}/lib/arm-linux-gnueabihf)
-    shift_link_directories(${RASPBERRYPI_SYSROOT}/usr/lib/arm-linux-gnueabihf)
-    set(ENV{PKG_CONFIG_PATH} "${RASPBERRYPI_SYSROOT}/usr/lib/arm-linux-gnueabihf/pkgconfig")
-    set(ENV{PKG_CONFIG_SYSROOT_DIR} "${RASPBERRYPI_SYSROOT}")
-  endif()
+  #if(CMAKE_CROSSCOMPILING)
+  #  # Raspbian supports multiarch and as such places libraries in
+  #  # directories named after their architecture identifier.
+  #  shift_link_directories(${RASPBERRYPI_SYSROOT}/lib/arm-linux-gnueabihf)
+  #  shift_link_directories(${RASPBERRYPI_SYSROOT}/usr/lib/arm-linux-gnueabihf)
+  #  set(ENV{PKG_CONFIG_PATH} "${RASPBERRYPI_SYSROOT}/usr/lib/arm-linux-gnueabihf/pkgconfig")
+  #  set(ENV{PKG_CONFIG_SYSROOT_DIR} "${RASPBERRYPI_SYSROOT}")
+  #endif()
 endif()
 
 if(SANITIZE_ADDRESS OR SANITIZE_MEMORY OR
